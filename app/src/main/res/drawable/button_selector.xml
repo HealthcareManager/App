@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 被選中時的顏色 -->
+    <item android:state_pressed="true" android:drawable="@color/deep_yellow" /> <!-- 深黃色 -->
+    <!-- 默認狀態的顏色 -->
+    <item android:drawable="@color/normal_button_color" /> <!-- 默認為定義的顏色 -->
+</selector>

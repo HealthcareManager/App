@@ -1,0 +1,54 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFE0"> <!-- 淺黃色背景 -->
+
+    <!-- 圖示 -->
+    <ImageView
+        android:id="@+id/ai_assistant_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/chatbot"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toTopOf="@+id/description_text"
+    android:layout_marginBottom="8dp"/>
+
+    <!-- 中間部分的內容 -->
+    <TextView
+        android:id="@+id/description_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="這是 AI 助理頁面"
+        app:layout_constraintTop_toBottomOf="@id/ai_assistant_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_input_bar"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- 底部訊息欄 -->
+    <LinearLayout
+        android:id="@+id/bottom_input_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- 輸入框 -->
+        <EditText
+            android:id="@+id/input_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="告訴我你想問什麼"
+            android:padding="10dp"
+            android:textColor="@android:color/black"
+            android:inputType="text" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

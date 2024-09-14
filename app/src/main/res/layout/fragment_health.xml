@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <GridLayout
+        android:id="@+id/health_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:alignmentMode="alignMargins"
+        android:columnCount="2"
+        android:rowCount="20"
+        android:padding="16dp">
+
+        <!-- 卡片：睡眠 -->
+
+
+        <LinearLayout
+            android:id="@+id/sleep_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_row="0"
+            android:layout_rowWeight="1"
+            android:layout_column="0"
+            android:layout_columnWeight="1"
+            android:layout_margin="8dp"
+            android:background="#E6DEF4"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:radius="2dp">
+
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="睡眠圖示"
+                android:src="@drawable/sleep" />
+
+            <TextView
+                android:id="@+id/sleep_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="睡眠"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/sleep_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- 卡片：心律 -->
+        <LinearLayout
+            android:id="@+id/heart_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#EEBEF6"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/heart"
+                android:contentDescription="心律圖示" />
+
+            <TextView
+                android:id="@+id/heart_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="心律"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/heart_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+
+        <!-- 卡片：血氧 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#F8E0BD"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/oxygen"
+                android:contentDescription="血氧圖示" />
+
+            <TextView
+                android:id="@+id/oxygen_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="血氧"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/oxygen_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：血壓 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#F8F3C8"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/blood"
+                android:contentDescription="血壓圖示" />
+
+            <TextView
+                android:id="@+id/blood_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="血壓"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/blood_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：血糖 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#DAF0FA"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/sugar"
+                android:contentDescription="血糖圖示" />
+
+            <TextView
+                android:id="@+id/sugar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="血糖"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/sugar_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：步數 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#B2F1FA"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/steps"
+                android:contentDescription="步數圖示" />
+
+            <TextView
+                android:id="@+id/steps_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="步數"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/steps_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：卡路里 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#DCF4BF"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/calories"
+                android:contentDescription="卡路里圖示" />
+
+            <TextView
+                android:id="@+id/calories_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="卡路里"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/calories_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：站立次數 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#BEF4C1"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/stand"
+                android:contentDescription="站立圖示" />
+
+            <TextView
+                android:id="@+id/stand_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="站立次數"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/stand_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：壓力指數 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#F6E4FA"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/pressure"
+                android:contentDescription="壓力指數圖示" />
+
+            <TextView
+                android:id="@+id/pressure_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="壓力指數"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/pressure_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：身高體重 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#FABAD0"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/height"
+                android:contentDescription="身高體重圖示" />
+
+            <TextView
+                android:id="@+id/height_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="身高體重"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/height_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：抽菸 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#CFD6FA"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/smoke"
+                android:contentDescription="抽菸圖示" />
+
+            <TextView
+                android:id="@+id/smoke_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="抽菸"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/smoke_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：喝酒 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#A1ADED"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/beer"
+                android:contentDescription="喝酒圖示" />
+
+            <TextView
+                android:id="@+id/beer_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="喝酒"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/beer_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+        <!-- 卡片：檳榔 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:background="#EEF4AD"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/leaf"
+                android:contentDescription="檳榔圖示" />
+
+            <TextView
+                android:id="@+id/leaf_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="檳榔"
+                android:textSize="18sp"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/leaf_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暫無資料"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+        </LinearLayout>
+
+    </GridLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

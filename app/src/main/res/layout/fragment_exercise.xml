@@ -1,0 +1,126 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center"
+    android:background="@android:color/white">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- 使用LinearLayout作為ScrollView的唯一子元素 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 運動狀態顯示 -->
+            <TextView
+                android:id="@+id/exercise_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="運動狀態"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 跑步和健走按鈕 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                android:weightSum="2"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/btn_run"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_selector"
+                    android:text="跑步"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp"
+                    android:gravity="center" />
+
+                <Button
+                    android:id="@+id/btn_walk"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_selector"
+                    android:text="健走"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp"
+                    android:gravity="center" />
+            </LinearLayout>
+
+            <!-- 地圖顯示 -->
+            <FrameLayout
+                android:id="@+id/map_container"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- 開始運動按鈕 -->
+            <Button
+                android:id="@+id/start_exercise_button"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:text="GO"
+                android:textSize="25sp"
+                android:textColor="@android:color/white"
+                android:background="@drawable/round_button"
+                android:layout_gravity="center_horizontal"
+                android:padding="16dp"
+                android:textStyle="bold"/>
+
+            <!-- 內容顯示 -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"> <!-- 讓內容置於螢幕的正中間 -->
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="center"
+                    android:gravity="start"> <!-- 保持文字靠左對齊 -->
+
+                    <!-- 已進行距離 -->
+                    <TextView
+                        android:id="@+id/exercise_distance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="已進行：26.8 公里"
+                        android:textSize="16sp" />
+
+                    <!-- 運動時間 -->
+                    <TextView
+                        android:id="@+id/exercise_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="運動時間：45分鐘"
+                        android:textSize="16sp" />
+
+                    <!-- 消耗卡路里 -->
+                    <TextView
+                        android:id="@+id/calories_burned"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="消耗卡路里：300"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+            </FrameLayout>
+
+        </LinearLayout> <!-- 結束內部的LinearLayout -->
+
+    </ScrollView> <!-- 結束ScrollView -->
+
+</LinearLayout>

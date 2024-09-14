@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="deep_yellow">#FFD700</color> <!-- 深黃色 -->
+    <color name="normal_button_color">#FDFCDD</color> <!-- 默認顏色 -->
+    <color name="colorPrimary">#FFD700</color>
+    <color name="colorPrimaryDark">#FDFCDD</color>
+</resources>

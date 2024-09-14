@@ -1,0 +1,199 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- 使用LinearLayout作為ScrollView的唯一子元素 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 個人資料部分 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- 可點擊的圖片 -->
+                <ImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="160dp"
+                    android:src="@drawable/chatbot"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:clickable="true"
+                    android:focusable="true" /> <!-- 讓圖片變成可點擊的按鈕 -->
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- 可點擊的用戶名稱 -->
+                    <!-- 讓用戶名稱變成按鈕 -->
+
+                    <TextView
+                        android:id="@+id/user_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:text="用戶名稱 : 阿發"
+                        android:textColor="@android:color/black"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/user_id"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ID : 20240909"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 卡片區域 -->
+            <GridLayout
+                android:id="@+id/health_grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:padding="16dp"
+                android:alignmentMode="alignMargins"
+                android:useDefaultMargins="false">
+
+                <!-- 卡片：設定 -->
+                <LinearLayout
+                    android:layout_width="160dp"
+                    android:layout_height="250dp"
+                    android:layout_margin="6dp"
+                    android:background="#D8F6DA"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center_horizontal"
+                    android:layout_weight="1"> <!-- 保證內容水平居中 -->
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/settings"
+                        android:contentDescription="設定圖示" />
+
+                    <TextView
+                        android:id="@+id/sleep_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="設定"
+                        android:textSize="20sp"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:layout_marginTop="30dp"/> <!-- 保證文字在TextView內水平居中 -->
+
+                </LinearLayout>
+
+                <!-- 卡片：關於我們 -->
+                <LinearLayout
+                    android:layout_width="160dp"
+                    android:layout_height="250dp"
+                    android:layout_margin="6dp"
+                    android:background="#E0F4C8"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center_horizontal"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/about"
+                        android:contentDescription="關於我們圖示" />
+
+                    <TextView
+                        android:id="@+id/heart_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="關於我們"
+                        android:textSize="20sp"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:layout_marginTop="30dp"/>
+
+                </LinearLayout>
+
+                <!-- 卡片：第三方連接 -->
+                <LinearLayout
+                    android:layout_width="160dp"
+                    android:layout_height="250dp"
+                    android:layout_margin="6dp"
+                    android:background="#FBE2DA"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center_horizontal"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/connect"
+                        android:contentDescription="第三方連接圖示" />
+
+                    <TextView
+                        android:id="@+id/oxygen_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="第三方連接"
+                        android:textSize="20sp"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:layout_marginTop="30dp"/>
+
+                </LinearLayout>
+
+                <!-- 卡片：幫助與回饋 -->
+                <LinearLayout
+                    android:layout_width="160dp"
+                    android:layout_height="250dp"
+                    android:layout_margin="6dp"
+                    android:background="#F6DCE5"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center_horizontal"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/message"
+                        android:contentDescription="幫助與回饋圖示" />
+
+                    <TextView
+                        android:id="@+id/blood_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="幫助與回饋"
+                        android:textSize="20sp"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:layout_marginTop="30dp"/>
+
+                </LinearLayout>
+
+            </GridLayout>
+
+        </LinearLayout> <!-- 結束內部LinearLayout -->
+
+    </ScrollView> <!-- 結束ScrollView -->
+
+</LinearLayout>
