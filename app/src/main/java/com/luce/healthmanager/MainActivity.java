@@ -1,5 +1,6 @@
 package com.luce.healthmanager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -53,6 +54,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 replaceFragment(new ProfileFragment()); // 加載個人中心頁面的 Fragment
+            }
+        });
+
+        // 設置 AI 助理按鈕的點擊事件來跳轉到 AiAssistantActivity
+        ImageButton aiAssistantButton = findViewById(R.id.imageButton5);
+        aiAssistantButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 跳轉到 AiAssistantActivity
+                Intent intent = new Intent(MainActivity.this, AiAssistantActivity.class);
+                startActivity(intent);
             }
         });
     }
