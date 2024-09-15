@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 設置運動按鈕的點擊事件來加載 SportFragment
+        // 設置運動按鈕的點擊事件來加載 ExerciseFragment
         ImageButton sportButton = findViewById(R.id.imageButton2);
         sportButton.setOnClickListener(new View.OnClickListener() {
             @Override
