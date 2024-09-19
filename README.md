@@ -20,10 +20,6 @@
 <kbd>![image](https://hackmd.io/_uploads/SkA1Xj8pC.png)
 </kbd>
 
-## 系統架構 (第三方金流)
-<kbd>![image](https://hackmd.io/_uploads/B1q34iITC.png)
-</kbd>
-
 ## 安裝與使用
 
 ### 環境要求
