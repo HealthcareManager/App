@@ -22,23 +22,23 @@
 
 ### 環境要求
 
-- Java 版本：11+
-- 其他需求：例如 MySQL、Maven 等
+- Android手機
 
 ### 安裝步驟
 
 1. 下載專案：
 
    ```bash
-   git clone https://github.com/你的用戶名/你的專案名稱.git
-   cd 你的專案名稱
+   git clone https://github.com/HealthcareManager/App
+   git clone https://github.com/HealthcareManager/Backend
+   cd HealthcareManager
    ```
 
 2. 編譯與執行：
 
    ```bash
    mvn clean install
-   java -jar target/你的專案名稱.jar
+   java -jar target/HealthcareManager.jar
    ```
 
 3. 設定環境變數或配置文件（如有需要）：
