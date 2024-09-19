@@ -67,29 +67,9 @@
    }
    ```
 
-## 貢獻指南
-
-歡迎任何貢獻！如果你想參與，請遵循以下步驟：
-
-1. Fork 此專案
-2. 創建你的分支 (`git checkout -b feature/新的功能`)
-3. 提交修改 (`git commit -m '增加了某個功能'`)
-4. 推送到分支 (`git push origin feature/新的功能`)
-5. 提交 Pull Request
-
-## 授權
-
-此專案依照 [MIT License](LICENSE) 授權。
-
 ## 聯繫方式
 
 如果有任何問題或建議，歡迎通過以下方式聯繫我：
 
 - Email: your.email@example.com
 - GitHub Issues: [點此提交](https://github.com/你的用戶名/你的專案名稱/issues)
-
-## 後記
-你可以透過 https://shields.io/ 新增你的標籤
-
-## Workshop
-請替你的專案，撰寫一份專業的 README
