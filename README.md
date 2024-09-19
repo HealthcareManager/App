@@ -30,6 +30,9 @@
    - 用戶管理
    - 健康提醒模組
 
+![System Structure](https://github.com/user-attachments/assets/1861a2b9-001b-4150-8204-9fd2b4168b8f)
+
+
 ## 安裝與使用
 
 ### 環境要求
