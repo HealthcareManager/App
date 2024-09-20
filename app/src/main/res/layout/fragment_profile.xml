@@ -15,12 +15,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- 個人資料部分 -->
             <LinearLayout
+                android:id="@+id/profile_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
 
                 <!-- 可點擊的圖片 -->
                 <ImageView
