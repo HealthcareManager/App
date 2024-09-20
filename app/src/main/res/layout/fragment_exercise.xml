@@ -97,7 +97,7 @@
                         android:id="@+id/exercise_distance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="已進行：26.8 公里"
+                        android:text="已進行：0.0 公里"
                         android:textSize="16sp" />
 
                     <!-- 運動時間 -->
@@ -105,7 +105,7 @@
                         android:id="@+id/exercise_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="運動時間：45分鐘"
+                        android:text="運動時間：0分鐘"
                         android:textSize="16sp" />
 
                     <!-- 消耗卡路里 -->
@@ -113,7 +113,7 @@
                         android:id="@+id/calories_burned"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="消耗卡路里：300"
+                        android:text="消耗卡路里：0"
                         android:textSize="16sp" />
 
                 </LinearLayout>
