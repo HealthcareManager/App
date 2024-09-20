@@ -21,6 +21,8 @@
         <activity android:name=".AiAssistantActivity" />
         <activity android:name=".CardDetailActivity"/>
         <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity" />
+
 
 
 
