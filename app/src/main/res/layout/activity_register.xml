@@ -91,17 +91,20 @@
                 android:layout_marginBottom="16dp" />
 
             <!-- 生日輸入框 -->
+
+            <!-- 註冊按鈕 -->
             <EditText
                 android:id="@+id/birthday_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="生日 (yyyy-MM-dd)"
-                android:inputType="date"
-                android:padding="12dp"
+                android:layout_marginBottom="32dp"
                 android:background="@android:drawable/edit_text"
-                android:layout_marginBottom="32dp" />
+                android:hint="生日 (yyyy-MM-dd)"
+                android:padding="12dp"
+                android:focusable="false"
+                android:clickable="true" />
 
-            <!-- 註冊按鈕 -->
+
             <Button
                 android:id="@+id/register_button"
                 android:layout_width="match_parent"
