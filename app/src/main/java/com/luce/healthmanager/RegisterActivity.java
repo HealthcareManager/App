@@ -1,13 +1,17 @@
 package com.luce.healthmanager;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Calendar;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -56,6 +60,38 @@ public class RegisterActivity extends AppCompatActivity {
                 facebookSignIn();
             }
         });
+
+        // 設定生日欄位點擊事件，顯示 DatePickerDialog
+        birthdayInput.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePickerDialog();
+            }
+        });
+    }
+
+    // 顯示日期選擇器
+    private void showDatePickerDialog() {
+        // 獲取當前日期
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        // 創建 DatePickerDialog
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                RegisterActivity.this,
+                new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDay) {
+                        // 格式化日期並設置到 EditText 中 (yyyy-MM-dd)
+                        String formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay);
+                        birthdayInput.setText(formattedDate);
+                    }
+                },
+                year, month, day
+        );
+        datePickerDialog.show();
     }
 
     // 用戶註冊邏輯
@@ -98,7 +134,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // 將用戶資料送至後端（你可以在這裡實作與伺服器的 API 請求）
+        // 將用戶資料送至後端
         // sendUserDataToServer(username, password, email, phone, birthday);
 
         Toast.makeText(RegisterActivity.this, "註冊成功", Toast.LENGTH_SHORT).show();
