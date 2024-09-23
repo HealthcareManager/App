@@ -20,10 +20,14 @@
         </activity>
         <activity android:name=".AiAssistantActivity" />
         <activity android:name=".CardDetailActivity"/>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity" />
+
         <!-- API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="" />
+
     </application>
 
 </manifest>
