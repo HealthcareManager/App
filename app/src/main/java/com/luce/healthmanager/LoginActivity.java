@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
+import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -27,8 +27,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button loginButton;
     private Button registerButton;
-    private ImageButton googleLoginButton;
-    private ImageButton facebookLoginButton;
+    // 定義 LinearLayout 變量來表示自定義的按鈕
+    LinearLayout googleLoginButton, facebookLoginButton, lineLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,19 +37,9 @@ public class LoginActivity extends AppCompatActivity {
         Button registerButton = findViewById(R.id.register_button);
 
         // 初始化按鈕
-        registerButton = findViewById(R.id.register_button);
         googleLoginButton = findViewById(R.id.google_login_button);
         facebookLoginButton = findViewById(R.id.facebook_login_button);
-
-        // 註冊按鈕點擊事件
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 跳轉到 RegisterActivity
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
-        });
+        lineLoginButton = findViewById(R.id.line_login_button);
 
         usernameEditText = findViewById(R.id.username_input);
         passwordEditText = findViewById(R.id.password_input);
@@ -69,8 +59,8 @@ public class LoginActivity extends AppCompatActivity {
         googleLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Google 登入處理
-                googleSignIn();
+                // 這裡放置 Google 登入邏輯
+
             }
         });
 
@@ -78,8 +68,17 @@ public class LoginActivity extends AppCompatActivity {
         facebookLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Facebook 登入處理
-                facebookSignIn();
+                // 這裡放置 Facebook 登入邏輯
+
+            }
+        });
+
+        // Line 登入按鈕點擊事件
+        lineLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 這裡放置 Line 登入邏輯
+
             }
         });
     }

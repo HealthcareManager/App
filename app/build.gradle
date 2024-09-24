@@ -51,6 +51,12 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
     implementation 'com.google.android.gms:play-services-maps:18.0.0'
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+    implementation 'com.facebook.android:facebook-login:latest_version'
+    implementation 'com.linecorp:linesdk:5.6.1'
+
+
+
 
 
 }
