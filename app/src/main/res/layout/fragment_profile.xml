@@ -149,7 +149,7 @@
                     <ImageView
                         android:layout_width="60dp"
                         android:layout_height="60dp"
-                        android:src="@drawable/UserData"
+                        android:src="@drawable/userdata"
                         android:contentDescription="第三方連接圖示" />
 
                     <TextView
