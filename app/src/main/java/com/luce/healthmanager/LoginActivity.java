@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 public class LoginActivity extends AppCompatActivity {
 
     private Button registerButton;
-    private ImageButton googleLoginButton;
-    private ImageButton facebookLoginButton;
+    private Button googleLoginButton;
+    private Button facebookLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

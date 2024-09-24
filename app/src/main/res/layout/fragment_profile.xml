@@ -27,19 +27,19 @@
                 <!-- 可點擊的圖片 -->
                 <ImageView
                     android:id="@+id/profile_image"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="160dp"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
                     android:src="@drawable/chatbot"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
                     android:clickable="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="60dp"
                     android:focusable="true" /> <!-- 讓圖片變成可點擊的按鈕 -->
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:gravity="center">
 
                     <!-- 可點擊的用戶名稱 -->
                     <!-- 讓用戶名稱變成按鈕 -->
@@ -50,7 +50,7 @@
                         android:layout_height="wrap_content"
                         android:clickable="true"
                         android:focusable="true"
-                        android:text="用戶名稱 : 阿發"
+                        android:text="未登入"
                         android:textColor="@android:color/black"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -59,7 +59,7 @@
                         android:id="@+id/user_id"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="ID : 20240909"
+                        android:text="ID : "
                         android:textColor="@android:color/darker_gray"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -136,6 +136,7 @@
 
                 <!-- 卡片：第三方連接 -->
                 <LinearLayout
+                    android:id="@+id/userdata"
                     android:layout_width="160dp"
                     android:layout_height="250dp"
                     android:layout_margin="6dp"
@@ -148,14 +149,13 @@
                     <ImageView
                         android:layout_width="60dp"
                         android:layout_height="60dp"
-                        android:src="@drawable/connect"
+                        android:src="@drawable/UserData"
                         android:contentDescription="第三方連接圖示" />
 
                     <TextView
-                        android:id="@+id/oxygen_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="第三方連接"
+                        android:text="用戶資料"
                         android:textSize="20sp"
                         android:textColor="@android:color/black"
                         android:textStyle="bold"
