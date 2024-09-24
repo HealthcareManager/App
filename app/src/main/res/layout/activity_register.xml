@@ -91,17 +91,57 @@
                 android:layout_marginBottom="16dp" />
 
             <!-- 生日輸入框 -->
+
+            <!-- 註冊按鈕 -->
             <EditText
                 android:id="@+id/birthday_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="生日 (yyyy-MM-dd)"
-                android:inputType="date"
-                android:padding="12dp"
+                android:layout_marginBottom="32dp"
                 android:background="@android:drawable/edit_text"
-                android:layout_marginBottom="32dp" />
+                android:hint="生日 (yyyy-MM-dd)"
+                android:padding="12dp"
+                android:focusable="false"
+                android:clickable="true" />
 
-            <!-- 註冊按鈕 -->
+                android:background="@android:drawable/edit_text"
+                android:layout_marginBottom="10dp" />
+
+            <!-- 頭像 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="頭像"
+                    android:textSize="20dp"/>
+
+                <ImageView
+                    android:id="@+id/userAvatar"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/chatbot"
+                    android:layout_weight="3"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btn_choose"
+                    android:text="選擇頭像"
+                    android:textSize="15dp"
+                    android:background="@color/colorPrimaryDark"
+                    android:textColor="@android:color/black"/>
+
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/register_button"
                 android:layout_width="match_parent"
@@ -129,28 +169,6 @@
                 android:textColor="@android:color/black"
                 android:layout_marginBottom="16dp" />
 
-            <!-- 第三方登入按鈕：Google -->
-            <Button
-                android:id="@+id/google_login_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="使用 Google 帳號登入"
-                android:background="@android:color/holo_red_light"
-                android:textColor="@android:color/white"
-                android:padding="12dp"
-                android:textSize="16sp"
-                android:layout_marginBottom="16dp" />
-
-            <!-- 第三方登入按鈕：Facebook -->
-            <Button
-                android:id="@+id/facebook_login_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="使用 Facebook 帳號登入"
-                android:background="@android:color/holo_blue_dark"
-                android:textColor="@android:color/white"
-                android:padding="12dp"
-                android:textSize="16sp" />
 
         </LinearLayout>
 
