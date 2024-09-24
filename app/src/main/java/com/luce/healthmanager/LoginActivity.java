@@ -1,19 +1,14 @@
 package com.luce.healthmanager;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.Toast;
-
+import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private Button registerButton;
-    private Button googleLoginButton;
-    private Button facebookLoginButton;
+    // 定義 LinearLayout 變量來表示自定義的按鈕
+    LinearLayout googleLoginButton, facebookLoginButton, lineLoginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,26 +16,16 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login); // 登入界面
 
         // 初始化按鈕
-        registerButton = findViewById(R.id.register_button);
         googleLoginButton = findViewById(R.id.google_login_button);
         facebookLoginButton = findViewById(R.id.facebook_login_button);
-
-        // 註冊按鈕點擊事件
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 跳轉到 RegisterActivity
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
-        });
+        lineLoginButton = findViewById(R.id.line_login_button);
 
         // Google 登入按鈕點擊事件
         googleLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Google 登入處理
-                googleSignIn();
+                // 這裡放置 Google 登入邏輯
+
             }
         });
 
@@ -48,26 +33,18 @@ public class LoginActivity extends AppCompatActivity {
         facebookLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Facebook 登入處理
-                facebookSignIn();
+                // 這裡放置 Facebook 登入邏輯
+
+            }
+        });
+
+        // Line 登入按鈕點擊事件
+        lineLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 這裡放置 Line 登入邏輯
+
             }
         });
     }
-
-    // Google 登入處理邏輯
-    private void googleSignIn() {
-        // 這裡實作 Google 登入邏輯，例如使用 GoogleSignInClient
-        Toast.makeText(LoginActivity.this, "Google 登入", Toast.LENGTH_SHORT).show();
-    }
-
-    // Facebook 登入處理邏輯
-    private void facebookSignIn() {
-        // 這裡實作 Facebook 登入邏輯
-        Toast.makeText(LoginActivity.this, "Facebook 登入", Toast.LENGTH_SHORT).show();
-    }
-
-    // 這裡可以實作一個方法，將用戶資料透過 API 送至後端伺服器
-    // private void sendUserDataToServer(String username, String password, String email, String phone, String birthday) {
-    //     // 實作與後端 API 的連接
-    // }
 }
