@@ -154,21 +154,6 @@
                 android:layout_marginBottom="24dp" />
 
             <!-- 分隔線 -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_marginBottom="24dp" />
-
-            <!-- 第三方登入標題 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="或使用第三方帳號登入"
-                android:textSize="16sp"
-                android:textColor="@android:color/black"
-                android:layout_marginBottom="16dp" />
-
 
         </LinearLayout>
 
