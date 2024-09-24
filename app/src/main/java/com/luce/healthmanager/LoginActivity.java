@@ -45,6 +45,15 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password_input);
         loginButton = findViewById(R.id.login_button);
 
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 跳轉到 RegisterActivity
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+            }
+        });
+
         loginButton.setOnClickListener(v -> {
             String username = usernameEditText.getText().toString();
             String password = passwordEditText.getText().toString();
