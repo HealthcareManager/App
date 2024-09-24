@@ -6,4 +6,5 @@
     <color name="normal_button_color">#FDFCDD</color> <!-- 默認顏色 -->
     <color name="colorPrimary">#FFD700</color>
     <color name="colorPrimaryDark">#FDFCDD</color>
+    <color name="colorAccent">#1B277D</color>
 </resources>
