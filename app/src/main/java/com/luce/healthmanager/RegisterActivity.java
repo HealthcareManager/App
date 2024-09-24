@@ -17,10 +17,28 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Calendar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText usernameInput, passwordInput, confirmPasswordInput, emailInput, phoneInput, birthdayInput;
-    private Button registerButton;
+    private OkHttpClient client = new OkHttpClient();
+    private Button registerButton, googleLoginButton, facebookLoginButton;
+    private static final int PICK_IMAGE_REQUEST = 1;  // 用於選擇圖片的請求碼
+    private ImageView userAvatar;  // 用戶頭像 ImageView
+    private Uri imageUri;  // 圖片選擇的 URI
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +54,6 @@ public class RegisterActivity extends AppCompatActivity {
 
 
         registerButton = findViewById(R.id.register_button);
-
 
         // 註冊按鈕點擊事件
         registerButton.setOnClickListener(new View.OnClickListener() {
@@ -119,11 +136,51 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // 將用戶資料送至後端
-        // sendUserDataToServer(username, password, email, phone, birthday);
+        // 建立 JSON 請求體
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("username", username);
+            jsonBody.put("password", password);
+            jsonBody.put("email", email);
+            jsonBody.put("phoneNumber", phone);
+            jsonBody.put("dateOfBirth", birthday);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        Toast.makeText(RegisterActivity.this, "註冊成功", Toast.LENGTH_SHORT).show();
+        // 呼叫 API
+        sendUserDataToServer(jsonBody.toString());
     }
 
+    private void sendUserDataToServer(String json) {
+        // 定義 MediaType
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+        // 建立 RequestBody
+        RequestBody body = RequestBody.create(JSON, json);
+
+        // 建立請求
+        Request request = new Request.Builder()
+                .url("http://192.168.50.38:8080/HealthcareManager/api/auth/register")
+                .post(body)
+                .build();
+
+        // 發送請求
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // 處理錯誤
+                runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "註冊失敗", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "註冊成功", Toast.LENGTH_SHORT).show());
+                } else {
+                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "註冊失敗", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
+    }
 }
