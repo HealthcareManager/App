@@ -151,15 +151,14 @@
                         android:src="@drawable/connect"
                         android:contentDescription="第三方連接圖示" />
 
-                    <TextView
-                        android:id="@+id/oxygen_title"
+                    <Button
+                        android:id="@+id/btnLineLogin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="第三方連接"
-                        android:textSize="20sp"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold"
-                        android:layout_marginTop="30dp"/>
+                        android:text="Login with LINE"
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:enabled="true" />
 
                 </LinearLayout>
 

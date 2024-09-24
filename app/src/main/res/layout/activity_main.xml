@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
     <!-- 固定的頂部 -->
     <LinearLayout
         android:id="@+id/top_navigation_bar"

@@ -9,10 +9,25 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText usernameInput, passwordInput, confirmPasswordInput, emailInput, phoneInput, birthdayInput;
-    private Button registerButton, googleLoginButton, facebookLoginButton;
+    private Button registerButton;
+
+    private OkHttpClient client = new OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,32 +43,12 @@ public class RegisterActivity extends AppCompatActivity {
         birthdayInput = findViewById(R.id.birthday_input);
 
         registerButton = findViewById(R.id.register_button);
-        googleLoginButton = findViewById(R.id.google_login_button);
-        facebookLoginButton = findViewById(R.id.facebook_login_button);
 
         // 註冊按鈕點擊事件
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 registerUser();
-            }
-        });
-
-        // Google 登入按鈕點擊事件
-        googleLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Google 登入處理
-                googleSignIn();
-            }
-        });
-
-        // Facebook 登入按鈕點擊事件
-        facebookLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Facebook 登入處理
-                facebookSignIn();
             }
         });
     }
@@ -98,26 +93,51 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // 將用戶資料送至後端（你可以在這裡實作與伺服器的 API 請求）
-        // sendUserDataToServer(username, password, email, phone, birthday);
+        // 建立 JSON 請求體
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("username", username);
+            jsonBody.put("password", password);
+            jsonBody.put("email", email);
+            jsonBody.put("phoneNumber", phone);
+            jsonBody.put("dateOfBirth", birthday);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-        Toast.makeText(RegisterActivity.this, "註冊成功", Toast.LENGTH_SHORT).show();
+        // 呼叫 API
+        sendUserDataToServer(jsonBody.toString());
     }
 
-    // Google 登入處理邏輯
-    private void googleSignIn() {
-        // 這裡實作 Google 登入邏輯，例如使用 GoogleSignInClient
-        Toast.makeText(RegisterActivity.this, "Google 登入", Toast.LENGTH_SHORT).show();
-    }
+    private void sendUserDataToServer(String json) {
+        // 定義 MediaType
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    // Facebook 登入處理邏輯
-    private void facebookSignIn() {
-        // 這裡實作 Facebook 登入邏輯
-        Toast.makeText(RegisterActivity.this, "Facebook 登入", Toast.LENGTH_SHORT).show();
-    }
+        // 建立 RequestBody
+        RequestBody body = RequestBody.create(JSON, json);
 
-    // 這裡可以實作一個方法，將用戶資料透過 API 送至後端伺服器
-    // private void sendUserDataToServer(String username, String password, String email, String phone, String birthday) {
-    //     // 實作與後端 API 的連接
-    // }
+        // 建立請求
+        Request request = new Request.Builder()
+                .url("http://192.168.50.38:8080/HealthcareManager/api/auth/register")
+                .post(body)
+                .build();
+
+        // 發送請求
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                // 處理錯誤
+                runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "註冊失敗", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "註冊成功", Toast.LENGTH_SHORT).show());
+                } else {
+                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "註冊失敗", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
+    }
 }

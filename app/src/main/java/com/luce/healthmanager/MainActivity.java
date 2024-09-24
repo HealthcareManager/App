@@ -1,7 +1,9 @@
 package com.luce.healthmanager;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -16,13 +18,47 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fragmentManager;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        Intent intent = getIntent();
+        Uri data = intent.getData();
+        if (data != null && data.toString().startsWith("com.luce.healthmanager://callback")) {
+            String code = data.getQueryParameter("code");
+            if (code != null) {
+                // 处理返回的授权码，例如将其发送到你的后端服务器来获取 Access Token
+                Log.d("LINE_AUTH", "Authorization Code: " + code);
+            } else {
+                String error = data.getQueryParameter("error");
+                Log.e("LINE_AUTH", "Error: " + error);
+            }
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 檢查是否要顯示 HealthFragment
+        if (getIntent().getBooleanExtra("showHealthFragment", false)) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new HealthFragment()) // 替換為健康 Fragment
+                    .commit();
+        }
+
         // 隱藏 ActionBar
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
+        }
+
+        // 檢查是否有意圖
+        Intent intent = getIntent();
+        Uri data = intent.getData();
+        if (data != null && data.getScheme().equals("com.luce.healthmanager")) {
+            // 處理重定向的邏輯
+            String code = data.getQueryParameter("code");
+            // 使用這個 code 繼續進行後續操作
         }
 
         // 初始化 FragmentManager
@@ -70,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 跳轉到 AiAssistantActivity
-                Intent intent = new Intent(MainActivity.this, AiAssistantActivity.class);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
         });
