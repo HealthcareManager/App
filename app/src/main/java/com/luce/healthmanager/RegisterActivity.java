@@ -248,9 +248,17 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "註冊成功", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> {
+                        Toast.makeText(RegisterActivity.this, "註冊成功", Toast.LENGTH_SHORT).show();
+                        // 跳轉到登錄頁面
+                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();  // 可選：結束註冊頁面
+                    });
                 } else {
-                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "註冊失敗", Toast.LENGTH_SHORT).show());
+                    // 讀取後端返回的錯誤消息
+                    String errorMessage = response.body() != null ? response.body().string() : "註冊失敗，請稍後再試";
+                    runOnUiThread(() -> Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_SHORT).show());
                 }
             }
         });
