@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.luce.healthmanager">
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -16,11 +17,15 @@
         android:theme="@style/AppTheme"
         android:enableOnBackInvokedCallback="true"
         android:usesCleartextTraffic="true">
-
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".UserDataActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -29,9 +34,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".AiAssistantActivity" />
-        <activity android:name=".CardDetailActivity"/>
-        <activity android:name=".LoginActivity"/>
-        <activity android:name=".RegisterActivity"/>
+        <activity android:name=".CardDetailActivity" />
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
@@ -41,7 +46,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAzGHqc7edf03NblZlByP8SqTQKm8EdDd8" />
-
     </application>
 
 </manifest>
