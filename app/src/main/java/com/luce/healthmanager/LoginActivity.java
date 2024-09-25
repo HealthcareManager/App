@@ -4,14 +4,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.LinearLayout;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +38,9 @@ public class LoginActivity extends AppCompatActivity {
     // 定義 LinearLayout 變量來表示自定義的按鈕
     LinearLayout googleLoginButton, facebookLoginButton, lineLoginButton;
 
+    private GoogleSignInClient googleSignInClient;  // Google Sign-In 客戶端
+    private static final int RC_SIGN_IN = 100;  // 用於 Google Sign-In 的請求碼
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +55,14 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.username_input);
         passwordEditText = findViewById(R.id.password_input);
         loginButton = findViewById(R.id.login_button);
+
+        // 初始化 Google Sign-In 客戶端
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id)) // 這裡填入你在 Google Cloud Console 中的 Web 客戶端 ID
+                .requestEmail()
+                .build();
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,12 +83,12 @@ public class LoginActivity extends AppCompatActivity {
                 new LoginTask().execute(username, password);
             }
         });
+
         // Google 登入按鈕點擊事件
         googleLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 這裡放置 Google 登入邏輯
-
+                googleSignIn();  // 調用 Google 登入邏輯
             }
         });
 
@@ -79,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 這裡放置 Facebook 登入邏輯
-
+                facebookSignIn();
             }
         });
 
@@ -88,9 +106,47 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 這裡放置 Line 登入邏輯
-
             }
         });
+    }
+
+    // Google 登入邏輯
+    private void googleSignIn() {
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RC_SIGN_IN) {
+            Log.d("test","data is " + data);
+
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                Log.d("test","task is " + task);
+                Log.d("test","456");
+                if (account != null) {
+                    // 獲取 ID token 並傳送到後端
+                    Log.d("test","account is " + account);
+                    String idToken = account.getIdToken();
+                    Log.d("test","idToken is " + idToken);
+                    sendIdTokenToBackend(idToken);
+                }
+            } catch (ApiException e) {
+                // 處理登入錯誤
+                Log.e("GoogleSignInError", "Sign-in failed: " + e.getStatusCode(), e);
+                Toast.makeText(LoginActivity.this, "Google 登入失敗", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void sendIdTokenToBackend(String idToken) {
+        // 在這裡實作傳送 ID token 給後端進行驗證的邏輯
+        // 比如可以使用 Retrofit 或其他 HTTP 客戶端來進行網路請求
+        Toast.makeText(LoginActivity.this, "ID Token: " + idToken, Toast.LENGTH_SHORT).show();
     }
 
     private class LoginTask extends AsyncTask<String, Void, String> {
@@ -102,7 +158,7 @@ public class LoginActivity extends AppCompatActivity {
 
             try {
                 //URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
-                URL url = new URL("http://localhost:8080/HealthcareManager/api/auth/login");
+                URL url = new URL("http://10.0.2.2:8080/api/auth/login");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
@@ -161,6 +217,7 @@ public class LoginActivity extends AppCompatActivity {
                                         String userId = userData.getString("id");
 
                                         // 保存用户数据到 SharedPreferences
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
                                         editor.putString("username", username);
                                         editor.putString("userId", userId);
                                         editor.apply();
@@ -193,20 +250,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    // Google 登入處理邏輯
-    private void googleSignIn() {
-        // 這裡實作 Google 登入邏輯，例如使用 GoogleSignInClient
-        Toast.makeText(LoginActivity.this, "Google 登入", Toast.LENGTH_SHORT).show();
-    }
-
     // Facebook 登入處理邏輯
     private void facebookSignIn() {
         // 這裡實作 Facebook 登入邏輯
         Toast.makeText(LoginActivity.this, "Facebook 登入", Toast.LENGTH_SHORT).show();
     }
 
-    // 這裡可以實作一個方法，將用戶資料透過 API 送至後端伺服器
-    // private void sendUserDataToServer(String username, String password, String email, String phone, String birthday) {
-    //     // 實作與後端 API 的連接
-    // }
 }

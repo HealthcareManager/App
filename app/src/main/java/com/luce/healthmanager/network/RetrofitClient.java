@@ -9,7 +9,7 @@ public class RetrofitClient {
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl("http://your-backend-url.com/")  // 請替換為你的後端基礎 URL
+                    .baseUrl("http://10.0.2.2:8080/google-login")  // 請替換為你的後端基礎 URL
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
