@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">healthmanager</string>
+    <string name="default_web_client_id">879070403091-k6q58r307pifvmbquesf1ob164npra1c.apps.googleusercontent.com</string>  <!-- 替換成你在Google Cloud中生成的ID -->
 </resources>
+
