@@ -124,6 +124,7 @@ public class RegisterActivity extends AppCompatActivity {
         String email = emailInput.getText().toString().trim();
         String phone = phoneInput.getText().toString().trim();
         String birthday = birthdayInput.getText().toString().trim();
+        String formattedBirthday = birthday.replaceAll("年", "-").replaceAll("月", "-").replaceAll("日", "");
 
         // 檢查輸入欄位是否正確
         if (TextUtils.isEmpty(username)) {
@@ -163,7 +164,7 @@ public class RegisterActivity extends AppCompatActivity {
             jsonBody.put("password", password);
             jsonBody.put("email", email);
             jsonBody.put("phoneNumber", phone);
-            jsonBody.put("dateOfBirth", birthday);
+            jsonBody.put("dateOfBirth", formattedBirthday);
         } catch (JSONException e) {
             e.printStackTrace();
         }
