@@ -1,6 +1,7 @@
 package com.luce.healthmanager;
 
 import android.app.DatePickerDialog;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.content.Intent;
 import android.net.Uri;
@@ -25,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -76,7 +78,6 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    // 顯示日期選擇器
     private void showDatePickerDialog() {
         // 獲取當前日期
         final Calendar calendar = Calendar.getInstance();
@@ -84,19 +85,34 @@ public class RegisterActivity extends AppCompatActivity {
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        // 創建 DatePickerDialog
+        // 暫時設置應用語言為中文
+        Locale locale = new Locale("zh", "CN");  // "zh" 代表中文, "CN" 代表中國大陸（簡體中文）。"TW" 代表台灣（繁體中文）。
+        Locale.setDefault(locale);
+        Configuration config = getResources().getConfiguration();
+        config.locale = locale;
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+
+        // 創建 DatePickerDialog 並顯示
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 RegisterActivity.this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int selectedYear, int selectedMonth, int selectedDay) {
-                        // 格式化日期並設置到 EditText 中 (yyyy-MM-dd)
-                        String formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay);
+                        // 格式化日期並設置到 EditText 中 (yyyy年MM月dd日)
+                        String formattedDate = String.format("%04d年%02d月%02d日", selectedYear, selectedMonth + 1, selectedDay);
                         birthdayInput.setText(formattedDate);
                     }
                 },
                 year, month, day
         );
+
+        // 設置日期範圍
+        Calendar minDate = Calendar.getInstance();
+        minDate.set(Calendar.YEAR, year - 100); // 最多往前 100 年
+        datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
+        // 顯示日期選擇器
         datePickerDialog.show();
     }
 
@@ -108,6 +124,7 @@ public class RegisterActivity extends AppCompatActivity {
         String email = emailInput.getText().toString().trim();
         String phone = phoneInput.getText().toString().trim();
         String birthday = birthdayInput.getText().toString().trim();
+        String formattedBirthday = birthday.replaceAll("年", "-").replaceAll("月", "-").replaceAll("日", "");
 
         // 檢查輸入欄位是否正確
         if (TextUtils.isEmpty(username)) {
@@ -147,7 +164,7 @@ public class RegisterActivity extends AppCompatActivity {
             jsonBody.put("password", password);
             jsonBody.put("email", email);
             jsonBody.put("phoneNumber", phone);
-            jsonBody.put("dateOfBirth", birthday);
+            jsonBody.put("dateOfBirth", formattedBirthday);
         } catch (JSONException e) {
             e.printStackTrace();
         }
