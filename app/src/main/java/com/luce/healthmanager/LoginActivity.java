@@ -1,6 +1,7 @@
 package com.luce.healthmanager;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -144,10 +145,40 @@ public class LoginActivity extends AppCompatActivity {
                     if (jsonResponse.has("token")) {
                         String token = jsonResponse.getString("token");
                         Toast.makeText(LoginActivity.this, "登入成功", Toast.LENGTH_SHORT).show();
-                        // 啟動 MainActivity 並傳遞標誌
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra("showHealthFragment", true); // 傳遞標誌
-                        startActivity(intent);
+                        // 保存 token 到 SharedPreferences
+                        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("jwt_token", token);
+                        editor.apply();
+
+                        // 使用公共的 ParseTokenTask
+                        new ParseTokenTask(LoginActivity.this, new ParseTokenTask.ParseTokenCallback() {
+                            @Override
+                            public void onParseTokenCompleted(JSONObject userData) {
+                                if (userData != null) {
+                                    try {
+                                        String username = userData.getString("username");
+                                        String userId = userData.getString("id");
+
+                                        // 保存用户数据到 SharedPreferences
+                                        editor.putString("username", username);
+                                        editor.putString("userId", userId);
+                                        editor.apply();
+
+                                        // 跳转到 MainActivity
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        intent.putExtra("showHealthFragment", true);
+                                        startActivity(intent);
+                                        finish();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                        Toast.makeText(LoginActivity.this, "解析用戶數據出錯", Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "解析 token 失敗", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }).execute(token);
 
                     } else {
                         // 如果返回中不包含token，顯示錯誤訊息

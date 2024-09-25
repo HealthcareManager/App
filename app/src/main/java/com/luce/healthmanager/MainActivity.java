@@ -1,17 +1,23 @@
 package com.luce.healthmanager;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +45,33 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 檢查是否已經有 token 儲存
+        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        String token = sharedPreferences.getString("jwt_token", null);
+
+        if (token != null) {
+            // 使用公共的 ParseTokenTask
+            new ParseTokenTask(this, new ParseTokenTask.ParseTokenCallback() {
+                @Override
+                public void onParseTokenCompleted(JSONObject userData) {
+                    if (userData != null) {
+                            Toast.makeText(MainActivity.this, "歡迎回來", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MainActivity.this, "解析 token 失败", Toast.LENGTH_SHORT).show();
+                        // 跳转到登录页面
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+            }).execute(token);
+        } else {
+            // 没有 token，跳转到登录页面
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
         // 檢查是否要顯示 HealthFragment
         if (getIntent().getBooleanExtra("showHealthFragment", false)) {
