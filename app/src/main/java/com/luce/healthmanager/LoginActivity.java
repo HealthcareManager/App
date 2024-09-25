@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
 
             try {
                 //URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
-                URL url = new URL("http://localhost:8080/HealthcareManager/api/auth/login");
+                URL url = new URL("http://10.0.2.2:8080/api/auth/login");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
