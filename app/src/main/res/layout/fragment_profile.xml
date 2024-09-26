@@ -35,7 +35,7 @@
                     android:focusable="true" /> <!-- 讓圖片變成可點擊的按鈕 -->
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"

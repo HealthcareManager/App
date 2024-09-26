@@ -2,6 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp"
     android:background="@android:color/white">
 
@@ -17,6 +18,18 @@
             android:src="@drawable/chatbot"
             android:scaleType="centerCrop"
             android:alpha="0.06" />
+
+        <!-- 返回按鈕 -->
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="right"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_menu_revert"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="16dp" />
 
         <!-- 表單內容 -->
         <LinearLayout
@@ -35,55 +48,69 @@
                 android:textColor="@android:color/black"
                 android:layout_marginBottom="32dp" />
 
-            <!-- 帳號輸入框 -->
+
+            <!-- 帳號 -->
             <TextView
-                android:id="@+id/username_input"
+                android:id="@+id/username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="用戶名稱"
+                android:textSize="20dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 電子郵件 -->
+            <TextView
+                android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="帳號"
                 android:textSize="20dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- 密碼輸入框 -->
+            <!-- 密碼 -->
             <TextView
-                android:id="@+id/password_input"
+                android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="密碼"
+                android:text="修改密碼"
                 android:textSize="20dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- 確認密碼輸入框 -->
+            <!-- 性別 -->
             <TextView
-                android:id="@+id/confirm_password_input"
+                android:id="@+id/gender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="確認密碼"
+                android:hint="性別"
                 android:textSize="20dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- 手機號碼輸入框 -->
+            <!-- 身高 -->
             <TextView
-                android:id="@+id/phone_input"
+                android:id="@+id/height"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="手機"
-                android:inputType="phone"
-                android:padding="12dp"
-                android:background="@android:drawable/edit_text"
+                android:hint="身高"
+                android:textSize="20dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- 生日輸入框 -->
+            <!-- 體重 -->
             <TextView
-                android:id="@+id/birthday_input"
+                android:id="@+id/weight"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:drawable/edit_text"
+                android:hint="體重"
+                android:textSize="20dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 生日 -->
+            <TextView
+                android:id="@+id/birthday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:hint="生日 (yyyy-MM-dd)"
-                android:padding="12dp"
-                android:focusable="false"
-                android:clickable="true"
-                android:layout_marginBottom="10dp" />
+                android:textSize="20dp"
+                android:layout_marginBottom="16dp" />
 
             <!-- 頭像 -->
             <LinearLayout

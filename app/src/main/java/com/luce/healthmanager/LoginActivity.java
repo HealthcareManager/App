@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -215,11 +216,23 @@ public class LoginActivity extends AppCompatActivity {
                                     try {
                                         String username = userData.getString("username");
                                         String userId = userData.getString("id");
+                                        String email = userData.getString("email");
+                                        String gender = userData.getString("gender");
+                                        String height = userData.getString("height");
+                                        String weight = userData.getString("weight");
+                                        String dateOfBirth = userData.getString("dateOfBirth");
+                                        String userImage = userData.getString("userImage");
 
                                         // 保存用户数据到 SharedPreferences
                                         SharedPreferences.Editor editor = sharedPreferences.edit();
                                         editor.putString("username", username);
                                         editor.putString("userId", userId);
+                                        editor.putString("email", email);
+                                        editor.putString("gender", gender);
+                                        editor.putString("height", height);
+                                        editor.putString("weight", weight);
+                                        editor.putString("dateOfBirth", dateOfBirth);
+                                        editor.putString("userImage", userImage);
                                         editor.apply();
 
                                         // 跳转到 MainActivity
