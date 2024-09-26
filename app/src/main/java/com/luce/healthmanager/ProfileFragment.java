@@ -38,6 +38,18 @@ public class ProfileFragment extends Fragment {
         LinearLayout userdata = view.findViewById(R.id.userdata);
         Button logoutButton = view.findViewById(R.id.logout_button); // 使用 view.findViewById
         LinearLayout cardprime = view.findViewById(R.id.cardprime);
+        LinearLayout aboutme = view.findViewById(R.id.aboutme);
+
+
+        // 轉向關於我們頁面
+        aboutme.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(requireActivity(), AboutmeActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         // 轉向付費頁面
         cardprime.setOnClickListener(new View.OnClickListener() {
