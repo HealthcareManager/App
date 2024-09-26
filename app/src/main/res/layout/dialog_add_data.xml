@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- 日期選擇按鈕 -->
+    <Button
+        android:id="@+id/btn_select_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="選擇日期" />
+
+    <!-- 顯示選擇的日期 -->
+    <TextView
+        android:id="@+id/tv_selected_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="未選擇日期"
+        android:textSize="16sp"
+        android:paddingTop="8dp" />
+
+    <!-- 數據輸入框 -->
+    <EditText
+        android:id="@+id/edit_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="輸入數據"
+        android:inputType="number" />
+
+</LinearLayout>
