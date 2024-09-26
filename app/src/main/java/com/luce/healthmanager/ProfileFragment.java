@@ -32,11 +32,23 @@ public class ProfileFragment extends Fragment {
 
         userNameTextView.setText(username);
         userIdTextView.setText("ID: " + userId);
+
         ImageView avatar = view.findViewById(R.id.profile_image);
         TextView userName = view.findViewById(R.id.user_name);
         LinearLayout userdata = view.findViewById(R.id.userdata);
         Button logoutButton = view.findViewById(R.id.logout_button); // 使用 view.findViewById
+        LinearLayout cardprime = view.findViewById(R.id.cardprime);
 
+        // 轉向付費頁面
+        cardprime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // 轉向登入頁面
         avatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -45,6 +57,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        // 轉向登入頁面
         userName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -53,6 +66,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        // 轉向用戶資料頁面
         userdata.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
