@@ -7,7 +7,7 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface OpenAIApiService {
-    @POST("/api/openai/ask")
-    Call<Map<String, Object>> askHealthQuestion(@Body Map<String, String> question);
+    @POST("ask")
+    Call<Map<String, Object>> askHealthQuestion(@Body Map<String, String> request);
 }
 
