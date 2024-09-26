@@ -18,44 +18,6 @@
             android:rowCount="20"
             android:padding="16dp">
 
-            <!-- 卡片：睡眠 -->
-            <LinearLayout
-                android:id="@+id/sleep_card"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_row="0"
-                android:layout_rowWeight="1"
-                android:layout_column="0"
-                android:layout_columnWeight="1"
-                android:layout_margin="8dp"
-                android:background="#E6DEF4"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:radius="2dp"
-                android:onClick="onCardClick">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:contentDescription="睡眠圖示"
-                    android:src="@drawable/sleep" />
-
-                <TextView
-                    android:id="@+id/sleep_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="睡眠"
-                    android:textColor="@color/black"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/sleep_data"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="暫無資料"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="14sp" />
-            </LinearLayout>
 
             <!-- 卡片：心律 -->
             <LinearLayout
@@ -65,7 +27,7 @@
                 android:layout_margin="8dp"
                 android:layout_rowWeight="1"
                 android:layout_columnWeight="1"
-                android:background="#EEBEF6"
+                android:background="#F8E4FB"
                 android:orientation="vertical"
                 android:padding="16dp"
                 android:onClick="onCardClick">
@@ -201,41 +163,7 @@
                     android:textColor="@android:color/darker_gray" />
             </LinearLayout>
 
-            <!-- 卡片：步數 -->
-            <LinearLayout
-                android:id="@+id/steps_card"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1"
-                android:background="#B2F1FA"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:onClick="onCardClick">
 
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/steps"
-                    android:contentDescription="步數圖示" />
-
-                <TextView
-                    android:id="@+id/steps_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="步數"
-                    android:textSize="18sp"
-                    android:textColor="@color/black" />
-
-                <TextView
-                    android:id="@+id/steps_data"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="暫無資料"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
-            </LinearLayout>
 
             <!-- 卡片：卡路里 -->
             <LinearLayout
@@ -273,77 +201,7 @@
                     android:textColor="@android:color/darker_gray" />
             </LinearLayout>
 
-            <!-- 卡片：站立次數 -->
-            <LinearLayout
-                android:id="@+id/stand_card"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1"
-                android:background="#BEF4C1"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:onClick="onCardClick">
 
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/stand"
-                    android:contentDescription="站立圖示" />
-
-                <TextView
-                    android:id="@+id/stand_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="站立次數"
-                    android:textSize="18sp"
-                    android:textColor="@color/black" />
-
-                <TextView
-                    android:id="@+id/stand_data"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="暫無資料"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
-            </LinearLayout>
-
-            <!-- 卡片：壓力指數 -->
-            <LinearLayout
-                android:id="@+id/pressure_card"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:layout_rowWeight="1"
-                android:layout_columnWeight="1"
-                android:background="#F6E4FA"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:onClick="onCardClick">
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/pressure"
-                    android:contentDescription="壓力指數圖示" />
-
-                <TextView
-                    android:id="@+id/pressure_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="壓力指數"
-                    android:textSize="18sp"
-                    android:textColor="@color/black" />
-
-                <TextView
-                    android:id="@+id/pressure_data"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="暫無資料"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray" />
-            </LinearLayout>
 
             <!-- 卡片：身高體重 -->
             <LinearLayout

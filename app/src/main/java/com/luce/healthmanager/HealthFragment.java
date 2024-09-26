@@ -15,17 +15,6 @@ public class HealthFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_health, container, false);
 
-        // 設置睡眠卡片的點擊事件
-        LinearLayout sleepCard = view.findViewById(R.id.sleep_card);
-        sleepCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "sleep");
-                startActivity(intent);
-            }
-        });
-
         // 設置心律卡片的點擊事件
         LinearLayout heartCard = view.findViewById(R.id.heart_card);
         heartCard.setOnClickListener(new View.OnClickListener() {
@@ -70,17 +59,6 @@ public class HealthFragment extends Fragment {
             }
         });
 
-        // 設置步數卡片的點擊事件
-        LinearLayout stepsCard = view.findViewById(R.id.steps_card);
-        stepsCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "steps");
-                startActivity(intent);
-            }
-        });
-
         // 設置卡路里卡片的點擊事件
         LinearLayout caloriesCard = view.findViewById(R.id.calories_card);
         caloriesCard.setOnClickListener(new View.OnClickListener() {
@@ -92,27 +70,6 @@ public class HealthFragment extends Fragment {
             }
         });
 
-        // 設置站立次數卡片的點擊事件
-        LinearLayout standCard = view.findViewById(R.id.stand_card);
-        standCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "stand");
-                startActivity(intent);
-            }
-        });
-
-        // 設置壓力指數卡片的點擊事件
-        LinearLayout pressureCard = view.findViewById(R.id.pressure_card);
-        pressureCard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "pressure");
-                startActivity(intent);
-            }
-        });
 
         // 設置身高體重卡片的點擊事件
         LinearLayout heightCard = view.findViewById(R.id.height_card);
