@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFE0">
+    android:background="#FFFFFF">
 
     <!-- 淡化的背景圖片 -->
     <ImageView
@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:src="@drawable/chatbot"
         android:scaleType="centerCrop"
-        android:alpha="0.3"
+        android:alpha="0.02"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,7 +23,8 @@
         android:id="@+id/back_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@android:color/transparent"
+        android:background="@color/colorPrimaryDark"
+        app:tint="@color/colorPrimary"
         android:src="@android:drawable/ic_menu_revert"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
