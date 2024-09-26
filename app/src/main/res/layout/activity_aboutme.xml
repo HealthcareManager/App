@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 淡化的背景圖片 -->
+    <ImageView
+        android:id="@+id/background_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/chatbot"
+        android:scaleType="centerCrop"
+        android:alpha="0.03"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 返回按鈕 -->
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/colorPrimaryDark"
+        app:tint="@color/colorPrimary"
+        android:src="@android:drawable/ic_menu_revert"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
+
+    <!-- 顯示卡片標題 -->
+    <TextView
+        android:id="@+id/about_us_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="關於我們"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
+
+    <!-- 內文 -->
+    <TextView
+        android:id="@+id/about_us_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:text="我們是來自中國文化大學JAVA養成班的六人團隊，致力於開發一個全面的健康管理平台，旨在提升用戶的生活品質和健康水平。應用程式的核心功能結合了先進的AI預測模型和智能健康管理師，能夠幫助用戶預測潛在的健康風險，如心血管疾病、中風、糖尿病等。透過全天候的24/7服務，我們的AI系統能夠即時回應用戶的健康問題，並提供具體的護理建議和初步處理方案。我們的目標是利用科技的力量，讓每個人都能隨時隨地獲得個性化的健康管理和預防建議，從而實現更健康的生活方式。"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        android:lineSpacingMultiplier="1.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/about_us_title" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
