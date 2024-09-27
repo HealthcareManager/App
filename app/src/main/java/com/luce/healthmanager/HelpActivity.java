@@ -56,5 +56,7 @@ public class HelpActivity extends AppCompatActivity {
                 }
             }
         });
+        // 如果你有返回按鈕，這裡可以設置它的行為
+        findViewById(R.id.back_button).setOnClickListener(view -> onBackPressed());
     }
 }

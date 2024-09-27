@@ -94,7 +94,7 @@
                     android:layout_width="160dp"
                     android:layout_height="250dp"
                     android:layout_margin="6dp"
-                    android:background="#D8F6DA"
+                    android:background="#F9FFB5"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center_horizontal"
@@ -118,13 +118,42 @@
 
                 </LinearLayout>
 
+                <!-- 卡片：用戶資料 -->
+                <LinearLayout
+                    android:id="@+id/userdata"
+                    android:layout_width="160dp"
+                    android:layout_height="250dp"
+                    android:layout_margin="6dp"
+                    android:background="#FAFFCB"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center_horizontal"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/userdata"
+                        android:contentDescription="第三方連接圖示" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="用戶資料"
+                        android:textSize="20sp"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:layout_marginTop="30dp"/>
+
+                </LinearLayout>
+
                 <!-- 卡片：關於我們 -->
                 <LinearLayout
                     android:id="@+id/aboutme"
                     android:layout_width="160dp"
                     android:layout_height="250dp"
                     android:layout_margin="6dp"
-                    android:background="#E0F4C8"
+                    android:background="#FCFFDF"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center_horizontal"
@@ -148,42 +177,13 @@
 
                 </LinearLayout>
 
-                <!-- 卡片：第三方連接 -->
-                <LinearLayout
-                    android:id="@+id/userdata"
-                    android:layout_width="160dp"
-                    android:layout_height="250dp"
-                    android:layout_margin="6dp"
-                    android:background="#FBE2DA"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:gravity="center_horizontal"
-                    android:layout_weight="1">
-
-                    <ImageView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@drawable/userdata"
-                        android:contentDescription="第三方連接圖示" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="用戶資料"
-                        android:textSize="20sp"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold"
-                        android:layout_marginTop="30dp"/>
-
-                </LinearLayout>
-
                 <!-- 卡片：幫助與回饋 -->
                 <LinearLayout
                     android:id="@+id/help_feedback_card"
                     android:layout_width="160dp"
                     android:layout_height="250dp"
                     android:layout_margin="6dp"
-                    android:background="#F6DCE5"
+                    android:background="#FEFFF0"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center_horizontal"
