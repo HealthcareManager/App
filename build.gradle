@@ -4,6 +4,8 @@ buildscript {
     repositories {
         google() // 添加 Google Maven 仓库
         mavenCentral() // 也可以添加 Maven Central 仓库
+        // 添加 LINE SDK 專用倉庫
+        maven { url "https://maven.linecorp.com/repository/maven-public/" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.5.1' // 替换为您使用的 Gradle 版本

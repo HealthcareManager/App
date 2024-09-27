@@ -10,8 +10,9 @@ android {
 
     defaultConfig {
         applicationId "com.luce.healthmanager"
+
         minSdk 24
-        targetSdk 34
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -46,9 +47,12 @@ dependencies {
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
 
-    //FB登入SDK
-    implementation 'com.facebook.android:facebook-login:latest.release'
+    // Line登入SDK
+    // https://mvnrepository.com/artifact/com.linecorp.linesdk/linesdk
+    implementation 'com.linecorp.linesdk:linesdk:5.8.0'
 
+    // FB登入SDK
+    implementation 'com.facebook.android:facebook-login:latest.release'
 
     // Networking Libraries
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
