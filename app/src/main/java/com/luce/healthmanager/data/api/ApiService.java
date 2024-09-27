@@ -18,6 +18,9 @@ public interface ApiService {
     @POST("api/auth/google-login") // 替换为实际的后端 API 路径
     Call<UserResponse> googleLogin(@Body Map<String, String> idToken);
 
+    @POST("api/auth/facebook-login")
+    Call<UserResponse> loginWithFacebook(@Body String accessToken);
+
     @Multipart
     @POST("upload-image/{id}")
     Call<ResponseBody> uploadImage(
