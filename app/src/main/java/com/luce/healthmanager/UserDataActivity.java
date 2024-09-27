@@ -102,11 +102,11 @@ public class UserDataActivity extends AppCompatActivity {
             }
         }
 
-        // 接收裁剪後的結果
         if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
             final Uri resultUri = UCrop.getOutput(data);
             if (resultUri != null) {
                 try {
+                    imageUri = resultUri;  // 使用裁剪後的圖片 URI 進行上傳
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
                     Bitmap circularBitmap = getCroppedBitmap(bitmap);
                     userAvatar.setImageBitmap(circularBitmap);  // 將圓形圖片設置到 ImageView
