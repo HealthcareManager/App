@@ -120,6 +120,7 @@
 
                 <!-- 卡片：關於我們 -->
                 <LinearLayout
+                    android:id="@+id/aboutme"
                     android:layout_width="160dp"
                     android:layout_height="250dp"
                     android:layout_margin="6dp"
