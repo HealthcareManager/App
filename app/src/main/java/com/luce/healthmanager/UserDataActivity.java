@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat;
 import androidx.loader.content.CursorLoader;
 
 import com.bumptech.glide.Glide;
+import com.luce.healthmanager.data.api.ApiService;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;
@@ -50,7 +51,6 @@ public class UserDataActivity extends AppCompatActivity {
     private ImageView userAvatar;  // 用戶頭像 ImageView
     private Uri imageUri;  // 圖片選擇的 URI
     private Button btnChooseButton, saveButton; // 選擇頭像按鈕
-    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +63,7 @@ public class UserDataActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        apiService = retrofit.create(ApiService.class);
+        ApiService apiService = retrofit.create(ApiService.class);
 
         btnChooseButton = findViewById(R.id.btn_choose);
         userAvatar = findViewById(R.id.userAvatar);
@@ -86,7 +86,7 @@ public class UserDataActivity extends AppCompatActivity {
 
     // 打開相冊選擇圖片
     private void selectImageFromGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);  // 啟動選擇圖片的意圖
     }
 
@@ -144,6 +144,7 @@ public class UserDataActivity extends AppCompatActivity {
             MultipartBody.Part body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile);
 
             // 使用 Retrofit 上傳圖片
+            ApiService apiService = null;
             Call<ResponseBody> call = apiService.uploadImage(1L, body); // 假設用戶 ID 為 1
             call.enqueue(new Callback<ResponseBody>() {
                 @Override

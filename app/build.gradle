@@ -1,5 +1,7 @@
 plugins {
-    alias(libs.plugins.android.application)
+
+    id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -60,8 +62,8 @@ dependencies {
     implementation "io.coil-kt:coil:2.3.0"
 
     // Google Play Services
-    implementation 'com.google.android.gms:play-services-auth:20.2.0'
-    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'com.google.android.gms:play-services-maps:19.0.0'
 
     // Firebase Authentication
     implementation 'com.google.firebase:firebase-auth:21.1.0'

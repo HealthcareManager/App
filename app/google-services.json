@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "709151275791",
+    "project_id": "omega-granite-436002-k9",
+    "storage_bucket": "omega-granite-436002-k9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:709151275791:android:100f989f2dfe10f2b8dc7a",
+        "android_client_info": {
+          "package_name": "com.luce.healthmanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "709151275791-fsh4lff5cqmtsqcs9mq4ca4eqb63m7gs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.luce.healthmanager",
+            "certificate_hash": "bb000fd7b143ed13535b95b085a731876b0fc3ee"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAf54GJYpoBZaNYqStTZjJ5itfH7LU_d_s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

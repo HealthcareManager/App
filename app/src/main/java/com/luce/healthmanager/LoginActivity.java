@@ -1,5 +1,7 @@
 package com.luce.healthmanager;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -19,6 +21,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.luce.healthmanager.data.api.ApiService;
+import com.luce.healthmanager.data.network.ApiClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +32,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import java.time.LocalDate;
 
 public class LoginActivity extends AppCompatActivity {
@@ -35,12 +45,89 @@ public class LoginActivity extends AppCompatActivity {
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button loginButton;
-    private Button registerButton;
     // 定義 LinearLayout 變量來表示自定義的按鈕
     LinearLayout googleLoginButton, facebookLoginButton, lineLoginButton;
+    private GoogleSignInClient mGoogleSignInClient;
+    private static final int RC_SIGN_IN = 9001;
 
-    private GoogleSignInClient googleSignInClient;  // Google Sign-In 客戶端
-    private static final int RC_SIGN_IN = 100;  // 用於 Google Sign-In 的請求碼
+    private void googleSignin() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleGoogleSignInResult(task); // 处理登录结果
+        }
+    }
+
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class); // 获取登录账户
+            // 登入成功
+            String idToken = account.getIdToken();
+            // 將 ID Token 發送到後端
+            sendIdTokenToServer(idToken);
+
+        } catch (ApiException e) {
+            int statusCode = e.getStatusCode();
+            String errorMessage = "登入失敗: " + statusCode;
+            // 登入失敗
+            Toast.makeText(this, "登入失敗: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+            Log.w("GoogleSignIn", "登入失敗: " + e.getStatusCode() + " - " + e.getMessage());
+            Log.e("GoogleSignInError", "Sign-in failed: " + e.getStatusCode(), e);
+
+        }
+    }
+
+    private void sendIdTokenToServer(String idToken) {
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+
+        // 创建包含 idToken 的请求体
+        Map<String, String> idTokenMap = new HashMap<>();
+        idTokenMap.put("idToken", idToken);
+
+        Call<UserResponse> call = apiService.googleLogin(idTokenMap);
+
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.isSuccessful()) {
+                    UserResponse user = response.body();
+                    if (user != null) {
+                        // Handle successful login
+                        Log.d("test" ,"User ID: " + user.getId());
+                        Log.d("test" ,"Username: " + user.getUsername());
+                        Log.d("test" ,"Email: " + user.getEmail());
+                        // Proceed with app logic (e.g., navigate to the main screen)
+                        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("userId", user.getId());
+                        editor.putString("username", user.getUsername());
+                        editor.putString("email", user.getEmail());
+                        editor.apply(); // 提交更改
+
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra("showHealthFragment", true);
+                        startActivity(intent);
+                        finish();
+                    }
+                } else {
+                    // Handle error response
+                    System.out.println("Login failed: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                // Handle network error or failure
+                System.out.println("Network error: " + t.getMessage());
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +144,13 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password_input);
         loginButton = findViewById(R.id.login_button);
 
-        // 初始化 Google Sign-In 客戶端
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id)) // 這裡填入你在 Google Cloud Console 中的 Web 客戶端 ID
                 .requestEmail()
+                .requestIdToken(getString(R.string.server_client_id)) // 使用您在 Google Cloud Console 中的客戶端 ID
                 .build();
 
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
+        // 初始化 Google 登录客户端
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +176,8 @@ public class LoginActivity extends AppCompatActivity {
         googleLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                googleSignIn();  // 調用 Google 登入邏輯
+                // 這裡放置 Google 登入邏輯
+                googleSignin();
             }
         });
 
@@ -111,39 +199,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Google 登入邏輯
-    private void googleSignIn() {
-        Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN) {
-            Log.d("test","data is " + data);
-
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                Log.d("test","task is " + task);
-                Log.d("test","456");
-                if (account != null) {
-                    // 獲取 ID token 並傳送到後端
-                    Log.d("test","account is " + account);
-                    String idToken = account.getIdToken();
-                    Log.d("test","idToken is " + idToken);
-                    sendIdTokenToBackend(idToken);
-                }
-            } catch (ApiException e) {
-                // 處理登入錯誤
-                Log.e("GoogleSignInError", "Sign-in failed: " + e.getStatusCode(), e);
-                Toast.makeText(LoginActivity.this, "Google 登入失敗", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     private void sendIdTokenToBackend(String idToken) {
         // 在這裡實作傳送 ID token 給後端進行驗證的邏輯
         // 比如可以使用 Retrofit 或其他 HTTP 客戶端來進行網路請求
@@ -158,8 +213,9 @@ public class LoginActivity extends AppCompatActivity {
             String result = null;
 
             try {
-                //URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
-                URL url = new URL("http://10.0.2.2:8080/api/auth/login");
+                URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
+                Log.d("test","123");
+                //URL url = new URL("http://10.0.2.2:8080/api/auth/login");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
@@ -201,6 +257,7 @@ public class LoginActivity extends AppCompatActivity {
                     // 檢查響應中是否包含token
                     if (jsonResponse.has("token")) {
                         String token = jsonResponse.getString("token");
+                        Log.d("test","token at login is " + token);
                         Toast.makeText(LoginActivity.this, "登入成功", Toast.LENGTH_SHORT).show();
                         // 保存 token 到 SharedPreferences
                         SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
@@ -213,6 +270,7 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onParseTokenCompleted(JSONObject userData) {
                                 if (userData != null) {
+                                    Log.d("test","userData is " + userData);
                                     try {
                                         String username = userData.getString("username");
                                         String userId = userData.getString("id");

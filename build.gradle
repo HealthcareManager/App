@@ -1,4 +1,12 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-alias(libs.plugins.android.application) apply false
+
+
+buildscript {
+    repositories {
+        google() // 添加 Google Maven 仓库
+        mavenCentral() // 也可以添加 Maven Central 仓库
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.5.1' // 替换为您使用的 Gradle 版本
+        classpath 'com.google.gms:google-services:4.3.15' // 添加 Google 服务插件
+    }
 }

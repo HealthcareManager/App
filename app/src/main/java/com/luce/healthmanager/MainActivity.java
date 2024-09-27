@@ -1,5 +1,6 @@
 package com.luce.healthmanager;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -15,6 +16,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,15 +45,19 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
+    
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // 加载 activity_login.xml 布局文件
 
         // 檢查是否已經有 token 儲存
         SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
         String token = sharedPreferences.getString("jwt_token", null);
+        Log.d("test","sharedPreferences is " + sharedPreferences);
+        Log.d("test","token is " + token);
 
         if (token != null) {
             // 使用公共的 ParseTokenTask
@@ -68,9 +77,9 @@ public class MainActivity extends AppCompatActivity {
             }).execute(token);
         } else {
             // 没有 token，跳转到登录页面
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
+//            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//            startActivity(intent);
+//            finish();
         }
 
         // 檢查是否要顯示 HealthFragment
