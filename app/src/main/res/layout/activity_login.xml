@@ -1,185 +1,201 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/fragment_container">
+    android:layout_height="match_parent">
 
-    <!-- 背景圖片，放在最底層 -->
+    <!-- 背景圖片的視圖 -->
     <ImageView
-        android:id="@+id/background_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/chatbot"
         android:scaleType="centerCrop"
-        android:alpha="0.06" />
+        android:alpha="0.06" /> <!-- 這裡設置透明度 -->
 
-    <!-- 其他UI元素放在背景圖上 -->
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:gravity="center_horizontal"
-        android:background="@android:color/transparent">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="登入"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="32dp" />
-
-        <!-- 帳號輸入框 -->
-        <EditText
-            android:id="@+id/username_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="帳號"
-            android:inputType="text"
-            android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:layout_marginBottom="16dp" />
-
-        <!-- 密碼輸入框 -->
-        <EditText
-            android:id="@+id/password_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="密碼"
-            android:inputType="textPassword"
-            android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:layout_marginBottom="32dp" />
-
-        <!-- 登入按鈕 -->
-        <Button
-            android:id="@+id/login_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="登入"
-            android:background="@color/colorPrimary"
-            android:textColor="@android:color/white"
-            android:padding="12dp"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp" />
-
-        <!-- 註冊按鈕 -->
-        <Button
-            android:id="@+id/register_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="註冊"
-            android:background="@color/colorPrimaryDark"
-            android:textColor="@android:color/black"
-            android:padding="12dp"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp" />
-
-        <View
-            android:layout_marginTop="25dp"
-            android:layout_height="1dp"
-            android:layout_width="1dp"></View>
-
-        <!-- 第三方登入文字 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="使用第三方登入"
-            android:textColor="@android:color/black"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:textSize="14sp" />
-
-        <!-- 分隔線 -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp" />
-
-
-        <!-- 第三方登入按鈕：Google -->
+        <!-- 外部 LinearLayout 包含兩個內部 LinearLayout -->
         <LinearLayout
-            android:id="@+id/google_login_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="16dp"
-            android:background="#FF5722"
-            android:padding="12dp">
+            android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/google_icon"
-                android:layout_marginStart="80dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- 第一個 LinearLayout -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="使用 Google 帳號登入"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:layout_gravity="center"/>
-        </LinearLayout>
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center_horizontal">
 
-        <!-- 第三方登入按鈕：Facebook -->
-        <LinearLayout
-            android:id="@+id/facebook_login_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="#0B66FF"
-            android:padding="12dp"
-            android:layout_marginTop="16dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="登入"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_marginBottom="32dp" />
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/facebook_icon"
-                android:layout_marginStart="80dp"/>
+                <!-- 帳號輸入框 -->
+                <EditText
+                    android:id="@+id/username_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="帳號"
+                    android:inputType="text"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:layout_marginBottom="16dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
+                <!-- 密碼輸入框 -->
+                <EditText
+                    android:id="@+id/password_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="密碼"
+                    android:inputType="textPassword"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:layout_marginBottom="32dp" />
+
+                <!-- 登入按鈕 -->
+                <Button
+                    android:id="@+id/login_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="登入"
+                    android:background="@color/colorPrimary"
+                    android:textColor="@android:color/white"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:layout_marginTop="16dp" />
+
+                <!-- 註冊按鈕 -->
+                <Button
+                    android:id="@+id/register_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="註冊"
+                    android:background="@color/colorPrimaryDark"
+                    android:textColor="@android:color/black"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:layout_marginTop="16dp" />
+
+                <View
+                    android:layout_marginTop="25dp"
+                    android:layout_height="1dp"
+                    android:layout_width="1dp" />
+
+                <!-- 第三方登入文字 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="使用第三方登入"
+                    android:textColor="@android:color/black"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:textSize="14sp" />
+
+                <!-- 分隔線 -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp" />
+            </LinearLayout>
+
+            <!-- 第二個 LinearLayout -->
+            <LinearLayout
+                android:id="@+id/social_login_buttons"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="使用 Facebook 帳號登入"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp" />
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:padding="16dp">
+
+                <!-- 第三方登入按鈕：Google -->
+                <LinearLayout
+                    android:id="@+id/google_login_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="#FF5722"
+                    android:padding="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/google_icon"
+                        android:layout_marginStart="80dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="使用 Google 帳號登入"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:gravity="center"
+                        android:layout_gravity="center" />
+                </LinearLayout>
+
+                <!-- 第三方登入按鈕：Facebook -->
+                <LinearLayout
+                    android:id="@+id/facebook_login_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="#0B66FF"
+                    android:padding="12dp"
+                    android:layout_marginTop="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/facebook_icon"
+                        android:layout_marginStart="80dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="使用 Facebook 帳號登入"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <!-- 第三方登入按鈕：Line -->
+                <LinearLayout
+                    android:id="@+id/line_login_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="#0CC754"
+                    android:padding="12dp"
+                    android:layout_marginTop="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/line_icon"
+                        android:layout_marginStart="80dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="使用 Line 帳號登入"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-
-
-        <!-- 第三方登入按鈕：Line -->
-        <LinearLayout
-            android:id="@+id/line_login_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="#0CC754"
-            android:padding="12dp"
-            android:layout_marginTop="16dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/line_icon"
-                android:layout_marginStart="80dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="使用 Line 帳號登入"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 </FrameLayout>

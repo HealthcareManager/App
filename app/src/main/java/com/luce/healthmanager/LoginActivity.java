@@ -12,15 +12,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.LinearLayout;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.luce.healthmanager.data.api.ApiService;
 import com.luce.healthmanager.data.network.ApiClient;
 
@@ -32,6 +52,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,6 +70,154 @@ public class LoginActivity extends AppCompatActivity {
     LinearLayout googleLoginButton, facebookLoginButton, lineLoginButton;
     private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 9001;
+    private CallbackManager callbackManager;
+    private FirebaseAuth mAuth;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login); // 登入界面
+
+        Button registerButton = findViewById(R.id.register_button);
+        // Google
+        googleLoginButton = findViewById(R.id.google_login_button);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestIdToken(getString(R.string.server_client_id)) // 使用您在 Google Cloud Console 中的客戶端 ID
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        // FB
+        facebookLoginButton = findViewById(R.id.facebook_login_button);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this.getApplication());
+        mAuth = FirebaseAuth.getInstance();
+        callbackManager = CallbackManager.Factory.create();
+
+        lineLoginButton = findViewById(R.id.line_login_button);
+
+        loginButton = findViewById(R.id.login_button);
+        usernameEditText = findViewById(R.id.username_input);
+        passwordEditText = findViewById(R.id.password_input);
+
+        //一般用戶註冊
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 跳轉到 RegisterActivity
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        //一般用戶登入
+        loginButton.setOnClickListener(v -> {
+            String username = usernameEditText.getText().toString();
+            String password = passwordEditText.getText().toString();
+
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "請輸入用戶名和密碼", Toast.LENGTH_SHORT).show();
+            } else {
+                new LoginTask().execute(username, password);
+            }
+        });
+
+        // Google 登入按鈕點擊事件
+        googleLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 這裡放置 Google 登入邏輯
+                googleSignin();
+            }
+        });
+
+        // Facebook 登入按鈕點擊事件
+        facebookLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email", "public_profile"));
+            }
+        });
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // 登入成功，處理成功邏輯
+                // 你可以在這裡獲取用戶資料
+                // Facebook 登入成功，使用 FirebaseAuth 進行認證
+                handleFacebookAccessToken(loginResult.getAccessToken());
+                System.out.println("Login successful!");
+            }
+
+            @Override
+            public void onCancel() {
+                // 用戶取消登入
+                System.out.println("Login canceled.");
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // 登入錯誤，處理錯誤邏輯
+                System.out.println("Login error: " + exception.getMessage());
+            }
+        });
+
+        // Line 登入按鈕點擊事件
+        lineLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 這裡放置 Line 登入邏輯
+            }
+        });
+    }
+
+    // 在 Facebook 登入成功後的回調中進行 Firebase 認證
+    private void handleFacebookAccessToken(AccessToken accessToken) {
+        GraphRequest request = GraphRequest.newMeRequest(
+                accessToken, new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        // 在這裡獲取 Facebook ID 和其他個人資訊
+                        try {
+                            String facebookId = object.getString("id");
+                            String name = object.getString("name");
+                            String email = object.optString("email"); // 使用 optString 防止未獲取 email 時拋出例外
+
+                            SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("userId", facebookId);
+                            editor.putString("username", name);
+                            editor.putString("email", email);
+                            editor.apply(); // 提交更改
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.putExtra("showHealthFragment", true);
+                            startActivity(intent);
+                            finish();
+
+                            Log.d("FB Info", "Facebook ID: " + facebookId);
+                            Log.d("FB Info", "Facebook 名字: " + name);
+                            Log.d("FB Info", "Facebook Email: " + email);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,email"); // 獲取 Facebook ID、名字和電子郵件
+        request.setParameters(parameters);
+        request.executeAsync();
+    }
+
+    private void updateUI(FirebaseUser user) {
+        if (user != null) {
+            // 登入成功，跳轉到首頁
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        } else {
+            // 登入失敗處理
+        }
+    }
 
     private void googleSignin() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
@@ -58,10 +227,15 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        // 處理 Google 登入
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleGoogleSignInResult(task); // 处理登录结果
+            handleGoogleSignInResult(task); // 處理 Google 登入結果
         }
+
+        // 處理 Facebook 登入
+        callbackManager.onActivityResult(requestCode, resultCode, data); // 將結果傳遞給 Facebook 的 CallbackManager
     }
 
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
@@ -127,82 +301,6 @@ public class LoginActivity extends AppCompatActivity {
                 System.out.println("Network error: " + t.getMessage());
             }
         });
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login); // 登入界面
-        Button registerButton = findViewById(R.id.register_button);
-
-        // 初始化按鈕
-        googleLoginButton = findViewById(R.id.google_login_button);
-        facebookLoginButton = findViewById(R.id.facebook_login_button);
-        lineLoginButton = findViewById(R.id.line_login_button);
-
-        usernameEditText = findViewById(R.id.username_input);
-        passwordEditText = findViewById(R.id.password_input);
-        loginButton = findViewById(R.id.login_button);
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .requestIdToken(getString(R.string.server_client_id)) // 使用您在 Google Cloud Console 中的客戶端 ID
-                .build();
-
-        // 初始化 Google 登录客户端
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 跳轉到 RegisterActivity
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        loginButton.setOnClickListener(v -> {
-            String username = usernameEditText.getText().toString();
-            String password = passwordEditText.getText().toString();
-
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "請輸入用戶名和密碼", Toast.LENGTH_SHORT).show();
-            } else {
-                new LoginTask().execute(username, password);
-            }
-        });
-
-        // Google 登入按鈕點擊事件
-        googleLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 這裡放置 Google 登入邏輯
-                googleSignin();
-            }
-        });
-
-        // Facebook 登入按鈕點擊事件
-        facebookLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 這裡放置 Facebook 登入邏輯
-                facebookSignIn();
-            }
-        });
-
-        // Line 登入按鈕點擊事件
-        lineLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 這裡放置 Line 登入邏輯
-            }
-        });
-    }
-
-    private void sendIdTokenToBackend(String idToken) {
-        // 在這裡實作傳送 ID token 給後端進行驗證的邏輯
-        // 比如可以使用 Retrofit 或其他 HTTP 客戶端來進行網路請求
-        Toast.makeText(LoginActivity.this, "ID Token: " + idToken, Toast.LENGTH_SHORT).show();
     }
 
     private class LoginTask extends AsyncTask<String, Void, String> {
@@ -319,12 +417,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    // Facebook 登入處理邏輯
-    private void facebookSignIn() {
-        // 這裡實作 Facebook 登入邏輯
-        Toast.makeText(LoginActivity.this, "Facebook 登入", Toast.LENGTH_SHORT).show();
     }
 
 }
