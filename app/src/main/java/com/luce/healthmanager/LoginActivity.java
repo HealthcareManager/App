@@ -65,8 +65,6 @@ public class LoginActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
     private FirebaseAuth mAuth;
     private static final int REQUEST_CODE = 1001;
-    private static final String TAG = "LINE_LOGIN";
-    private static final String CHANNEL_ID = "2006371057";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
