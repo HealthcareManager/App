@@ -1,7 +1,5 @@
 package com.luce.healthmanager;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -13,10 +11,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.LinearLayout;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.facebook.AccessToken;
@@ -24,8 +18,6 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
@@ -34,13 +26,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.luce.healthmanager.data.api.ApiService;
 import com.luce.healthmanager.data.network.ApiClient;
 
@@ -59,7 +46,6 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import java.time.LocalDate;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -136,28 +122,22 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email", "public_profile"));
-            }
-        });
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                // 登入成功，處理成功邏輯
-                // 你可以在這裡獲取用戶資料
-                // Facebook 登入成功，使用 FirebaseAuth 進行認證
-                handleFacebookAccessToken(loginResult.getAccessToken());
-                System.out.println("Login successful!");
-            }
+                LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                    @Override
+                    public void onSuccess(LoginResult loginResult) {
+                        handleFacebookAccessToken(loginResult.getAccessToken());
+                    }
 
-            @Override
-            public void onCancel() {
-                // 用戶取消登入
-                System.out.println("Login canceled.");
-            }
+                    @Override
+                    public void onCancel() {
+                        Log.d("LoginActivity", "Login canceled");
+                    }
 
-            @Override
-            public void onError(FacebookException exception) {
-                // 登入錯誤，處理錯誤邏輯
-                System.out.println("Login error: " + exception.getMessage());
+                    @Override
+                    public void onError(FacebookException exception) {
+                        Log.e("LoginActivity", "Login error: " + exception.getMessage());
+                    }
+                });
             }
         });
 
@@ -171,52 +151,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // 在 Facebook 登入成功後的回調中進行 Firebase 認證
-    private void handleFacebookAccessToken(AccessToken accessToken) {
-        GraphRequest request = GraphRequest.newMeRequest(
-                accessToken, new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        // 在這裡獲取 Facebook ID 和其他個人資訊
-                        try {
-                            String facebookId = object.getString("id");
-                            String name = object.getString("name");
-                            String email = object.optString("email"); // 使用 optString 防止未獲取 email 時拋出例外
-
-                            SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putString("userId", facebookId);
-                            editor.putString("username", name);
-                            editor.putString("email", email);
-                            editor.apply(); // 提交更改
-
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            intent.putExtra("showHealthFragment", true);
-                            startActivity(intent);
-                            finish();
-
-                            Log.d("FB Info", "Facebook ID: " + facebookId);
-                            Log.d("FB Info", "Facebook 名字: " + name);
-                            Log.d("FB Info", "Facebook Email: " + email);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,email"); // 獲取 Facebook ID、名字和電子郵件
-        request.setParameters(parameters);
-        request.executeAsync();
-    }
-
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            // 登入成功，跳轉到首頁
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            finish();
-        } else {
-            // 登入失敗處理
-        }
+    private void handleFacebookAccessToken(AccessToken token) {
+        // 發送訪問令牌到後端進行驗證
+        String accessToken = token.getToken();
+        Log.d("fb test","fb accessToken is" + accessToken);
+        verifyAccessToken(accessToken);
     }
 
     private void googleSignin() {
@@ -227,6 +166,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.d("LoginActivity", "onActivityResult called with requestCode: " + requestCode + ", resultCode: " + resultCode);
 
         // 處理 Google 登入
         if (requestCode == RC_SIGN_IN) {
@@ -257,6 +197,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // Google的
     private void sendIdTokenToServer(String idToken) {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
@@ -299,6 +240,48 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(Call<UserResponse> call, Throwable t) {
                 // Handle network error or failure
                 System.out.println("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    // FB的
+    private void verifyAccessToken(String accessToken) {
+        // 使用 Retrofit 來呼叫後端 API
+        Log.d("test"," verifyAccessToken in ");
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<UserResponse> call = apiService.loginWithFacebook(accessToken);
+
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    UserResponse user = response.body();
+                    if (user != null) {
+                        // Handle successful login
+                        Log.d("test" ,"User ID: " + user.getId());
+                        Log.d("test" ,"Username: " + user.getUsername());
+                        Log.d("test" ,"Email: " + user.getEmail());
+                        // Proceed with app logic (e.g., navigate to the main screen)
+                        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("userId", user.getId());
+                        editor.putString("username", user.getUsername());
+                        editor.putString("email", user.getEmail());
+                        editor.apply(); // 提交更改
+
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra("showHealthFragment", true);
+                        startActivity(intent);
+                        finish();
+                    }
+                } else {
+                    Log.e("LoginActivity", "Login failed: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                Log.e("LoginActivity", "Error: " + t.getMessage());
             }
         });
     }
