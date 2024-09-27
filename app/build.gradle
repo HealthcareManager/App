@@ -24,36 +24,61 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    // 添加 packagingOptions 解決 META-INF 文件衝突
+    packagingOptions {
+        exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
     }
 }
 
 dependencies {
 
+    // AndroidX Libraries
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
+
+    // Networking Libraries
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
-    implementation 'com.google.android.gms:play-services-auth:20.4.0'
-    testImplementation libs.junit
-    androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.espresso.core
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
 
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation 'com.github.yalantis:ucrop:2.2.8'
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
-
-    implementation 'com.google.android.gms:play-services-auth:21.2.0'
-    implementation 'com.google.android.gms:play-services-maps:19.0.0'
+    // Retrofit and Gson
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
+    // Image Loading
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    // Google Play Services
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'com.google.android.gms:play-services-maps:19.0.0'
+
+    // Firebase Authentication
+    implementation 'com.google.firebase:firebase-auth:21.1.0'
+
+    // UI Crop Library
+    implementation 'com.github.yalantis:ucrop:2.2.8'
+
+    // Unit Testing
+    testImplementation libs.junit
+
+    // Android Testing
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    // Play services wearable
+    implementation libs.play.services.wearable
+    implementation libs.identity.jvm
 }

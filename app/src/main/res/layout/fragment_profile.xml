@@ -20,7 +20,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
                 android:clickable="true"
                 android:focusable="true">
 
@@ -28,7 +27,7 @@
                 <ImageView
                     android:id="@+id/profile_image"
                     android:layout_width="150dp"
-                    android:layout_height="150dp"
+                    android:layout_height="140dp"
                     android:src="@drawable/chatbot"
                     android:clickable="true"
                     android:layout_marginStart="20dp"
@@ -36,10 +35,11 @@
                     android:focusable="true" /> <!-- 讓圖片變成可點擊的按鈕 -->
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:layout_marginTop="20dp">
 
                     <!-- 可點擊的用戶名稱 -->
                     <!-- 讓用戶名稱變成按鈕 -->
@@ -62,6 +62,18 @@
                         android:text="ID : "
                         android:textColor="@android:color/darker_gray"
                         android:textSize="14sp" />
+
+                    <Button
+                        android:id="@+id/logout_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="登出"
+                        android:background="@color/colorPrimary"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:layout_marginTop="20dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -78,10 +90,11 @@
 
                 <!-- 卡片：設定 -->
                 <LinearLayout
+                    android:id="@+id/cardprime"
                     android:layout_width="160dp"
                     android:layout_height="250dp"
                     android:layout_margin="6dp"
-                    android:background="#D8F6DA"
+                    android:background="#F9FFB5"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center_horizontal"
@@ -97,7 +110,7 @@
                         android:id="@+id/sleep_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="設定"
+                        android:text="升級會員"
                         android:textSize="20sp"
                         android:textColor="@android:color/black"
                         android:textStyle="bold"
@@ -105,12 +118,42 @@
 
                 </LinearLayout>
 
-                <!-- 卡片：關於我們 -->
+                <!-- 卡片：用戶資料 -->
                 <LinearLayout
+                    android:id="@+id/userdata"
                     android:layout_width="160dp"
                     android:layout_height="250dp"
                     android:layout_margin="6dp"
-                    android:background="#E0F4C8"
+                    android:background="#FAFFCB"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center_horizontal"
+                    android:layout_weight="1">
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/userdata"
+                        android:contentDescription="第三方連接圖示" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="用戶資料"
+                        android:textSize="20sp"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:layout_marginTop="30dp"/>
+
+                </LinearLayout>
+
+                <!-- 卡片：關於我們 -->
+                <LinearLayout
+                    android:id="@+id/aboutme"
+                    android:layout_width="160dp"
+                    android:layout_height="250dp"
+                    android:layout_margin="6dp"
+                    android:background="#FCFFDF"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center_horizontal"
@@ -134,45 +177,19 @@
 
                 </LinearLayout>
 
-                <!-- 卡片：第三方連接 -->
-                <LinearLayout
-                    android:id="@+id/userdata"
-                    android:layout_width="160dp"
-                    android:layout_height="250dp"
-                    android:layout_margin="6dp"
-                    android:background="#FBE2DA"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:gravity="center_horizontal"
-                    android:layout_weight="1">
-
-                    <ImageView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@drawable/userdata"
-                        android:contentDescription="第三方連接圖示" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="用戶資料"
-                        android:textSize="20sp"
-                        android:textColor="@android:color/black"
-                        android:textStyle="bold"
-                        android:layout_marginTop="30dp"/>
-
-                </LinearLayout>
-
                 <!-- 卡片：幫助與回饋 -->
                 <LinearLayout
+                    android:id="@+id/help_feedback_card"
                     android:layout_width="160dp"
                     android:layout_height="250dp"
                     android:layout_margin="6dp"
-                    android:background="#F6DCE5"
+                    android:background="#FEFFF0"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center_horizontal"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <ImageView
                         android:layout_width="60dp"
@@ -189,22 +206,9 @@
                         android:textColor="@android:color/black"
                         android:textStyle="bold"
                         android:layout_marginTop="30dp"/>
-
-
-
                 </LinearLayout>
 
             </GridLayout>
-            <Button
-                android:id="@+id/logout_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="登出"
-                android:background="@color/colorPrimary"
-                android:textColor="@android:color/white"
-                android:padding="12dp"
-                android:textSize="16sp"
-                android:layout_marginTop="16dp" />
 
         </LinearLayout> <!-- 結束內部LinearLayout -->
 

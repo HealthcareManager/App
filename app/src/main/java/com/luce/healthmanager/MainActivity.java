@@ -106,6 +106,13 @@ public class MainActivity extends AppCompatActivity {
         // 初始化 FragmentManager
         fragmentManager = getSupportFragmentManager();
 
+        // 如果首次打開應用且沒有其他 Fragment，加載 HealthFragment
+        if (savedInstanceState == null) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, new HealthFragment()) // 加載健康頁面的 Fragment
+                    .commit();
+        }
+
         // 設置健康按鈕的點擊事件來加載 HealthFragment
         ImageButton healthButton = findViewById(R.id.imageButton1);
         healthButton.setOnClickListener(new View.OnClickListener() {
@@ -148,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 跳轉到 AiAssistantActivity
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                Intent intent = new Intent(MainActivity.this, AiAssistantActivity.class);
                 startActivity(intent);
             }
         });
