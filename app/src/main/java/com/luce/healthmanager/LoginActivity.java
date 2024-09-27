@@ -1,17 +1,27 @@
 package com.luce.healthmanager;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.luce.healthmanager.data.api.ApiService;
+import com.luce.healthmanager.data.network.ApiClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,15 +31,93 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button loginButton;
-    private Button registerButton;
     // 定義 LinearLayout 變量來表示自定義的按鈕
     LinearLayout googleLoginButton, facebookLoginButton, lineLoginButton;
+    private GoogleSignInClient mGoogleSignInClient;
+    private static final int RC_SIGN_IN = 9001;
+
+    private void googleSignin() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleGoogleSignInResult(task); // 处理登录结果
+        }
+    }
+
+    private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class); // 获取登录账户
+            // 登入成功
+            String idToken = account.getIdToken();
+            // 將 ID Token 發送到後端
+            sendIdTokenToServer(idToken);
+
+        } catch (ApiException e) {
+            int statusCode = e.getStatusCode();
+            String errorMessage = "登入失敗: " + statusCode;
+            // 登入失敗
+            Toast.makeText(this, "登入失敗: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+            Log.w("GoogleSignIn", "登入失敗: " + e.getStatusCode() + " - " + e.getMessage());
+            Log.e("GoogleSignInError", "Sign-in failed: " + e.getStatusCode(), e);
+
+        }
+    }
+
+    private void sendIdTokenToServer(String idToken) {
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+
+        // 创建包含 idToken 的请求体
+        Map<String, String> idTokenMap = new HashMap<>();
+        idTokenMap.put("idToken", idToken);
+
+        Call<Void> call = apiService.googleLogin(idTokenMap);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    // 登录成功，可以处理后续逻辑（例如跳转到主界面）
+//                    SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+//                    String username = userData.getString("username");
+//                    String userId = userData.getString("id");
+//
+//                    // 保存用户数据到 SharedPreferences
+//                    editor.putString("username", username);
+//                    editor.putString("userId", userId);
+//                    editor.apply();
+                    
+
+                } else {
+                    // 处理登录失败的情况
+                    Log.e(TAG, "Login failed with code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                // 处理网络请求失败
+                Log.e(TAG, "Error sending ID Token to server", t);
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +133,14 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.username_input);
         passwordEditText = findViewById(R.id.password_input);
         loginButton = findViewById(R.id.login_button);
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestIdToken(getString(R.string.server_client_id)) // 使用您在 Google Cloud Console 中的客戶端 ID
+                .build();
+
+        // 初始化 Google 登录客户端
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +166,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 這裡放置 Google 登入邏輯
-
+                googleSignin();
             }
         });
 
@@ -101,8 +197,8 @@ public class LoginActivity extends AppCompatActivity {
             String result = null;
 
             try {
-                //URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
-                URL url = new URL("http://localhost:8080/HealthcareManager/api/auth/login");
+                URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
+                //URL url = new URL("http://localhost:8080/HealthcareManager/api/auth/login");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");

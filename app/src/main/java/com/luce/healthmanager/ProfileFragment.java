@@ -3,8 +3,8 @@ package com.luce.healthmanager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +23,7 @@ public class ProfileFragment extends Fragment {
 
         // 從 SharedPreferences 讀取用戶資料
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        Log.d("test","sharedPreferences is " + sharedPreferences);
         String username = sharedPreferences.getString("username", "未登入");
         String userId = sharedPreferences.getString("userId", "");
 
@@ -36,6 +37,15 @@ public class ProfileFragment extends Fragment {
         TextView userName = view.findViewById(R.id.user_name);
         LinearLayout userdata = view.findViewById(R.id.userdata);
         Button logoutButton = view.findViewById(R.id.logout_button); // 使用 view.findViewById
+
+        // 檢查用戶是否已登入
+        if (!username.isEmpty()) {
+            // 用戶已登入，顯示登出按鈕
+            logoutButton.setVisibility(View.VISIBLE);
+        } else {
+            // 用戶未登入，隱藏登出按鈕
+            logoutButton.setVisibility(View.GONE);
+        }
 
         avatar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +76,12 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // 這裡你可以處理登出邏輯，像是清除使用者資料並跳轉到登入頁面
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+                // 清空 SharedPreferences 中的資料
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear(); // 清除所有保存的資料
+                editor.apply(); // 應用更改
+
                 Intent intent = new Intent(requireActivity(), LoginActivity.class);
                 startActivity(intent);
             }
