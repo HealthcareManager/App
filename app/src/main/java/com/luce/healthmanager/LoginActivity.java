@@ -1,7 +1,9 @@
 package com.luce.healthmanager;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +13,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -28,6 +32,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.linecorp.linesdk.auth.LineLoginApi;
+import com.linecorp.linesdk.auth.LineLoginResult;
 import com.luce.healthmanager.data.api.ApiService;
 import com.luce.healthmanager.data.network.ApiClient;
 
@@ -58,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 9001;
     private CallbackManager callbackManager;
     private FirebaseAuth mAuth;
-
+    private static final int REQUEST_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,8 +152,44 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 這裡放置 Line 登入邏輯
+                showConsentDialog();
             }
         });
+    }
+
+    private void showConsentDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("同意收集電子郵件地址")
+                .setMessage("為了提供您更好的服務，我們將使用您的電子郵件地址進行用戶驗證及發送通知。\n您是否同意？")
+                .setPositiveButton("同意", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 用户同意，继续执行 LINE 登录
+                        loginWithLine();
+                    }
+                })
+                .setNegativeButton("拒絕", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 用户拒绝，关闭对话框
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    private void loginWithLine() {
+        String redirectUri = "http://192.168.50.38:8080/HealthcareManager/api/auth/line-callback";  // 你應該用你在 LINE Developers 設定的重定向URI
+        String authorizationUrl = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=" +
+                getString(R.string.line_channel_id) +
+                "&redirect_uri=" + redirectUri +
+                "&state=12345abcde&scope=profile%20openid%20email";
+
+        // 使用 CustomTabsIntent 打開 LINE OAuth 網頁
+        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+        CustomTabsIntent customTabsIntent = builder.build();
+        customTabsIntent.launchUrl(this, Uri.parse(authorizationUrl));
+
     }
 
     // 在 Facebook 登入成功後的回調中進行 Firebase 認證
@@ -172,6 +214,26 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleGoogleSignInResult(task); // 處理 Google 登入結果
+        }
+
+        // 處理 Line 登入
+        if (requestCode == REQUEST_CODE) {
+            LineLoginResult result = LineLoginApi.getLoginResultFromIntent(data);
+            switch (result.getResponseCode()) {
+                case SUCCESS:
+                    // 登入成功，處理使用者資料
+                    Log.d("Line","Line login suc");
+                    String accessToken = result.getLineCredential().getAccessToken().getTokenString();
+                    // 獲取使用者資料
+                    break;
+                case CANCEL:
+                    // 使用者取消了登入
+                    break;
+                default:
+                    // 登入失敗
+                    String errorMessage = result.getErrorData().getMessage();
+                    break;
+            }
         }
 
         // 處理 Facebook 登入

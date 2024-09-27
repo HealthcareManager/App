@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.luce.healthmanager">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -18,7 +19,8 @@
         android:roundIcon="@mipmap/chat_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:replace="android:allowBackup">
         <activity
             android:name=".UserDataActivity"
             android:exported="false" />
@@ -61,6 +63,9 @@
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token"/>
+        <meta-data
+            android:name="com.linecorp.linesdk.app_id"
+            android:value="line_channel_id" />
     </application>
 
 </manifest>
