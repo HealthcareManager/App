@@ -26,9 +26,15 @@ public class ProfileFragment extends Fragment {
 
         // 從 SharedPreferences 讀取用戶資料
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        // 檢查是否已登入
+        String jwtToken = sharedPreferences.getString("jwt_token", null);
         String username = sharedPreferences.getString("username", "未登入");
         String userId = sharedPreferences.getString("userId", "");
-        String userImage = sharedPreferences.getString("userImage", "http://10.0.2.2:8080/images/0cd67af1-4665-4bd7-8814-183bec1cdc4a_image.jpg");
+        String userImage = sharedPreferences.getString("userImage", "");
+        Log.d("Yuchen", jwtToken);
+        Log.d("Yuchen", username);
+        Log.d("Yuchen", userId);
+        Log.d("Yuchen", userImage);
 
         // 更新 TextView
         TextView userNameTextView = view.findViewById(R.id.user_name);
@@ -56,7 +62,6 @@ public class ProfileFragment extends Fragment {
 
 
         if (userImage != null && !userImage.isEmpty()) {
-            Log.d("123", userImage);
 
             // 使用 Glide 加載圖片並處理錯誤和預設圖片
             Glide.with(this)
@@ -80,23 +85,29 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        // 轉向登入頁面
-        avatar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(requireActivity(), LoginActivity.class);
-                startActivity(intent);
-            }
-        });
+        if (jwtToken == null ) {
+            // 轉向登入頁面
+            avatar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                    startActivity(intent);
+                }
+            });
 
-        // 轉向登入頁面
-        userName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(requireActivity(), LoginActivity.class);
-                startActivity(intent);
-            }
-        });
+            // 轉向登入頁面
+            userName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                    startActivity(intent);
+                }
+            });
+        } else {
+            // 已登入，不進行任何操作或執行其他已登入的操作
+            avatar.setOnClickListener(null); // 或者可以打開用戶詳細頁面
+            userName.setOnClickListener(null); // 或者可以讓用戶編輯個人資料
+        }
 
         // 轉向用戶資料頁面
         userdata.setOnClickListener(new View.OnClickListener() {
