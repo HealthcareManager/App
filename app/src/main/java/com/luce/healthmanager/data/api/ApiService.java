@@ -1,5 +1,7 @@
 package com.luce.healthmanager.data.api;
 
+import com.luce.healthmanager.UserResponse;
+
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -14,7 +16,7 @@ import retrofit2.http.Path;
 public interface ApiService {
 
     @POST("api/auth/google-login") // 替换为实际的后端 API 路径
-    Call<Void> googleLogin(@Body Map<String, String> idToken);
+    Call<UserResponse> googleLogin(@Body Map<String, String> idToken);
 
     @Multipart
     @POST("upload-image/{id}")

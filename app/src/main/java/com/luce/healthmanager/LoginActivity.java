@@ -90,33 +90,41 @@ public class LoginActivity extends AppCompatActivity {
         Map<String, String> idTokenMap = new HashMap<>();
         idTokenMap.put("idToken", idToken);
 
-        Call<Void> call = apiService.googleLogin(idTokenMap);
+        Call<UserResponse> call = apiService.googleLogin(idTokenMap);
 
-        call.enqueue(new Callback<Void>() {
+        call.enqueue(new Callback<UserResponse>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful()) {
-                    // 登录成功，可以处理后续逻辑（例如跳转到主界面）
-//                    SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
-//                    String username = userData.getString("username");
-//                    String userId = userData.getString("id");
-//
-//                    // 保存用户数据到 SharedPreferences
-//                    editor.putString("username", username);
-//                    editor.putString("userId", userId);
-//                    editor.apply();
-                    
+                    UserResponse user = response.body();
+                    if (user != null) {
+                        // Handle successful login
+                        Log.d("test" ,"User ID: " + user.getId());
+                        Log.d("test" ,"Username: " + user.getUsername());
+                        Log.d("test" ,"Email: " + user.getEmail());
+                        // Proceed with app logic (e.g., navigate to the main screen)
+                        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("userId", user.getId());
+                        editor.putString("username", user.getUsername());
+                        editor.putString("email", user.getEmail());
+                        editor.apply(); // 提交更改
 
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.putExtra("showHealthFragment", true);
+                        startActivity(intent);
+                        finish();
+                    }
                 } else {
-                    // 处理登录失败的情况
-                    Log.e(TAG, "Login failed with code: " + response.code());
+                    // Handle error response
+                    System.out.println("Login failed: " + response.message());
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                // 处理网络请求失败
-                Log.e(TAG, "Error sending ID Token to server", t);
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                // Handle network error or failure
+                System.out.println("Network error: " + t.getMessage());
             }
         });
     }

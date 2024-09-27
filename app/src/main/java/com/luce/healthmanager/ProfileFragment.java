@@ -31,10 +31,6 @@ public class ProfileFragment extends Fragment {
         String username = sharedPreferences.getString("username", "未登入");
         String userId = sharedPreferences.getString("userId", "");
         String userImage = sharedPreferences.getString("userImage", "");
-        Log.d("Yuchen", jwtToken);
-        Log.d("Yuchen", username);
-        Log.d("Yuchen", userId);
-        Log.d("Yuchen", userImage);
 
         // 更新 TextView
         TextView userNameTextView = view.findViewById(R.id.user_name);
@@ -51,7 +47,7 @@ public class ProfileFragment extends Fragment {
         LinearLayout aboutme = view.findViewById(R.id.aboutme);
 
         // 檢查用戶是否已登入
-        if (!username.isEmpty()) {
+        if (!userId.isEmpty()) {
             // 用戶已登入，顯示登出按鈕
             logoutButton.setVisibility(View.VISIBLE);
         } else {
@@ -147,8 +143,7 @@ public class ProfileFragment extends Fragment {
                 editor.clear(); // 清除所有保存的資料
                 editor.apply(); // 應用更改
 
-                Intent intent = new Intent(requireActivity(), LoginActivity.class);
-                startActivity(intent);
+                getActivity().recreate();
             }
         });
 

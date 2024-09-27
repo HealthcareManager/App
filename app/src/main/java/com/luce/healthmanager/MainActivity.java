@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 跳轉到 AiAssistantActivity
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                Intent intent = new Intent(MainActivity.this, AiAssistantActivity.class);
                 startActivity(intent);
             }
         });
