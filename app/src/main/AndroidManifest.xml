@@ -35,6 +35,7 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".AboutmeActivity" />
+        <activity android:name=".HelpActivity" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

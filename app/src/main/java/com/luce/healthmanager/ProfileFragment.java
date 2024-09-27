@@ -50,6 +50,15 @@ public class ProfileFragment extends Fragment {
         LinearLayout cardprime = view.findViewById(R.id.cardprime);
         LinearLayout aboutme = view.findViewById(R.id.aboutme);
 
+        // 轉向關於幫助與回饋
+        LinearLayout helpFeedbackCard = view.findViewById(R.id.help_feedback_card);
+        helpFeedbackCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), HelpActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // 轉向關於我們頁面
         aboutme.setOnClickListener(new View.OnClickListener() {
