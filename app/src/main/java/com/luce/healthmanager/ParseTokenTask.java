@@ -23,6 +23,7 @@ public class ParseTokenTask extends AsyncTask<String, Void, JSONObject> {
     @Override
     protected JSONObject doInBackground(String... params) {
         String token = params[0];
+        Log.d("test","token at PTT is :" + token);
         JSONObject userData = null;
 
         try {

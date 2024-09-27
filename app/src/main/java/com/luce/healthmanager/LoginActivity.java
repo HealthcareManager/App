@@ -190,39 +190,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Google 登入邏輯
-    private void googleSignIn() {
-        Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN) {
-            Log.d("test","data is " + data);
-
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                Log.d("test","task is " + task);
-                Log.d("test","456");
-                if (account != null) {
-                    // 獲取 ID token 並傳送到後端
-                    Log.d("test","account is " + account);
-                    String idToken = account.getIdToken();
-                    Log.d("test","idToken is " + idToken);
-                    sendIdTokenToBackend(idToken);
-                }
-            } catch (ApiException e) {
-                // 處理登入錯誤
-                Log.e("GoogleSignInError", "Sign-in failed: " + e.getStatusCode(), e);
-                Toast.makeText(LoginActivity.this, "Google 登入失敗", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     private void sendIdTokenToBackend(String idToken) {
         // 在這裡實作傳送 ID token 給後端進行驗證的邏輯
         // 比如可以使用 Retrofit 或其他 HTTP 客戶端來進行網路請求
@@ -237,8 +204,9 @@ public class LoginActivity extends AppCompatActivity {
             String result = null;
 
             try {
-                //URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
-                URL url = new URL("http://10.0.2.2:8080/api/auth/login");
+                URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
+                Log.d("test","123");
+                //URL url = new URL("http://10.0.2.2:8080/api/auth/login");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
@@ -280,6 +248,7 @@ public class LoginActivity extends AppCompatActivity {
                     // 檢查響應中是否包含token
                     if (jsonResponse.has("token")) {
                         String token = jsonResponse.getString("token");
+                        Log.d("test","token at login is " + token);
                         Toast.makeText(LoginActivity.this, "登入成功", Toast.LENGTH_SHORT).show();
                         // 保存 token 到 SharedPreferences
                         SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
@@ -292,6 +261,7 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onParseTokenCompleted(JSONObject userData) {
                                 if (userData != null) {
+                                    Log.d("test","userData is " + userData);
                                     try {
                                         String username = userData.getString("username");
                                         String userId = userData.getString("id");
