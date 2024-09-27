@@ -3,6 +3,12 @@ package com.luce.healthmanager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -96,24 +102,37 @@ public class UserDataActivity extends AppCompatActivity {
             }
         }
 
-        // 接收裁剪後的結果
         if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
-            final Uri resultUri = UCrop.getOutput(data);  // 裁剪後的圖片 URI
+            final Uri resultUri = UCrop.getOutput(data);
             if (resultUri != null) {
-                // 使用 Glide 加載並顯示圓形圖片
-                Glide.with(this)
-                        .load(resultUri)
-                        .circleCrop()  // 將圖片裁切成圓形
-                        .into(userAvatar);  // 將圖片設置到 ImageView
-                Log.d("imagelink", String.valueOf(userAvatar));
-            }
-        } else if (resultCode == UCrop.RESULT_ERROR) {
-            final Throwable cropError = UCrop.getError(data);
-            if (cropError != null) {
-                Toast.makeText(this, cropError.getMessage(), Toast.LENGTH_SHORT).show();  // 顯示裁剪錯誤
+                try {
+                    imageUri = resultUri;  // 使用裁剪後的圖片 URI 進行上傳
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                    Bitmap circularBitmap = getCroppedBitmap(bitmap);
+                    userAvatar.setImageBitmap(circularBitmap);  // 將圓形圖片設置到 ImageView
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+
+    private Bitmap getCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+
+        return output;
+    }
+
 
     private void uploadImageToServer(Uri imageUri) {
         try {
@@ -183,7 +202,7 @@ public class UserDataActivity extends AppCompatActivity {
         options.setActiveControlsWidgetColor(ContextCompat.getColor(this, R.color.colorAccent));  // 設置控制顏色
         options.setCircleDimmedLayer(true);  // 設置裁剪框為圓形
         options.setShowCropGrid(false);  // 隱藏裁剪網格
-        options.setHideBottomControls(true);  // 隱藏底部控制工具
+        options.setHideBottomControls(false);  // 隱藏底部控制工具
 
         // 啟動 uCrop，設置源圖片 URI 和目標裁剪圖片的 URI
         UCrop.of(uri, destinationUri)
