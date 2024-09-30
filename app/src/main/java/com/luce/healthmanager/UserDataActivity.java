@@ -165,7 +165,7 @@ public class UserDataActivity extends AppCompatActivity {
                 .setPositiveButton("確定", (dialog, which) -> {
                     String inputValue = editText.getText().toString();
                     if (!inputValue.isEmpty()) {
-                        weightData.setText("用戶名稱：" + inputValue);
+                        usernameData.setText("用戶名稱：" + inputValue);
                     }
                 })
                 .setNegativeButton("取消", null)
@@ -222,7 +222,7 @@ public class UserDataActivity extends AppCompatActivity {
                 .setView(layout)
                 .setPositiveButton("確定", (dialog, which) -> {
                     double newValue = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
-                    weightData.setText("身高：" + newValue + "公分");
+                    heightData.setText("身高：" + newValue + "公分");
                 })
                 .setNegativeButton("取消", null)
                 .show();
