@@ -22,7 +22,7 @@ public interface ApiService {
     Call<UserResponse> loginWithFacebook(@Body String accessToken);
 
     @Multipart
-    @POST("upload-image/{id}")
+    @POST("api/auth/upload-image/{id}")
     Call<ResponseBody> uploadImage(
             @Path("id") long userId,
             @Part MultipartBody.Part file

@@ -25,6 +25,7 @@ import androidx.loader.content.CursorLoader;
 
 import com.bumptech.glide.Glide;
 import com.luce.healthmanager.data.api.ApiService;
+import com.luce.healthmanager.data.network.ApiClient;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.ByteArrayOutputStream;
@@ -50,20 +51,21 @@ public class UserDataActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSION_CODE = 100;
     private ImageView userAvatar;  // 用戶頭像 ImageView
     private Uri imageUri;  // 圖片選擇的 URI
-    private Button btnChooseButton, saveButton; // 選擇頭像按鈕
+    private Button btnChooseButton, saveButton;
+    //private ApiService apiService;// 選擇頭像按鈕
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
 
-        // 創建 Retrofit
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080/api/auth/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        ApiService apiService = retrofit.create(ApiService.class);
+//        // 創建 Retrofit
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("http://192.168.50.38:8080/HealthcareManager/api/auth/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//
+//        apiService = retrofit.create(ApiService.class);
 
         btnChooseButton = findViewById(R.id.btn_choose);
         userAvatar = findViewById(R.id.userAvatar);
@@ -142,9 +144,8 @@ public class UserDataActivity extends AppCompatActivity {
             // 構建 RequestBody
             RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageBytes);
             MultipartBody.Part body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile);
-
+            ApiService apiService = ApiClient.getClient(this).create(ApiService.class);
             // 使用 Retrofit 上傳圖片
-            ApiService apiService = null;
             Call<ResponseBody> call = apiService.uploadImage(1L, body); // 假設用戶 ID 為 1
             call.enqueue(new Callback<ResponseBody>() {
                 @Override

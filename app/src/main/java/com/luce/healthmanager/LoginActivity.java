@@ -261,7 +261,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // Google的
     private void sendIdTokenToServer(String idToken) {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClient(this).create(ApiService.class);
 
         // 创建包含 idToken 的请求体
         Map<String, String> idTokenMap = new HashMap<>();
@@ -310,7 +310,7 @@ public class LoginActivity extends AppCompatActivity {
     private void verifyAccessToken(String accessToken) {
         // 使用 Retrofit 來呼叫後端 API
         Log.d("test"," verifyAccessToken in ");
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClient(this).create(ApiService.class);
         Call<UserResponse> call = apiService.loginWithFacebook(accessToken);
 
         call.enqueue(new Callback<UserResponse>() {
