@@ -1,7 +1,9 @@
 package com.luce.healthmanager.data.api;
 
+import com.luce.healthmanager.HeartRateData;
 import com.luce.healthmanager.UserResponse;
 
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -13,6 +15,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.GET;
 
 public interface ApiService {
 
@@ -29,4 +32,10 @@ public interface ApiService {
             @Path("id") long userId,
             @Part MultipartBody.Part file
     );
+    @GET("api/healthData")
+    Call<List<HeartRateData>> getHeartRateData();
+
+
+
+
 }
