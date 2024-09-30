@@ -6,29 +6,27 @@
     android:padding="16dp"
     android:background="@android:color/white">
 
-        <!-- 背景圖片 -->
-        <ImageView
-            android:id="@+id/background_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/chatbot"
-            android:scaleType="centerCrop"
-            android:alpha="0.06" />
+    <!-- 背景圖片 -->
+    <ImageView
+        android:id="@+id/background_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/chatbot"
+        android:scaleType="centerCrop"
+        android:alpha="0.06" />
 
-        <!-- 返回按鈕 -->
-        <ImageButton
-            android:id="@+id/back_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="right"
-            android:background="@color/colorPrimaryDark"
-            android:tint="@color/colorPrimary"
-            android:src="@android:drawable/ic_menu_revert"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="16dp" />
+    <!-- 返回按鈕 -->
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="right"
+        android:background="@color/colorPrimaryDark"
+        android:tint="@color/colorPrimary"
+        android:src="@android:drawable/ic_menu_revert"
+        android:layout_margin="16dp" />
 
-        <!-- 表單內容 -->
+    <!-- 表單內容 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,74 +43,170 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-
-        <!-- 帳號 -->
-        <TextView
-            android:id="@+id/username"
+        <!-- 用戶名稱 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="用戶名稱"
-            android:textSize="20dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/username_data"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="用戶名稱"
+                android:textSize="20dp" />
+
+            <ImageView
+                android:id="@+id/username_arrow"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/arrow_right"
+                android:layout_gravity="right" />
+
+        </LinearLayout>
 
         <!-- 電子郵件 -->
-        <TextView
-            android:id="@+id/email"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="帳號"
-            android:textSize="20dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
 
-        <!-- 密碼 -->
-        <TextView
-            android:id="@+id/password"
+            <TextView
+                android:id="@+id/email_data"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="帳號"
+                android:textSize="20dp" />
+
+        </LinearLayout>
+
+        <!-- 修改密碼 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="修改密碼"
-            android:textSize="20dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="修改密碼"
+                android:textSize="20dp" />
+
+            <ImageView
+                android:id="@+id/password_arrow"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/arrow_right"
+                android:layout_gravity="right" />
+
+        </LinearLayout>
 
         <!-- 性別 -->
-        <TextView
-            android:id="@+id/gender"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="性別"
-            android:textSize="20dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/gender_data"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="性別"
+                android:textSize="20dp" />
+
+            <ImageView
+                android:id="@+id/gender_arrow"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/arrow_right"
+                android:layout_gravity="right" />
+
+        </LinearLayout>
 
         <!-- 身高 -->
-        <TextView
-            android:id="@+id/height"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="身高"
-            android:textSize="20dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/height_data"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="身高"
+                android:textSize="20dp" />
+
+            <ImageView
+                android:id="@+id/height_arrow"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/arrow_right"
+                android:layout_gravity="right" />
+
+        </LinearLayout>
 
         <!-- 體重 -->
-        <TextView
-            android:id="@+id/weight"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="體重"
-            android:textSize="20dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/weight_data"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="體重"
+                android:textSize="20dp" />
+
+            <ImageView
+                android:id="@+id/weight_arrow"
+                android:layout_width="30dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/arrow_right"
+                android:layout_gravity="right" />
+
+        </LinearLayout>
 
         <!-- 生日 -->
-        <TextView
-            android:id="@+id/birthday"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="生日 (yyyy-MM-dd)"
-            android:textSize="20dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/birthday_data"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="生日 (yyyy-MM-dd)"
+                android:textSize="20dp" />
+        </LinearLayout>
 
         <!-- 頭像 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
+            android:layout_marginTop="10dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -148,12 +242,13 @@
             android:id="@+id/save_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginTop="10dp"
             android:background="@color/colorPrimary"
-            android:padding="12dp"
-            android:text="儲存"
+            android:padding="10dp"
+            android:text="修改頭像"
+            android:textStyle="bold"
             android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:textSize="20dp" />
 
 
     </LinearLayout>

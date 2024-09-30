@@ -1,8 +1,9 @@
 package com.luce.healthmanager;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -12,16 +13,24 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.loader.content.CursorLoader;
 
 import com.bumptech.glide.Glide;
 import com.luce.healthmanager.data.api.ApiService;
@@ -33,7 +42,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -49,7 +57,7 @@ public class UserDataActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;  // 用於選擇圖片的請求碼
     private static final int REQUEST_PERMISSION_CODE = 100;
-    private ImageView userAvatar;  // 用戶頭像 ImageView
+    private ImageView userAvatar, usernameArrow, genderArrow, heightArrow, weightArrow, passwordArrow;  // 用戶頭像 ImageView
     private Uri imageUri;  // 圖片選擇的 URI
     private Button btnChooseButton, saveButton;
     //private ApiService apiService;// 選擇頭像按鈕
@@ -70,12 +78,71 @@ public class UserDataActivity extends AppCompatActivity {
         btnChooseButton = findViewById(R.id.btn_choose);
         userAvatar = findViewById(R.id.userAvatar);
         saveButton = findViewById(R.id.save_button);
+        backButton = findViewById(R.id.back_button);
+        usernameData = findViewById(R.id.username_data);
+        emailData = findViewById(R.id.email_data);
+        genderData = findViewById(R.id.gender_data);
+        heightData = findViewById(R.id.height_data);
+        weightData = findViewById(R.id.weight_data);
+        birthdayData = findViewById(R.id.birthday_data);
+        genderArrow = findViewById(R.id.gender_arrow);
+        usernameArrow = findViewById(R.id.username_arrow);
+        heightArrow = findViewById(R.id.height_arrow);
+        weightArrow = findViewById(R.id.weight_arrow);
+        passwordArrow = findViewById(R.id.password_arrow);
+
+
+        sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("jwt_token", "").trim();
+        String username = sharedPreferences.getString("username", "用戶名稱");
+        String email = sharedPreferences.getString("email", "電子郵件");
+        String gender = sharedPreferences.getString("gender", "性別");
+        String height = sharedPreferences.getString("height", "身高");
+        String weight = sharedPreferences.getString("weight", "體重");
+        String birthday = sharedPreferences.getString("dateOfBirth", "生日");
+        String userImage = sharedPreferences.getString("userImage", "圖片");
+
+        Log.d("Yuchen", userImage);
+
+        usernameData.setText("用戶名稱：" + username);
+        emailData.setText("帳號：" + email);
+
+        if (gender.equals("MALE")) {
+            gender = "男";
+        } else {
+            gender = "女";
+        }
+        genderData.setText("性別：" + gender);
+        heightData.setText("身高：" + height + "公分");
+        weightData.setText("體重：" + weight + "公斤");
+        String formattedDate = birthday.replace("-", "年").replaceFirst("年", "年").replaceFirst("-", "月") + "日";
+        birthdayData.setText("生日：" + formattedDate);
+
+        if (!userImage.isEmpty()) {
+            // 使用 Glide 載入圖片
+            Glide.with(this)
+                    .load(userImage)
+                    .placeholder(R.drawable.chatbot)  // 加載中顯示的預設圖片
+                    .error(R.drawable.chatbot)        // 加載錯誤時顯示的預設圖片
+                    .circleCrop()                            // 將圖片裁剪為圓形
+                    .into(userAvatar);                       // 將圖片加載到 ImageView 中
+        } else {
+            // 如果沒有用戶圖片，顯示預設圖片
+            userAvatar.setImageResource(R.drawable.chatbot);
+        }
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish(); // 返回到上一個 Activity
+            }
+        });
 
         // 當按下註冊按鈕時觸發圖片上傳
         saveButton.setOnClickListener(v -> {
             if (imageUri != null) {
                 // 如果已經選擇並裁剪圖片，開始上傳
-                uploadImageToServer(imageUri);
+                uploadImageToServer(imageUri, token);
             } else {
                 // 如果未選擇圖片，顯示提示
                 Toast.makeText(UserDataActivity.this, "請先選擇圖片", Toast.LENGTH_SHORT).show();
@@ -84,6 +151,98 @@ public class UserDataActivity extends AppCompatActivity {
 
         // 設置按鈕點擊事件，選擇圖片
         btnChooseButton.setOnClickListener(v -> selectImageFromGallery());
+        genderArrow.setOnClickListener(view -> showGenderPickerDialog());
+        heightArrow.setOnClickListener(view -> showHeightPickerDialog());
+        weightArrow.setOnClickListener(view -> showWeightPickerDialog());
+        usernameArrow.setOnClickListener(view -> showUsernameDialog());
+    }
+
+    // 用戶名稱
+    private void showUsernameDialog() {
+        final EditText editText = new EditText(this);
+        editText.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("你的名字")
+                .setView(editText)
+                .setPositiveButton("確定", (dialog, which) -> {
+                    String inputValue = editText.getText().toString();
+                    if (!inputValue.isEmpty()) {
+                        usernameData.setText("用戶名稱：" + inputValue);
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    // 體重
+    private void showWeightPickerDialog() {
+        final NumberPicker integerPicker = new NumberPicker(this);
+        integerPicker.setMinValue(10);
+        integerPicker.setMaxValue(250);
+        integerPicker.setValue(60);
+
+        final NumberPicker decimalPicker = new NumberPicker(this);
+        decimalPicker.setMinValue(0);
+        decimalPicker.setMaxValue(9);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setGravity(Gravity.CENTER);
+        layout.addView(integerPicker);
+        layout.addView(decimalPicker);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("你的體重 (公斤)")
+                .setView(layout)
+                .setPositiveButton("確定", (dialog, which) -> {
+                    double newValue = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
+                    weightData.setText("體重：" + newValue + "公斤");
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    // 顯示修改身高
+    private void showHeightPickerDialog() {
+        final NumberPicker integerPicker = new NumberPicker(this);
+        integerPicker.setMinValue(100);
+        integerPicker.setMaxValue(250);
+        integerPicker.setValue(150);
+
+        final NumberPicker decimalPicker = new NumberPicker(this);
+        decimalPicker.setMinValue(0);
+        decimalPicker.setMaxValue(9);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setGravity(Gravity.CENTER);
+        layout.addView(integerPicker);
+        layout.addView(decimalPicker);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("你的身高 (公分)")
+                .setView(layout)
+                .setPositiveButton("確定", (dialog, which) -> {
+                    double newValue = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
+                    heightData.setText("身高：" + newValue + "公分");
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    // 顯示性別選擇的 Dialog
+    private void showGenderPickerDialog() {
+        final String[] genderOptions = {"男", "女", "其他"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("選擇性別")
+                .setItems(genderOptions, (dialog, which) -> {
+                    // 用戶選擇性別後更新顯示
+                    TextView genderData = findViewById(R.id.gender_data);
+                    genderData.setText("性別：" + genderOptions[which]);
+                })
+                .show();
     }
 
     // 打開相冊選擇圖片
@@ -136,7 +295,7 @@ public class UserDataActivity extends AppCompatActivity {
     }
 
 
-    private void uploadImageToServer(Uri imageUri) {
+    private void uploadImageToServer(Uri imageUri, String token) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(imageUri);
             byte[] imageBytes = getBytesFromInputStream(inputStream);

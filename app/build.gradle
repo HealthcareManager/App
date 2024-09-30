@@ -89,4 +89,8 @@ dependencies {
     // Play services wearable
     implementation libs.play.services.wearable
     implementation libs.identity.jvm
+
+    //折線圖
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
 }
