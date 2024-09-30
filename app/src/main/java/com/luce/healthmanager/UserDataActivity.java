@@ -91,6 +91,7 @@ public class UserDataActivity extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("jwt_token", "").trim();
+        String userId = sharedPreferences.getString("userId", "");
         String username = sharedPreferences.getString("username", "用戶名稱");
         String email = sharedPreferences.getString("email", "電子郵件");
         String gender = sharedPreferences.getString("gender", "性別");
@@ -139,7 +140,7 @@ public class UserDataActivity extends AppCompatActivity {
         saveButton.setOnClickListener(v -> {
             if (imageUri != null) {
                 // 如果已經選擇並裁剪圖片，開始上傳
-                uploadImageToServer(imageUri, token);
+                uploadImageToServer(imageUri, token, userId);
             } else {
                 // 如果未選擇圖片，顯示提示
                 Toast.makeText(UserDataActivity.this, "請先選擇圖片", Toast.LENGTH_SHORT).show();
@@ -292,7 +293,7 @@ public class UserDataActivity extends AppCompatActivity {
     }
 
 
-    private void uploadImageToServer(Uri imageUri, String token) {
+    private void uploadImageToServer(Uri imageUri, String token, String userId) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(imageUri);
             byte[] imageBytes = getBytesFromInputStream(inputStream);
@@ -302,7 +303,7 @@ public class UserDataActivity extends AppCompatActivity {
             MultipartBody.Part body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile);
 
             // 使用 Retrofit 上傳圖片
-            Call<ResponseBody> call = apiService.uploadImageWithToken("Bearer " + token, 1L, body); // 假設用戶 ID 為 1
+            Call<ResponseBody> call = apiService.uploadImageWithToken("Bearer " + token, userId, body); // 假設用戶 ID 為 1
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

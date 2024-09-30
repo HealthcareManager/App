@@ -13,6 +13,7 @@ import retrofit2.http.Body;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.GET;
@@ -29,13 +30,25 @@ public interface ApiService {
     @POST("api/auth/upload-image/{id}")
     Call<ResponseBody> uploadImageWithToken(
             @Header("Authorization") String token,  // 添加 Authorization header
-            @Path("id") long userId,
+            @Path("id") String userId,
             @Part MultipartBody.Part file
     );
+
     @GET("api/healthData")
     Call<List<HeartRateData>> getHeartRateData();
 
+    @PUT("api/auth/update-username/{id}")
+    Call<ResponseBody> updateUsername(
+            @Header("Authorization") String token,
+            @Path("id") String id,
+            @Body Map<String, String> requestBody
+    );
 
-
+    @PUT("api/auth/update-password/{id}")
+    Call<ResponseBody> updatePassword(
+            @Header("Authorization") String token,
+            @Path("id") String id,
+            @Body Map<String, String> requestBody
+    );
 
 }
