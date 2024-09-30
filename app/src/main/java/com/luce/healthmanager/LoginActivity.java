@@ -443,6 +443,7 @@ public class LoginActivity extends AppCompatActivity {
                                         finish();
                                     } catch (JSONException e) {
                                         e.printStackTrace();
+                                        Log.d("test", String.valueOf(e));
                                         Toast.makeText(LoginActivity.this, "解析用戶數據出錯", Toast.LENGTH_SHORT).show();
                                     }
                                 } else {

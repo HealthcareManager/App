@@ -10,6 +10,7 @@ import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
@@ -25,8 +26,9 @@ public interface ApiService {
     Call<UserResponse> loginWithFacebook(@Body String accessToken);
 
     @Multipart
-    @POST("upload-image/{id}")
-    Call<ResponseBody> uploadImage(
+    @POST("api/auth/upload-image/{id}")
+    Call<ResponseBody> uploadImageWithToken(
+            @Header("Authorization") String token,  // 添加 Authorization header
             @Path("id") long userId,
             @Part MultipartBody.Part file
     );

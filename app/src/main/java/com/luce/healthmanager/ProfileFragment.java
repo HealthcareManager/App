@@ -32,6 +32,7 @@ public class ProfileFragment extends Fragment {
         String userId = sharedPreferences.getString("userId", "");
         String userImage = sharedPreferences.getString("userImage", "");
 
+        Log.d("Yuchen", userImage);
         // 更新 TextView
         TextView userNameTextView = view.findViewById(R.id.user_name);
         TextView userIdTextView = view.findViewById(R.id.user_id);
@@ -80,7 +81,7 @@ public class ProfileFragment extends Fragment {
             // 使用 Glide 加載圖片並處理錯誤和預設圖片
             Glide.with(this)
                     .load(userImage)  // 加載 SharedPreferences 中的圖片路徑
-                    .circleCrop()      // 將圖片裁切成圓形
+//                    .circleCrop()      // 將圖片裁切成圓形
                     .placeholder(R.drawable.chatbot)  // 加載中的預設圖片
                     .error(R.drawable.chatbot)        // 加載失敗的預設圖片
                     .into(avatar);
