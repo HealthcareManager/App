@@ -9,7 +9,7 @@ public class ApiClient {
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl("http://192.168.50.38:8080/HealthcareManager/") // 替换为你的 API 基础 URL
+                    .baseUrl("http://10.0.2.2:8080/") // 替换为你的 API 基础 URL
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

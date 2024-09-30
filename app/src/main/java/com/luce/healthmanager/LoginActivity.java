@@ -179,7 +179,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginWithLine() {
-        String redirectUri = "http://192.168.50.38:8080/HealthcareManager/api/auth/line-callback";  // 你應該用你在 LINE Developers 設定的重定向URI
+        String redirectUri = "http://10.0.2.2:8080/api/auth/line-callback";  // 你應該用你在 LINE Developers 設定的重定向URI
         String authorizationUrl = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=" +
                 getString(R.string.line_channel_id) +
                 "&redirect_uri=" + redirectUri +
@@ -356,7 +356,7 @@ public class LoginActivity extends AppCompatActivity {
             String result = null;
 
             try {
-                URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
+                URL url = new URL("http://10.0.2.2:8080/api/auth/login");
                 Log.d("test","123");
                 //URL url = new URL("http://10.0.2.2:8080/api/auth/login");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
