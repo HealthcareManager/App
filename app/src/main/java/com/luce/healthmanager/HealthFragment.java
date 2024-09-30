@@ -21,7 +21,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "heart");
+                intent.putExtra("CARD_TYPE", "心律");
                 startActivity(intent);
             }
         });
@@ -32,7 +32,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "oxygen");
+                intent.putExtra("CARD_TYPE", "血氧");
                 startActivity(intent);
             }
         });
@@ -43,7 +43,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "blood");
+                intent.putExtra("CARD_TYPE", "血壓");
                 startActivity(intent);
             }
         });
@@ -54,7 +54,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "sugar");
+                intent.putExtra("CARD_TYPE", "血糖");
                 startActivity(intent);
             }
         });
@@ -65,7 +65,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "calories");
+                intent.putExtra("CARD_TYPE", "卡路里");
                 startActivity(intent);
             }
         });
@@ -77,7 +77,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "height");
+                intent.putExtra("CARD_TYPE", "身高體重");
                 startActivity(intent);
             }
         });
@@ -88,7 +88,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "smoke");
+                intent.putExtra("CARD_TYPE", "抽菸");
                 startActivity(intent);
             }
         });
@@ -99,7 +99,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "beer");
+                intent.putExtra("CARD_TYPE", "喝酒");
                 startActivity(intent);
             }
         });
@@ -110,7 +110,7 @@ public class HealthFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-                intent.putExtra("CARD_TYPE", "leaf");
+                intent.putExtra("CARD_TYPE", "檳榔");
                 startActivity(intent);
             }
         });
