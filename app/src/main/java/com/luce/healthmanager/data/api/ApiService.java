@@ -16,8 +16,12 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface ApiService {
+
+    @POST("api/auth/line-callback")
+    Call<UserResponse> loginWithLine(@Query("code") String accessToken);
 
     @POST("api/auth/google-login") // 替换为实际的后端 API 路径
     Call<UserResponse> googleLogin(@Body Map<String, String> idToken);
@@ -34,7 +38,6 @@ public interface ApiService {
     @GET("api/healthData")
     Call<List<HeartRateData>> getHeartRateData();
 
-
-
-
+//    @POST("api/auth/login")
+//    Call<UserResponse> Login(@Body UserResponse user);
 }

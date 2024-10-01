@@ -29,7 +29,7 @@ public class ApiClient {
             // 配置 Retrofit
             retrofit = new Retrofit.Builder()
                     //.baseUrl("http://192.168.50.38:8080/HealthcareManager/") // 替換為你的 API 基礎 URL
-                    .baseUrl(context.getString(R.string.api_base_url)) // 替換為你的 API 基礎 URL
+                    .baseUrl(context.getString(R.string.api_base_url))// 替換為你的 API 基礎 URL
                     .client(okHttpClient) // 使用自定義的 OkHttpClient
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();

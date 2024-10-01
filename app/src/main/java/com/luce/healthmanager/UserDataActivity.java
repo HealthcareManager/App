@@ -3,6 +3,7 @@ package com.luce.healthmanager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -60,6 +61,9 @@ public class UserDataActivity extends AppCompatActivity {
     private ImageView userAvatar, usernameArrow, genderArrow, heightArrow, weightArrow, passwordArrow;  // 用戶頭像 ImageView
     private Uri imageUri;  // 圖片選擇的 URI
     private Button btnChooseButton, saveButton;
+    private SharedPreferences sharedPreferences;
+    private TextView usernameData, emailData, genderData, heightData, weightData, birthdayData;
+    private ImageButton backButton;
     //private ApiService apiService;// 選擇頭像按鈕
 
     @Override
