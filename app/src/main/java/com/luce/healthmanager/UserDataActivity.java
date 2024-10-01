@@ -163,10 +163,9 @@ public class UserDataActivity extends AppCompatActivity {
             if (imageUri != null) {
                 // 如果已經選擇並裁剪圖片，開始上傳
                 uploadImageToServer(imageUri, userId, token);
-                updateDataToServer(userId);
-            } else {
-                updateDataToServer(userId);
             }
+
+            updateDataToServer(userId);
         });
 
         // 設置按鈕點擊事件，選擇圖片
