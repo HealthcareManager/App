@@ -75,7 +75,7 @@ public class UserDataActivity extends AppCompatActivity {
     private boolean updatedImage = false;
     private String userId;
     private ImageButton backButton;
-    //private ApiService apiService;// 選擇頭像按鈕
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
