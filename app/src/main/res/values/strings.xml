@@ -4,4 +4,5 @@
     <string name="facebook_app_id">570867318755123</string>
     <string name="facebook_client_token">0372a630f20e901cc7c2cc29a99f03ab</string>
     <string name="line_channel_id">2006371057</string>
+    <string name="api_base_url">http://10.0.2.2:8080/</string>
 </resources>

@@ -16,8 +16,12 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 
 public class ProfileFragment extends Fragment {
+
+    private static final int REQUEST_UPDATE_PROFILE = 100;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,18 +80,24 @@ public class ProfileFragment extends Fragment {
         });
 
 
-        if (userImage != null && !userImage.isEmpty()) {
+        if (jwtToken != null && !userImage.isEmpty()) {
+            // 使用 Glide 加載圖片並添加 Token 驗證
+            GlideUrl glideUrl = new GlideUrl(userImage, new LazyHeaders.Builder()
+                    .addHeader("Authorization", "Bearer " + jwtToken)  // 添加 JWT Token 驗證
+                    .build());
 
-            // 使用 Glide 加載圖片並處理錯誤和預設圖片
+            Log.d("Yuchen", userImage);
+
+            // 加載圖片
             Glide.with(this)
-                    .load(userImage)  // 加載 SharedPreferences 中的圖片路徑
-//                    .circleCrop()      // 將圖片裁切成圓形
+                    .load(glideUrl)  // 使用自定義的 GlideUrl 加載圖片
+                    .circleCrop()
                     .placeholder(R.drawable.chatbot)  // 加載中的預設圖片
                     .error(R.drawable.chatbot)        // 加載失敗的預設圖片
                     .into(avatar);
         } else {
-            // 沒有圖片路徑，顯示預設的 drawable 圖片
-            avatar.setImageResource(R.drawable.chatbot);  // 預設圖片
+            // 沒有圖片路徑或 token，顯示預設的 drawable 圖片
+            avatar.setImageResource(R.drawable.chatbot);
         }
 
 
@@ -129,7 +139,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(requireActivity(), UserDataActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_UPDATE_PROFILE);
             }
         });
 
@@ -149,5 +159,38 @@ public class ProfileFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // 每次返回頁面時重新加載用戶圖片及數據
+        loadUserImage();
+    }
+
+    private void loadUserImage() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        String jwtToken = sharedPreferences.getString("jwt_token", null);
+        String userImage = sharedPreferences.getString("userImage", "");
+
+        ImageView avatar = getView().findViewById(R.id.profile_image);
+
+        if (jwtToken != null && !userImage.isEmpty()) {
+            // 使用 Glide 加載圖片
+            GlideUrl glideUrl = new GlideUrl(userImage, new LazyHeaders.Builder()
+                    .addHeader("Authorization", "Bearer " + jwtToken)
+                    .build());
+
+            Glide.with(this)
+                    .load(glideUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.chatbot)
+                    .error(R.drawable.chatbot)
+                    .into(avatar);
+        } else {
+            // 顯示預設圖片
+            avatar.setImageResource(R.drawable.chatbot);
+        }
     }
 }
