@@ -16,8 +16,12 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 public interface ApiService {
+
+    @POST("api/auth/line-callback")
+    Call<UserResponse> sendAuthorizationCode(@Body Map<String, String> requestBody);
 
     @POST("api/auth/google-login") // 替换为实际的后端 API 路径
     Call<UserResponse> googleLogin(@Body Map<String, String> idToken);
@@ -27,15 +31,13 @@ public interface ApiService {
 
     @Multipart
     @POST("api/auth/upload-image/{id}")
-    Call<ResponseBody> uploadImageWithToken(
-            @Header("Authorization") String token,  // 添加 Authorization header
+    Call<ResponseBody> uploadImage(
             @Path("id") long userId,
             @Part MultipartBody.Part file
     );
     @GET("api/healthData")
     Call<List<HeartRateData>> getHeartRateData();
 
-
-
-
+//    @POST("api/auth/login")
+//    Call<UserResponse> Login(@Body UserResponse user);
 }

@@ -32,6 +32,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
+import com.linecorp.linesdk.Scope;
+import com.linecorp.linesdk.auth.LineAuthenticationParams;
 import com.linecorp.linesdk.auth.LineLoginApi;
 import com.linecorp.linesdk.auth.LineLoginResult;
 import com.luce.healthmanager.data.api.ApiService;
@@ -64,7 +67,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 9001;
     private CallbackManager callbackManager;
     private FirebaseAuth mAuth;
-    private static final int REQUEST_CODE = 1001;
+    private static final int REQUEST_CODE_LINE_LOGIN = 1001;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +96,8 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.username_input);
         passwordEditText = findViewById(R.id.password_input);
 
+        apiService = ApiClient.getClient(this).create(ApiService.class);
+
         //一般用戶註冊
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(LoginActivity.this, "請輸入用戶名和密碼", Toast.LENGTH_SHORT).show();
             } else {
+                //login(username, password);
                 new LoginTask().execute(username, password);
             }
         });
@@ -179,16 +186,25 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginWithLine() {
-        String redirectUri = "http://10.0.2.2:8080/api/auth/line-callback";  // 你應該用你在 LINE Developers 設定的重定向URI
-        String authorizationUrl = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=" +
-                getString(R.string.line_channel_id) +
-                "&redirect_uri=" + redirectUri +
-                "&state=12345abcde&scope=profile%20openid%20email";
+//        String redirectUriForLine = getString(R.string.redirectUriForLine);  // 你應該用你在 LINE Developers 設定的重定向URI
+//        String authorizationUrl = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=" +
+//                getString(R.string.line_channel_id) +
+//                "&redirect_uri=" + redirectUriForLine +
+//                "&state=12345abcde&scope=openid%20email%20profile";
+//        // 使用 CustomTabsIntent 打開 LINE OAuth 網頁
+//        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+//        CustomTabsIntent customTabsIntent = builder.build();
+//        customTabsIntent.launchUrl(this, Uri.parse(authorizationUrl));
+        try {
+            LineAuthenticationParams params = new LineAuthenticationParams.Builder()
+                    .scopes(Arrays.asList(Scope.PROFILE, Scope.OPENID_CONNECT, Scope.OC_EMAIL))
+                    .build();
 
-        // 使用 CustomTabsIntent 打開 LINE OAuth 網頁
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        CustomTabsIntent customTabsIntent = builder.build();
-        customTabsIntent.launchUrl(this, Uri.parse(authorizationUrl));
+            Intent loginIntent = LineLoginApi.getLoginIntent(this, getString(R.string.line_channel_id), params);
+            startActivityForResult(loginIntent, REQUEST_CODE_LINE_LOGIN);
+        } catch (Exception e) {
+            Log.e("LineLogin", "Error logging in with LINE: " + e.getMessage());
+        }
 
     }
 
@@ -217,32 +233,86 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // 處理 Line 登入
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == REQUEST_CODE_LINE_LOGIN) {
             LineLoginResult result = LineLoginApi.getLoginResultFromIntent(data);
             switch (result.getResponseCode()) {
                 case SUCCESS:
-                    // 登入成功，處理使用者資料
-                    Log.d("Line","Line login suc");
-                    String accessToken = result.getLineCredential().getAccessToken().getTokenString();
-                    // 獲取使用者資料
+                    // 获取 authorization code
+                    String authorizationCode = result.getNonce();  // 获取到的就是 authorization code
+                    Log.d("LineLogin", "Authorization Code: " + authorizationCode);
+
+                    // 将 authorization code 发送到后端
+                    sendAuthorizationCodeToBackend(authorizationCode);
                     break;
+
                 case CANCEL:
-                    // 使用者取消了登入
+                    Log.d("LineLogin", "LINE 登录取消");
+                    Toast.makeText(this, "LINE 登录取消", Toast.LENGTH_SHORT).show();
                     break;
+
                 default:
-                    // 登入失敗
-                    String errorMessage = result.getErrorData().getMessage();
+                    String errorMessage = result.getErrorData().toString();
+                    Log.e("LineLogin", "LINE 登录失败: " + errorMessage);
+                    Toast.makeText(this, "LINE 登录失败: " + errorMessage, Toast.LENGTH_SHORT).show();
                     break;
             }
         }
-
         // 處理 Facebook 登入
         callbackManager.onActivityResult(requestCode, resultCode, data); // 將結果傳遞給 Facebook 的 CallbackManager
     }
 
+    // Line 的
+    private void sendAuthorizationCodeToBackend(String authorizationCode) {
+        // 構建請求體
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("code", authorizationCode);
+        Log.d("Line","Line send to backend is " + apiService.sendAuthorizationCode(requestBody));
+
+        Call<UserResponse> call = apiService.sendAuthorizationCode(requestBody);
+        call.enqueue(new Callback<UserResponse>() {
+            @Override
+            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("LineLogin", "用戶信息：" + response.body());
+                } else {
+                    Toast.makeText(LoginActivity.this, "獲取用戶資料失敗", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UserResponse> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "請求失敗：" + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    // Line的
+//    private void requestUserInfoFromBackend(String accessToken) {
+//        Call<UserResponse> call = apiService.loginWithLine(accessToken);
+//
+//        call.enqueue(new Callback<UserResponse>() {
+//            @Override
+//            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    // 处理并存储用户资料
+//                    //handleLineLoginResponse(new Gson().toJson(response.body()));
+//                    Log.d("Line test","response is " + response);
+//                } else {
+//                    Toast.makeText(LoginActivity.this, "獲取用戶資料失敗", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<UserResponse> call, Throwable t) {
+//                Toast.makeText(LoginActivity.this, "請求失敗：" + t.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
+
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class); // 获取登录账户
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             // 登入成功
             String idToken = account.getIdToken();
             // 將 ID Token 發送到後端
@@ -255,42 +325,23 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(this, "登入失敗: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
             Log.w("GoogleSignIn", "登入失敗: " + e.getStatusCode() + " - " + e.getMessage());
             Log.e("GoogleSignInError", "Sign-in failed: " + e.getStatusCode(), e);
-
         }
     }
 
     // Google的
     private void sendIdTokenToServer(String idToken) {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-
         // 创建包含 idToken 的请求体
         Map<String, String> idTokenMap = new HashMap<>();
         idTokenMap.put("idToken", idToken);
 
         Call<UserResponse> call = apiService.googleLogin(idTokenMap);
-
         call.enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful()) {
                     UserResponse user = response.body();
                     if (user != null) {
-                        // Handle successful login
-                        Log.d("test" ,"User ID: " + user.getId());
-                        Log.d("test" ,"Username: " + user.getUsername());
-                        Log.d("test" ,"Email: " + user.getEmail());
-                        // Proceed with app logic (e.g., navigate to the main screen)
-                        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("userId", user.getId());
-                        editor.putString("username", user.getUsername());
-                        editor.putString("email", user.getEmail());
-                        editor.apply(); // 提交更改
-
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra("showHealthFragment", true);
-                        startActivity(intent);
-                        finish();
+                        UserDataManager.saveUserDataToPreferences(LoginActivity.this, user);
                     }
                 } else {
                     // Handle error response
@@ -309,32 +360,14 @@ public class LoginActivity extends AppCompatActivity {
     // FB的
     private void verifyAccessToken(String accessToken) {
         // 使用 Retrofit 來呼叫後端 API
-        Log.d("test"," verifyAccessToken in ");
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<UserResponse> call = apiService.loginWithFacebook(accessToken);
-
         call.enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     UserResponse user = response.body();
                     if (user != null) {
-                        // Handle successful login
-                        Log.d("test" ,"User ID: " + user.getId());
-                        Log.d("test" ,"Username: " + user.getUsername());
-                        Log.d("test" ,"Email: " + user.getEmail());
-                        // Proceed with app logic (e.g., navigate to the main screen)
-                        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("userId", user.getId());
-                        editor.putString("username", user.getUsername());
-                        editor.putString("email", user.getEmail());
-                        editor.apply(); // 提交更改
-
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra("showHealthFragment", true);
-                        startActivity(intent);
-                        finish();
+                        UserDataManager.saveUserDataToPreferences(LoginActivity.this, user);
                     }
                 } else {
                     Log.e("LoginActivity", "Login failed: " + response.message());
@@ -348,6 +381,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    //一般登入的
     private class LoginTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
@@ -356,9 +390,8 @@ public class LoginActivity extends AppCompatActivity {
             String result = null;
 
             try {
-                URL url = new URL("http://10.0.2.2:8080/api/auth/login");
-                Log.d("test","123");
                 //URL url = new URL("http://10.0.2.2:8080/api/auth/login");
+                URL url = new URL("http://192.168.50.38:8080/HealthcareManager/api/auth/login");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
@@ -396,7 +429,6 @@ public class LoginActivity extends AppCompatActivity {
             if (result != null) {
                 try {
                     JSONObject jsonResponse = new JSONObject(result);
-
                     // 檢查響應中是否包含token
                     if (jsonResponse.has("token")) {
                         String token = jsonResponse.getString("token");
@@ -413,39 +445,7 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onParseTokenCompleted(JSONObject userData) {
                                 if (userData != null) {
-                                    Log.d("test","userData is " + userData);
-                                    try {
-                                        String username = userData.getString("username");
-                                        String userId = userData.getString("id");
-                                        String email = userData.getString("email");
-                                        String gender = userData.getString("gender");
-                                        String height = userData.getString("height");
-                                        String weight = userData.getString("weight");
-                                        String dateOfBirth = userData.getString("dateOfBirth");
-                                        String userImage = userData.getString("userImage");
-
-                                        // 保存用户数据到 SharedPreferences
-                                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                                        editor.putString("username", username);
-                                        editor.putString("userId", userId);
-                                        editor.putString("email", email);
-                                        editor.putString("gender", gender);
-                                        editor.putString("height", height);
-                                        editor.putString("weight", weight);
-                                        editor.putString("dateOfBirth", dateOfBirth);
-                                        editor.putString("userImage", userImage);
-                                        editor.apply();
-
-                                        // 跳转到 MainActivity
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                        intent.putExtra("showHealthFragment", true);
-                                        startActivity(intent);
-                                        finish();
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                        Log.d("test", String.valueOf(e));
-                                        Toast.makeText(LoginActivity.this, "解析用戶數據出錯", Toast.LENGTH_SHORT).show();
-                                    }
+                                    UserDataManager.saveUserDataToPreferences(LoginActivity.this, userData);
                                 } else {
                                     Toast.makeText(LoginActivity.this, "解析 token 失敗", Toast.LENGTH_SHORT).show();
                                 }
@@ -464,5 +464,47 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
-
+//    private void login(String username, String password) {
+//        UserResponse user = new UserResponse(username, password);
+//        Call<UserResponse> call = apiService.Login(user);
+//        call.enqueue(new Callback<UserResponse>() {
+//            @Override
+//            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    try {
+//                        // 將 response 轉為 JSON 字符串
+//                        String responseString = new Gson().toJson(response);
+//                        JSONObject jsonResponse = new JSONObject(responseString);
+//                        Log.d("test","response is " + responseString);
+//
+//                        // 檢查響應中是否包含 token
+//                        if (jsonResponse.has("token")) {
+//                            String token = jsonResponse.getString("token");
+//                            Log.d("test", "Token at login is " + token);
+//
+//                            // 保存 token 到 SharedPreferences
+//                            SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+//                            SharedPreferences.Editor editor = sharedPreferences.edit();
+//                            editor.putString("jwt_token", token);
+//                            editor.apply();
+//
+//                            // 保存用戶數據
+//                            UserDataManager.saveUserDataToPreferences(LoginActivity.this, user);
+//                        } else {
+//                            Log.e("LoginActivity", "Token not found in the response.");
+//                        }
+//                    } catch (JSONException e) {
+//                        Log.e("LoginActivity", "JSON Parsing error: " + e.getMessage());
+//                    }
+//                } else {
+//                    Log.e("LoginActivity", "Login failed: " + response.message());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<UserResponse> call, Throwable t) {
+//                Log.e("LoginActivity", "Error: " + t.getMessage());
+//            }
+//        });
+//    }
 }

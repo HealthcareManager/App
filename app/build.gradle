@@ -49,7 +49,7 @@ dependencies {
 
     // Line登入SDK
     // https://mvnrepository.com/artifact/com.linecorp.linesdk/linesdk
-    implementation 'com.linecorp.linesdk:linesdk:5.8.0'
+    implementation 'com.linecorp.linesdk:linesdk:5.10.0'
 
     // FB登入SDK
     implementation 'com.facebook.android:facebook-login:latest.release'

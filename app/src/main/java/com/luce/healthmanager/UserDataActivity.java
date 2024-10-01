@@ -3,6 +3,7 @@ package com.luce.healthmanager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -59,18 +60,24 @@ public class UserDataActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSION_CODE = 100;
     private ImageView userAvatar, usernameArrow, genderArrow, heightArrow, weightArrow, passwordArrow;  // 用戶頭像 ImageView
     private Uri imageUri;  // 圖片選擇的 URI
-    private Button btnChooseButton, saveButton; // 選擇頭像按鈕
-    private ImageButton backButton;
-    private ApiService apiService;
+    private Button btnChooseButton, saveButton;
     private SharedPreferences sharedPreferences;
     private TextView usernameData, emailData, genderData, heightData, weightData, birthdayData;
+    private ImageButton backButton;
+    //private ApiService apiService;// 選擇頭像按鈕
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
 
-        apiService = ApiClient.getClient().create(ApiService.class);
+//        // 創建 Retrofit
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("http://192.168.50.38:8080/HealthcareManager/api/auth/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//
+//        apiService = retrofit.create(ApiService.class);
 
         btnChooseButton = findViewById(R.id.btn_choose);
         userAvatar = findViewById(R.id.userAvatar);
@@ -300,9 +307,9 @@ public class UserDataActivity extends AppCompatActivity {
             // 構建 RequestBody
             RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageBytes);
             MultipartBody.Part body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile);
-
+            ApiService apiService = ApiClient.getClient(this).create(ApiService.class);
             // 使用 Retrofit 上傳圖片
-            Call<ResponseBody> call = apiService.uploadImageWithToken("Bearer " + token, 1L, body); // 假設用戶 ID 為 1
+            Call<ResponseBody> call = apiService.uploadImage(1L, body); // 假設用戶 ID 為 1
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
