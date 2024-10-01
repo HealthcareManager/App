@@ -245,7 +245,7 @@
             android:layout_marginTop="10dp"
             android:background="@color/colorPrimary"
             android:padding="10dp"
-            android:text="修改頭像"
+            android:text="儲存"
             android:textStyle="bold"
             android:textColor="@android:color/white"
             android:textSize="20dp" />
