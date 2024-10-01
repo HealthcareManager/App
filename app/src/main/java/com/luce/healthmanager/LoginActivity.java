@@ -195,22 +195,15 @@ public class LoginActivity extends AppCompatActivity {
 //        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
 //        CustomTabsIntent customTabsIntent = builder.build();
 //        customTabsIntent.launchUrl(this, Uri.parse(authorizationUrl));
-
         try {
-            // 创建 LineAuthenticationParams，设置所需的权限范围（scope）
             LineAuthenticationParams params = new LineAuthenticationParams.Builder()
-                    .scopes(Arrays.asList(Scope.PROFILE, Scope.OPENID_CONNECT, Scope.OC_EMAIL)) // 请求 profile、openid 和 email 权限
+                    .scopes(Arrays.asList(Scope.PROFILE, Scope.OPENID_CONNECT, Scope.OC_EMAIL))
                     .build();
 
-
-            // 使用 LineLoginApi.getLoginIntent() 并传递 context、channelId 和 params
             Intent loginIntent = LineLoginApi.getLoginIntent(this, getString(R.string.line_channel_id), params);
-
-            // 启动 LINE 登录
             startActivityForResult(loginIntent, REQUEST_CODE_LINE_LOGIN);
         } catch (Exception e) {
-            Log.e("LineLogin", "LINE 登录失败: " + e.getMessage());
-            Toast.makeText(this, "LINE 登录失败", Toast.LENGTH_SHORT).show();
+            Log.e("LineLogin", "Error logging in with LINE: " + e.getMessage());
         }
 
     }
@@ -244,19 +237,23 @@ public class LoginActivity extends AppCompatActivity {
             LineLoginResult result = LineLoginApi.getLoginResultFromIntent(data);
             switch (result.getResponseCode()) {
                 case SUCCESS:
-                    String accessToken = result.getLineCredential().getAccessToken().getTokenString();
-                    Log.d("Line test","accessToken is " + accessToken);
-                    // 使用 Access Token 向后端请求用户资料
-                    requestUserInfoFromBackend(accessToken);
+                    // 获取 authorization code
+                    String authorizationCode = result.getNonce();  // 获取到的就是 authorization code
+                    Log.d("LineLogin", "Authorization Code: " + authorizationCode);
+
+                    // 将 authorization code 发送到后端
+                    sendAuthorizationCodeToBackend(authorizationCode);
                     break;
+
                 case CANCEL:
-                    Log.d("LineLogin", "LINE 登入取消");
-                    Toast.makeText(this, "LINE 登入取消", Toast.LENGTH_SHORT).show();
+                    Log.d("LineLogin", "LINE 登录取消");
+                    Toast.makeText(this, "LINE 登录取消", Toast.LENGTH_SHORT).show();
                     break;
+
                 default:
-                    String errorMessage = result.getErrorData().getMessage();
-                    Log.e("LineLogin", "LINE 登入失敗: " + errorMessage);
-                    Toast.makeText(this, "LINE 登入失敗: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    String errorMessage = result.getErrorData().toString();
+                    Log.e("LineLogin", "LINE 登录失败: " + errorMessage);
+                    Toast.makeText(this, "LINE 登录失败: " + errorMessage, Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -264,17 +261,19 @@ public class LoginActivity extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data); // 將結果傳遞給 Facebook 的 CallbackManager
     }
 
-    // Line的
-    private void requestUserInfoFromBackend(String accessToken) {
-        Call<UserResponse> call = apiService.loginWithLine(accessToken);
+    // Line 的
+    private void sendAuthorizationCodeToBackend(String authorizationCode) {
+        // 構建請求體
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("code", authorizationCode);
+        Log.d("Line","Line send to backend is " + apiService.sendAuthorizationCode(requestBody));
 
+        Call<UserResponse> call = apiService.sendAuthorizationCode(requestBody);
         call.enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // 处理并存储用户资料
-                    //handleLineLoginResponse(new Gson().toJson(response.body()));
-                    Log.d("Line test","response is " + response);
+                    Log.d("LineLogin", "用戶信息：" + response.body());
                 } else {
                     Toast.makeText(LoginActivity.this, "獲取用戶資料失敗", Toast.LENGTH_SHORT).show();
                 }
@@ -286,6 +285,30 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    // Line的
+//    private void requestUserInfoFromBackend(String accessToken) {
+//        Call<UserResponse> call = apiService.loginWithLine(accessToken);
+//
+//        call.enqueue(new Callback<UserResponse>() {
+//            @Override
+//            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
+//                if (response.isSuccessful() && response.body() != null) {
+//                    // 处理并存储用户资料
+//                    //handleLineLoginResponse(new Gson().toJson(response.body()));
+//                    Log.d("Line test","response is " + response);
+//                } else {
+//                    Toast.makeText(LoginActivity.this, "獲取用戶資料失敗", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<UserResponse> call, Throwable t) {
+//                Toast.makeText(LoginActivity.this, "請求失敗：" + t.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//    }
 
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {

@@ -21,7 +21,7 @@ import retrofit2.http.Query;
 public interface ApiService {
 
     @POST("api/auth/line-callback")
-    Call<UserResponse> loginWithLine(@Query("code") String accessToken);
+    Call<UserResponse> sendAuthorizationCode(@Body Map<String, String> requestBody);
 
     @POST("api/auth/google-login") // 替换为实际的后端 API 路径
     Call<UserResponse> googleLogin(@Body Map<String, String> idToken);
