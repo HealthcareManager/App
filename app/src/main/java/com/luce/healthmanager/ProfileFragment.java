@@ -3,6 +3,7 @@ package com.luce.healthmanager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,19 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class ProfileFragment extends Fragment {
 
@@ -91,12 +105,71 @@ public class ProfileFragment extends Fragment {
         }
 
 
-        // 轉向付費頁面
         cardprime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(requireActivity(), LoginActivity.class);
-                startActivity(intent);
+                // 構建請求體
+                String requestBody = "{\n" +
+                "    \"amount\": 100,\n" +
+                "    \"currency\": \"TWD\",\n" +
+                "    \"orderId\": \"order202410010001\",\n" +
+                "    \"packages\": [\n" +
+                "        {\n" +
+                "            \"name\": \"RebeccaShop\",\n" +
+                "            \"amount\": 100,\n" +
+                "            \"products\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"VIP\",\n" +
+                "                    \"imageUrl\": \"\",\n" +
+                "                    \"quantity\": 1,\n" +
+                "                    \"price\": 100\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"redirectUrls\": {\n" +
+                "        \"confirmUrl\": \"https://www.google.com.tw\",\n" +
+                "        \"cancelUrl\": \"https://www.google.com.tw\"\n" +
+                "    }\n" +
+                "}"; // 請求體
+        
+                OkHttpClient client = new OkHttpClient();
+        
+                RequestBody body = RequestBody.create(requestBody, MediaType.parse("application/json"));
+                Request request = new Request.Builder()
+                        .url("http://10.0.2.2:8080/api/payment") // 在模擬器中使用
+                        .post(body)
+                        .build();
+        
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+        
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            final String responseData = response.body().string();
+        
+                            // 解析 JSON 響應
+                            try {
+                                JSONObject jsonResponse = new JSONObject(responseData);
+                                if (jsonResponse.getString("status").equals("success")) {
+                                    JSONObject responseBody = new JSONObject(jsonResponse.getString("response"));
+                                    String paymentUrl = responseBody.getString("paymentUrl"); // 確保這裡正確解析到支付 URL
+        
+                                    // 跳轉到瀏覽器
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setData(Uri.parse(paymentUrl));
+                                    startActivity(intent);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
             }
         });
 
