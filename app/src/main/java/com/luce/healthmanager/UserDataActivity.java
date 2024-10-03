@@ -165,8 +165,6 @@ public class UserDataActivity extends AppCompatActivity {
                 // 如果已經選擇並裁剪圖片，開始上傳
                 uploadImageToServer(imageUri, userId, token);
             }
-
-            updateDataToServer(userId);
         });
 
         // 設置按鈕點擊事件，選擇圖片
@@ -279,23 +277,7 @@ public class UserDataActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void updateDataToServer(String userId) {
-
-        String updatedUsername = usernameData.getText().toString().replace("用戶名稱：", "");
-        String updatedGender = genderData.getText().toString().replace("性別：", "");
-        String updatedHeight = heightData.getText().toString().replace("身高：", "").replace("公分", "");
-        String updatedWeight = weightData.getText().toString().replace("體重：", "").replace("公斤", "");
-
-        // 構建 JSON 請求體
-        JSONObject updateData = new JSONObject();
-        try {
-            updateData.put("username", updatedUsername);
-            updateData.put("gender", updatedGender.equals("男") ? "MALE" : "FEMALE");
-            updateData.put("height", updatedHeight);
-            updateData.put("weight", updatedWeight);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    private void updateDataToServer(Map<String, Object> updateData) {
 
         // 發送請求更新用戶資料
         Call<ResponseBody> call = apiService.updateUserData(userId, updateData);
@@ -308,13 +290,37 @@ public class UserDataActivity extends AppCompatActivity {
 
                     // 更新 SharedPreferences 中的數據
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("username", updatedUsername);
-                    editor.putString("gender", updatedGender.equals("男") ? "MALE" : "FEMALE");
-                    editor.putString("height", updatedHeight);
-                    editor.putString("weight", updatedWeight);
-                    editor.apply();
+
+                    // 更新每個需要更新的字段
+                    if (updateData.containsKey("username")) {
+                        editor.putString("username", (String) updateData.get("username"));
+                    }
+                    if (updateData.containsKey("gender")) {
+                        editor.putString("gender", (String) updateData.get("gender"));
+                    }
+                    if (updateData.containsKey("height")) {
+                        editor.putString("height", String.valueOf(updateData.get("height")));
+                    }
+                    if (updateData.containsKey("weight")) {
+                        editor.putString("weight", String.valueOf(updateData.get("weight")));
+                    }
+
+                    editor.apply(); // 提交更改
                 } else {
-                    Toast.makeText(UserDataActivity.this, "資料更新失敗", Toast.LENGTH_SHORT).show();
+                    try {
+                        // 如果資料更新失敗，檢查後端返回的錯誤信息
+                        String errorMessage = response.errorBody().string();
+                        if (errorMessage.contains("該用戶名已被使用")) {
+                            // 如果是因為用戶名重複的原因，顯示相應的錯誤訊息
+                            Toast.makeText(UserDataActivity.this, "該用戶名已被使用，請換一個名稱", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // 其他錯誤
+                            Toast.makeText(UserDataActivity.this, "資料更新失敗", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(UserDataActivity.this, "無法解析錯誤信息", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -331,12 +337,18 @@ public class UserDataActivity extends AppCompatActivity {
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("你的名字")
+        builder.setTitle("請輸入您的名字")
                 .setView(editText)
                 .setPositiveButton("確定", (dialog, which) -> {
-                    String inputValue = editText.getText().toString();
-                    if (!inputValue.isEmpty()) {
-                        usernameData.setText("用戶名稱：" + inputValue);
+                    String newUsername = editText.getText().toString().trim();
+                    if (!newUsername.isEmpty()) {
+                        Map<String, Object> updateData = new HashMap<>();
+                        updateData.put("username", newUsername);
+
+                        updateDataToServer(updateData);
+                        usernameData.setText("用戶名稱：" + newUsername);
+                    } else {
+                        Toast.makeText(this, "名稱不能為空", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("取消", null)
@@ -361,11 +373,15 @@ public class UserDataActivity extends AppCompatActivity {
         layout.addView(decimalPicker);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("你的體重 (公斤)")
+        builder.setTitle("請選擇您的體重 (公斤)")
                 .setView(layout)
                 .setPositiveButton("確定", (dialog, which) -> {
-                    double newValue = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
-                    weightData.setText("體重：" + newValue + "公斤");
+                    double newWeight = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("weight", newWeight);
+
+                    updateDataToServer(updateData);
+                    weightData.setText("體重：" + newWeight + "公斤");
                 })
                 .setNegativeButton("取消", null)
                 .show();
@@ -389,11 +405,15 @@ public class UserDataActivity extends AppCompatActivity {
         layout.addView(decimalPicker);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("你的身高 (公分)")
+        builder.setTitle("請選擇您的身高 (公分)")
                 .setView(layout)
                 .setPositiveButton("確定", (dialog, which) -> {
-                    double newValue = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
-                    heightData.setText("身高：" + newValue + "公分");
+                    double newHeight = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("height", newHeight);
+
+                    updateDataToServer(updateData);
+                    heightData.setText("身高：" + newHeight + "公分");
                 })
                 .setNegativeButton("取消", null)
                 .show();
@@ -404,11 +424,33 @@ public class UserDataActivity extends AppCompatActivity {
         final String[] genderOptions = {"男", "女", "其他"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("選擇性別")
+        builder.setTitle("請選擇您的性別")
                 .setItems(genderOptions, (dialog, which) -> {
                     // 用戶選擇性別後更新顯示
-                    TextView genderData = findViewById(R.id.gender_data);
-                    genderData.setText("性別：" + genderOptions[which]);
+                    String selectedGender = genderOptions[which]; // 獲取選擇的性別
+                    TextView genderTextView = findViewById(R.id.gender_data); // 找到顯示性別的 TextView
+                    genderTextView.setText(selectedGender); // 更新 TextView 的顯示
+
+                    String genderString;
+                    switch (selectedGender) {
+                        case "男":
+                            genderString = "MALE";
+                            break;
+                        case "女":
+                            genderString = "FEMALE";
+                            break;
+                        case "其他":
+                        default:
+                            genderString = "OTHER";
+                            break;
+                    }
+
+                    // 準備更新數據
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("gender", genderString); // 將選擇的性別加入更新數據
+
+                    updateDataToServer(updateData); // 呼叫更新方法
+                    genderData.setText("性別：" + selectedGender);
                 })
                 .show();
     }
