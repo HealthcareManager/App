@@ -40,7 +40,6 @@ public class ProfileFragment extends Fragment {
         TextView userNameTextView = view.findViewById(R.id.user_name);
         TextView userIdTextView = view.findViewById(R.id.user_id);
         ImageView avatar = view.findViewById(R.id.profile_image);
-        Button logoutButton = view.findViewById(R.id.logout_button);
         LinearLayout userdata = view.findViewById(R.id.userdata);
         Button logoutButton = view.findViewById(R.id.logout_button);
         Button loginButton = view.findViewById(R.id.login_button);// 使用 view.findViewById
