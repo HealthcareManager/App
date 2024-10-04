@@ -531,6 +531,8 @@ public class UserDataActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(jsonResponse);
                             String imageUrl = jsonObject.getString("filePath");
 
+                            Log.d("imageURL", "imageURL is " + imageUrl);
+
                             // 更新SharedPreferences中的userImage
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putString("userImage", imageUrl);  // 使用後端返回的圖片路徑
