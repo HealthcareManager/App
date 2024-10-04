@@ -35,6 +35,8 @@ public class ProfileFragment extends Fragment {
         String userImage = sharedPreferences.getString("userImage", "");
 
         Log.d("ProfileFragment", "User image URL: " + userImage);
+        Log.d("ProfileFragment", "username: " + username);
+        Log.d("ProfileFragment", "userId: " + userId);
 
         // 設置 TextView 與 ImageView
         TextView userNameTextView = view.findViewById(R.id.user_name);
@@ -79,14 +81,14 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        // 點擊事件: 用戶資料頁面
-        userdata.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(requireActivity(), UserDataActivity.class);
-                startActivityForResult(intent, REQUEST_UPDATE_PROFILE);
-            }
-        });
+//        // 點擊事件: 用戶資料頁面
+//        userdata.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(requireActivity(), UserDataActivity.class);
+//                startActivityForResult(intent, REQUEST_UPDATE_PROFILE);
+//            }
+//        });
 
         // 點擊事件: 控制登入/登出操作
         if (jwtToken == null) {
@@ -99,10 +101,18 @@ public class ProfileFragment extends Fragment {
             };
             avatar.setOnClickListener(loginListener);
             userNameTextView.setOnClickListener(loginListener);
+            userdata.setOnClickListener(null);
         } else {
+            View.OnClickListener userDataListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(new Intent(requireActivity(), UserDataActivity.class));
+                }
+            };
             // 用戶已登入，不執行點擊操作，或者開啟編輯功能
             avatar.setOnClickListener(null);
             userNameTextView.setOnClickListener(null);
+            userdata.setOnClickListener(userDataListener);
         }
 
         // 點擊事件: 登出按鈕
