@@ -34,15 +34,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.luce.healthmanager.data.api.ApiService;
 import com.luce.healthmanager.data.network.ApiClient;
 import com.yalantis.ucrop.UCrop;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -56,6 +64,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UserDataActivity extends AppCompatActivity {
 
+    private static final int REQUEST_IMAGE_PICK = 1;
     private static final int PICK_IMAGE_REQUEST = 1;  // 用於選擇圖片的請求碼
     private static final int REQUEST_PERMISSION_CODE = 100;
     private ImageView userAvatar, usernameArrow, genderArrow, heightArrow, weightArrow, passwordArrow;  // 用戶頭像 ImageView
@@ -63,21 +72,17 @@ public class UserDataActivity extends AppCompatActivity {
     private Button btnChooseButton, saveButton;
     private SharedPreferences sharedPreferences;
     private TextView usernameData, emailData, genderData, heightData, weightData, birthdayData;
+    private boolean updatedImage = false;
+    private String userId;
     private ImageButton backButton;
-    //private ApiService apiService;// 選擇頭像按鈕
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_data);
 
-//        // 創建 Retrofit
-//        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl("http://192.168.50.38:8080/HealthcareManager/api/auth/")
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-//
-//        apiService = retrofit.create(ApiService.class);
+        apiService = ApiClient.getClient(this).create(ApiService.class);
 
         btnChooseButton = findViewById(R.id.btn_choose);
         userAvatar = findViewById(R.id.userAvatar);
@@ -97,7 +102,8 @@ public class UserDataActivity extends AppCompatActivity {
 
 
         sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-        String token = sharedPreferences.getString("jwt_token", "").trim();
+        String token = sharedPreferences.getString("jwt_token", null);
+        userId = sharedPreferences.getString("userId", "");
         String username = sharedPreferences.getString("username", "用戶名稱");
         String email = sharedPreferences.getString("email", "電子郵件");
         String gender = sharedPreferences.getString("gender", "性別");
@@ -122,22 +128,33 @@ public class UserDataActivity extends AppCompatActivity {
         String formattedDate = birthday.replace("-", "年").replaceFirst("年", "年").replaceFirst("-", "月") + "日";
         birthdayData.setText("生日：" + formattedDate);
 
-        if (!userImage.isEmpty()) {
-            // 使用 Glide 載入圖片
+        if (token != null && !userImage.isEmpty() && !updatedImage) {
+            // 使用 Glide 加載圖片並添加 Token 驗證
+            GlideUrl glideUrl = new GlideUrl(userImage, new LazyHeaders.Builder()
+                    .addHeader("Authorization", "Bearer " + token)  // 添加 JWT Token 驗證
+                    .build());
+
+            // 加載圖片
             Glide.with(this)
-                    .load(userImage)
-                    .placeholder(R.drawable.chatbot)  // 加載中顯示的預設圖片
-                    .error(R.drawable.chatbot)        // 加載錯誤時顯示的預設圖片
-                    .circleCrop()                            // 將圖片裁剪為圓形
-                    .into(userAvatar);                       // 將圖片加載到 ImageView 中
+                    .load(glideUrl)  // 使用自定義的 GlideUrl 加載圖片
+                    .circleCrop()
+                    .placeholder(R.drawable.chatbot)  // 加載中的預設圖片
+                    .error(R.drawable.chatbot)        // 加載失敗的預設圖片
+                    .into(userAvatar);
         } else {
-            // 如果沒有用戶圖片，顯示預設圖片
+            // 沒有圖片路徑或 token，顯示預設的 drawable 圖片
             userAvatar.setImageResource(R.drawable.chatbot);
         }
 
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // 返回結果給上一個 Activity
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("updatedImage", updatedImage);
+                setResult(RESULT_OK, resultIntent);
+
                 finish(); // 返回到上一個 Activity
             }
         });
@@ -146,10 +163,7 @@ public class UserDataActivity extends AppCompatActivity {
         saveButton.setOnClickListener(v -> {
             if (imageUri != null) {
                 // 如果已經選擇並裁剪圖片，開始上傳
-                uploadImageToServer(imageUri, token);
-            } else {
-                // 如果未選擇圖片，顯示提示
-                Toast.makeText(UserDataActivity.this, "請先選擇圖片", Toast.LENGTH_SHORT).show();
+                uploadImageToServer(imageUri, userId, token);
             }
         });
 
@@ -159,6 +173,162 @@ public class UserDataActivity extends AppCompatActivity {
         heightArrow.setOnClickListener(view -> showHeightPickerDialog());
         weightArrow.setOnClickListener(view -> showWeightPickerDialog());
         usernameArrow.setOnClickListener(view -> showUsernameDialog());
+        passwordArrow.setOnClickListener(view -> showPasswordDialog());
+    }
+
+    private void showPasswordDialog() {
+        // 創建一個對話框
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("修改密碼");
+
+        // 設置對話框的佈局
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        // 創建 EditText 來輸入舊密碼
+        final EditText oldPasswordInput = new EditText(this);
+        oldPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        oldPasswordInput.setHint("舊密碼");
+        layout.addView(oldPasswordInput); // 添加到佈局
+
+        // 創建 EditText 來輸入新密碼
+        final EditText newPasswordInput = new EditText(this);
+        newPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        newPasswordInput.setHint("新密碼");
+        layout.addView(newPasswordInput); // 添加到佈局
+
+        // 創建 EditText 來確認新密碼
+        final EditText confirmPasswordInput = new EditText(this);
+        confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        confirmPasswordInput.setHint("確認新密碼");
+        layout.addView(confirmPasswordInput); // 添加到佈局
+
+        builder.setView(layout);
+
+        // 設置按鈕的行為
+        builder.setPositiveButton("確定", (dialog, which) -> {
+                    String oldPassword = oldPasswordInput.getText().toString();
+                    String newPassword = newPasswordInput.getText().toString();
+                    String confirmPassword = confirmPasswordInput.getText().toString();
+
+                    // 檢查舊密碼和新密碼的有效性
+                    if (oldPassword.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
+                        Toast.makeText(this, "請填寫所有字段", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (!newPassword.equals(confirmPassword)) {
+                        Toast.makeText(this, "新密碼和確認新密碼不一致", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // 調用 API 獲取使用者密碼
+                    Call<ResponseBody> call = apiService.getPassword(userId);
+                    call.enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                try {
+                                    // 從響應中獲取密碼
+                                    String storedPassword = response.body().string();
+
+                                    // 與使用者輸入的舊密碼進行比對
+                                    if (!oldPassword.equals(storedPassword)) {
+                                        Toast.makeText(UserDataActivity.this, "密碼不正確", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+
+                                    Map<String, String> passwordUpdate = new HashMap<>();
+                                    passwordUpdate.put("newPassword", newPassword);
+
+                                    // 如果舊密碼正確，調用 API 更新新密碼
+                                    Call<ResponseBody> updateCall = apiService.updatePassword(userId, passwordUpdate);
+                                    updateCall.enqueue(new Callback<ResponseBody>() {
+                                        @Override
+                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                            if (response.isSuccessful()) {
+                                                Toast.makeText(UserDataActivity.this, "密碼已成功更新", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(UserDataActivity.this, "更新密碼失敗", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                            Toast.makeText(UserDataActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(UserDataActivity.this, "處理響應失敗", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(UserDataActivity.this, "無法獲取用戶密碼", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            Toast.makeText(UserDataActivity.this, "請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void updateDataToServer(Map<String, Object> updateData) {
+
+        // 發送請求更新用戶資料
+        Call<ResponseBody> call = apiService.updateUserData(userId, updateData);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(UserDataActivity.this, "資料更新成功", Toast.LENGTH_SHORT).show();
+
+                    // 更新 SharedPreferences 中的數據
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                    // 更新每個需要更新的字段
+                    if (updateData.containsKey("username")) {
+                        editor.putString("username", (String) updateData.get("username"));
+                    }
+                    if (updateData.containsKey("gender")) {
+                        editor.putString("gender", (String) updateData.get("gender"));
+                    }
+                    if (updateData.containsKey("height")) {
+                        editor.putString("height", String.valueOf(updateData.get("height")));
+                    }
+                    if (updateData.containsKey("weight")) {
+                        editor.putString("weight", String.valueOf(updateData.get("weight")));
+                    }
+
+                    editor.apply(); // 提交更改
+                } else {
+                    try {
+                        // 如果資料更新失敗，檢查後端返回的錯誤信息
+                        String errorMessage = response.errorBody().string();
+                        if (errorMessage.contains("該用戶名已被使用")) {
+                            // 如果是因為用戶名重複的原因，顯示相應的錯誤訊息
+                            Toast.makeText(UserDataActivity.this, "該用戶名已被使用，請換一個名稱", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // 其他錯誤
+                            Toast.makeText(UserDataActivity.this, "資料更新失敗", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(UserDataActivity.this, "無法解析錯誤信息", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(UserDataActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // 用戶名稱
@@ -167,12 +337,18 @@ public class UserDataActivity extends AppCompatActivity {
         editText.setInputType(InputType.TYPE_CLASS_TEXT);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("你的名字")
+        builder.setTitle("請輸入您的名字")
                 .setView(editText)
                 .setPositiveButton("確定", (dialog, which) -> {
-                    String inputValue = editText.getText().toString();
-                    if (!inputValue.isEmpty()) {
-                        usernameData.setText("用戶名稱：" + inputValue);
+                    String newUsername = editText.getText().toString().trim();
+                    if (!newUsername.isEmpty()) {
+                        Map<String, Object> updateData = new HashMap<>();
+                        updateData.put("username", newUsername);
+
+                        updateDataToServer(updateData);
+                        usernameData.setText("用戶名稱：" + newUsername);
+                    } else {
+                        Toast.makeText(this, "名稱不能為空", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("取消", null)
@@ -197,11 +373,15 @@ public class UserDataActivity extends AppCompatActivity {
         layout.addView(decimalPicker);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("你的體重 (公斤)")
+        builder.setTitle("請選擇您的體重 (公斤)")
                 .setView(layout)
                 .setPositiveButton("確定", (dialog, which) -> {
-                    double newValue = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
-                    weightData.setText("體重：" + newValue + "公斤");
+                    double newWeight = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("weight", newWeight);
+
+                    updateDataToServer(updateData);
+                    weightData.setText("體重：" + newWeight + "公斤");
                 })
                 .setNegativeButton("取消", null)
                 .show();
@@ -225,11 +405,15 @@ public class UserDataActivity extends AppCompatActivity {
         layout.addView(decimalPicker);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("你的身高 (公分)")
+        builder.setTitle("請選擇您的身高 (公分)")
                 .setView(layout)
                 .setPositiveButton("確定", (dialog, which) -> {
-                    double newValue = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
-                    heightData.setText("身高：" + newValue + "公分");
+                    double newHeight = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("height", newHeight);
+
+                    updateDataToServer(updateData);
+                    heightData.setText("身高：" + newHeight + "公分");
                 })
                 .setNegativeButton("取消", null)
                 .show();
@@ -240,11 +424,33 @@ public class UserDataActivity extends AppCompatActivity {
         final String[] genderOptions = {"男", "女", "其他"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("選擇性別")
+        builder.setTitle("請選擇您的性別")
                 .setItems(genderOptions, (dialog, which) -> {
                     // 用戶選擇性別後更新顯示
-                    TextView genderData = findViewById(R.id.gender_data);
-                    genderData.setText("性別：" + genderOptions[which]);
+                    String selectedGender = genderOptions[which]; // 獲取選擇的性別
+                    TextView genderTextView = findViewById(R.id.gender_data); // 找到顯示性別的 TextView
+                    genderTextView.setText(selectedGender); // 更新 TextView 的顯示
+
+                    String genderString;
+                    switch (selectedGender) {
+                        case "男":
+                            genderString = "MALE";
+                            break;
+                        case "女":
+                            genderString = "FEMALE";
+                            break;
+                        case "其他":
+                        default:
+                            genderString = "OTHER";
+                            break;
+                    }
+
+                    // 準備更新數據
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put("gender", genderString); // 將選擇的性別加入更新數據
+
+                    updateDataToServer(updateData); // 呼叫更新方法
+                    genderData.setText("性別：" + selectedGender);
                 })
                 .show();
     }
@@ -260,46 +466,46 @@ public class UserDataActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
-            imageUri = data.getData();  // 取得選擇圖片的 URI
-            if (imageUri != null) {
-                startCrop(imageUri);  // 啟動裁剪流程
-            }
-        }
-
-        if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && data != null) {
-            final Uri resultUri = UCrop.getOutput(data);
-            if (resultUri != null) {
-                try {
-                    imageUri = resultUri;  // 使用裁剪後的圖片 URI 進行上傳
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
-                    Bitmap circularBitmap = getCroppedBitmap(bitmap);
-                    userAvatar.setImageBitmap(circularBitmap);  // 將圓形圖片設置到 ImageView
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                Uri selectedImageUri = data.getData();
+                if (selectedImageUri != null) {
+                    // 開始裁剪
+                    startCrop(selectedImageUri);
+                }
+            } else if (requestCode == UCrop.REQUEST_CROP && data != null) {
+                Uri croppedImageUri = UCrop.getOutput(data);
+                if (croppedImageUri != null) {
+                    // 更新裁剪後的圖片 URI
+                    imageUri = croppedImageUri;
+                    updatePreviewImage(imageUri);
                 }
             }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            // 處理裁剪錯誤
+            Throwable cropError = UCrop.getError(data);
+            if (cropError != null) {
+                Toast.makeText(this, cropError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
-    private Bitmap getCroppedBitmap(Bitmap bitmap) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
+    // 更新預覽圖片
+    private void updatePreviewImage(Uri imageUri) {
+        Glide.with(this)
+                .load(imageUri)
+                .circleCrop()  // 圓形裁剪
+                .placeholder(R.drawable.chatbot)  // 預設圖片
+                .error(R.drawable.chatbot)        // 加載失敗圖片
+                .diskCacheStrategy(DiskCacheStrategy.NONE) // 禁用磁碟緩存
+                .skipMemoryCache(true)  // 跳過內存緩存
+                .into(userAvatar);  // 加載到 ImageView
 
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-
-        return output;
+        // 確保 UI 重新繪製
+        userAvatar.invalidate();
     }
 
-
-    private void uploadImageToServer(Uri imageUri, String token) {
+    private void uploadImageToServer(Uri imageUri, String userId, String token) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(imageUri);
             byte[] imageBytes = getBytesFromInputStream(inputStream);
@@ -307,15 +513,35 @@ public class UserDataActivity extends AppCompatActivity {
             // 構建 RequestBody
             RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageBytes);
             MultipartBody.Part body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile);
-            ApiService apiService = ApiClient.getClient(this).create(ApiService.class);
+
+
             // 使用 Retrofit 上傳圖片
-            Call<ResponseBody> call = apiService.uploadImage(1L, body); // 假設用戶 ID 為 1
+            Call<ResponseBody> call = apiService.uploadImage(userId, body); // 假設用戶 ID 為 1
+
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     Log.d("Upload Response", response.toString());
                     if (response.isSuccessful()) {
                         Toast.makeText(UserDataActivity.this, "上傳成功", Toast.LENGTH_SHORT).show();
+
+                        try {
+                            // 從伺服器回應中獲取圖片的URL
+                            String jsonResponse = response.body().string();
+                            JSONObject jsonObject = new JSONObject(jsonResponse);
+                            String imageUrl = jsonObject.getString("filePath");
+
+                            // 更新SharedPreferences中的userImage
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("userImage", imageUrl);  // 使用後端返回的圖片路徑
+                            editor.apply();
+
+                            updatedImage = true;  // 標記圖片已更新
+
+                        } catch (IOException | JSONException e) {
+                            e.printStackTrace();
+                        }
+
                     } else {
                         Log.e("Upload Error", "Response Code: " + response.code());
                         try {

@@ -20,6 +20,10 @@
             "package_name": "com.luce.healthmanager",
             "certificate_hash": "bb000fd7b143ed13535b95b085a731876b0fc3ee"
           }
+        },
+        {
+          "client_id": "709151275791-j69ulvv0dlajor84m9v1lfb62m2gbur0.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
@@ -29,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "709151275791-j69ulvv0dlajor84m9v1lfb62m2gbur0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

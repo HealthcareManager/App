@@ -3,7 +3,6 @@ package com.luce.healthmanager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +14,6 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -32,7 +30,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
 import com.linecorp.linesdk.Scope;
 import com.linecorp.linesdk.auth.LineAuthenticationParams;
 import com.linecorp.linesdk.auth.LineLoginApi;
@@ -186,33 +183,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginWithLine() {
-//        String redirectUriForLine = getString(R.string.redirectUriForLine);  // 你應該用你在 LINE Developers 設定的重定向URI
-//        String authorizationUrl = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=" +
-//                getString(R.string.line_channel_id) +
-//                "&redirect_uri=" + redirectUriForLine +
-//                "&state=12345abcde&scope=openid%20email%20profile";
-//        // 使用 CustomTabsIntent 打開 LINE OAuth 網頁
-//        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-//        CustomTabsIntent customTabsIntent = builder.build();
-//        customTabsIntent.launchUrl(this, Uri.parse(authorizationUrl));
-
         try {
-            // 创建 LineAuthenticationParams，设置所需的权限范围（scope）
             LineAuthenticationParams params = new LineAuthenticationParams.Builder()
-                    .scopes(Arrays.asList(Scope.PROFILE, Scope.OPENID_CONNECT, Scope.OC_EMAIL)) // 请求 profile、openid 和 email 权限
+                    .scopes(Arrays.asList(Scope.PROFILE, Scope.OPENID_CONNECT, Scope.OC_EMAIL))
                     .build();
 
-
-            // 使用 LineLoginApi.getLoginIntent() 并传递 context、channelId 和 params
             Intent loginIntent = LineLoginApi.getLoginIntent(this, getString(R.string.line_channel_id), params);
-
-            // 启动 LINE 登录
             startActivityForResult(loginIntent, REQUEST_CODE_LINE_LOGIN);
         } catch (Exception e) {
-            Log.e("LineLogin", "LINE 登录失败: " + e.getMessage());
-            Toast.makeText(this, "LINE 登录失败", Toast.LENGTH_SHORT).show();
+            Log.e("LineLogin", "Error logging in with LINE: " + e.getMessage());
         }
-
     }
 
     // 在 Facebook 登入成功後的回調中進行 Firebase 認證
@@ -244,37 +224,45 @@ public class LoginActivity extends AppCompatActivity {
             LineLoginResult result = LineLoginApi.getLoginResultFromIntent(data);
             switch (result.getResponseCode()) {
                 case SUCCESS:
-                    String accessToken = result.getLineCredential().getAccessToken().getTokenString();
-                    Log.d("Line test","accessToken is " + accessToken);
-                    // 使用 Access Token 向后端请求用户资料
-                    requestUserInfoFromBackend(accessToken);
+                    // 获取 authorization code
+                    String accessToken = result.getLineCredential().getAccessToken().getTokenString();  // 获取到的就是 authorization code
+                    Log.d("LineLogin", "Authorization Code: " + accessToken);
+
+                    // 将 authorization code 发送到后端
+                    sendAccessTokenToBackend(accessToken);
                     break;
+
                 case CANCEL:
                     Log.d("LineLogin", "LINE 登入取消");
                     Toast.makeText(this, "LINE 登入取消", Toast.LENGTH_SHORT).show();
                     break;
+
                 default:
-                    String errorMessage = result.getErrorData().getMessage();
+                    String errorMessage = result.getErrorData().toString();
                     Log.e("LineLogin", "LINE 登入失敗: " + errorMessage);
                     Toast.makeText(this, "LINE 登入失敗: " + errorMessage, Toast.LENGTH_SHORT).show();
                     break;
             }
         }
+
         // 處理 Facebook 登入
         callbackManager.onActivityResult(requestCode, resultCode, data); // 將結果傳遞給 Facebook 的 CallbackManager
     }
 
-    // Line的
-    private void requestUserInfoFromBackend(String accessToken) {
-        Call<UserResponse> call = apiService.loginWithLine(accessToken);
+    // Line 的
+    private void sendAccessTokenToBackend(String accessToken) {
+        // 構建請求體
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("code", accessToken);
+        Log.d("Line","Line send to backend's 'code' is " + accessToken);
 
+        Call<UserResponse> call = apiService.sendAccessToken(requestBody);
         call.enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // 处理并存储用户资料
-                    //handleLineLoginResponse(new Gson().toJson(response.body()));
-                    Log.d("Line test","response is " + response);
+                    UserResponse userResponse = response.body();
+                    UserDataManager.saveUserDataToPreferences(LoginActivity.this, userResponse);
                 } else {
                     Toast.makeText(LoginActivity.this, "獲取用戶資料失敗", Toast.LENGTH_SHORT).show();
                 }
