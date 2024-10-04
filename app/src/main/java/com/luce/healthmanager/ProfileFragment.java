@@ -42,6 +42,8 @@ public class ProfileFragment extends Fragment {
         ImageView avatar = view.findViewById(R.id.profile_image);
         Button logoutButton = view.findViewById(R.id.logout_button);
         LinearLayout userdata = view.findViewById(R.id.userdata);
+        Button logoutButton = view.findViewById(R.id.logout_button);
+        Button loginButton = view.findViewById(R.id.login_button);// 使用 view.findViewById
         LinearLayout cardprime = view.findViewById(R.id.cardprime);
         LinearLayout aboutme = view.findViewById(R.id.aboutme);
 
@@ -51,16 +53,19 @@ public class ProfileFragment extends Fragment {
 
         // 檢查用戶是否已登入，控制登出按鈕顯示
         if (!userId.isEmpty()) {
+            // 用戶已登入，顯示登出按鈕並隱藏登入按鈕
             logoutButton.setVisibility(View.VISIBLE);
+            loginButton.setVisibility(View.GONE);
         } else {
+            // 用戶未登入，顯示登入按鈕並隱藏登出按鈕
             logoutButton.setVisibility(View.GONE);
+            loginButton.setVisibility(View.VISIBLE);
         }
 
-        // 加載用戶圖片
-        loadUserImage(jwtToken, userImage, avatar);
 
-        // 點擊事件: 幫助與回饋
-        view.findViewById(R.id.help_feedback_card).setOnClickListener(new View.OnClickListener() {
+        // 轉向關於幫助與回饋
+        LinearLayout helpFeedbackCard = view.findViewById(R.id.help_feedback_card);
+        helpFeedbackCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getActivity(), HelpActivity.class));
@@ -106,6 +111,15 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 logoutUser();
+            }
+        });
+        // 處理登入按鈕
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 跳轉到登入頁面
+                Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                startActivity(intent);
             }
         });
 
