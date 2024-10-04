@@ -1,6 +1,7 @@
 package com.luce.healthmanager.data.api;
 
 import com.luce.healthmanager.HeartRateData;
+import com.luce.healthmanager.UserMetricsResponse;
 import com.luce.healthmanager.UserResponse;
 
 import org.json.JSONObject;
@@ -23,7 +24,7 @@ import retrofit2.http.Query;
 public interface ApiService {
 
     @POST("api/auth/line-callback")
-    Call<UserResponse> sendAuthorizationCode(@Body Map<String, String> requestBody);
+    Call<UserResponse> sendAccessToken(@Body Map<String, String> requestBody);
 
     @POST("api/auth/google-login") // 替换为实际的后端 API 路径
     Call<UserResponse> googleLogin(@Body Map<String, String> idToken);
@@ -40,6 +41,10 @@ public interface ApiService {
 
     @GET("api/healthData")
     Call<List<HeartRateData>> getHeartRateData();
+
+    @POST("api/user-metrics/{userId}")
+    Call<UserMetricsResponse> getUserMetrics(@Path("userId") String userId);
+
 
     @PUT("api/userData/update-user-data/{id}")
     Call<ResponseBody> updateUserData(
