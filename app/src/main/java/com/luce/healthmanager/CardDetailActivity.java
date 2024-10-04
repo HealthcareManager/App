@@ -24,6 +24,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.google.gson.GsonBuilder;
 import com.luce.healthmanager.data.api.ApiService;
 
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ import java.util.Locale;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -64,41 +68,8 @@ public class CardDetailActivity extends AppCompatActivity {
         String cardType = getIntent().getStringExtra("CARD_TYPE");
         TextView cardTitle = findViewById(R.id.card_detail_title);
 
-        switch (cardType) {
-            case "心律":
-                cardTitle.setText("心律 詳情");
-                fetchHeartRateData(); // 從後端獲取心律數據並顯示
-                break;
-            // 可以擴展其他類型
-            case "血氧":
-                cardTitle.setText("血氧 詳情");
-                break;
-            case "血壓":
-                cardTitle.setText("血壓 詳情");
-                break;
-            case "血糖":
-                cardTitle.setText("血糖 詳情");
-                break;
-            case "卡路里":
-                cardTitle.setText("卡路里 詳情");
-                break;
-            case "身高體重":
-                cardTitle.setText("身高體重 詳情");
-                break;
-            case "抽菸":
-                cardTitle.setText("抽菸 詳情");
-                break;
-            case "喝酒":
-                cardTitle.setText("喝酒 詳情");
-                break;
-            case "檳榔":
-                cardTitle.setText("檳榔 詳情");
-                break;
-            default:
-                cardTitle.setText("未知類型");
-                break;
-
-        }
+        cardTitle.setText(cardType + " 詳情");
+        fetchHealthData(cardType); // 根據卡片類型獲取相應的數據
 
         // 初始化返回按鈕，並設置點擊事件
         backButton = findViewById(R.id.back_button);
@@ -114,6 +85,7 @@ public class CardDetailActivity extends AppCompatActivity {
         addButton = findViewById(R.id.add_button);
         addButton.setOnClickListener(v -> showAddDataDialog());
     }
+
 
     // 初始化折線圖
     private void setupLineChart() {
@@ -133,56 +105,82 @@ public class CardDetailActivity extends AppCompatActivity {
         lineChart.getAxisRight().setEnabled(false);  // 不顯示右側的 Y 軸
     }
 
-    // 從後端獲取心律數據
-    private void fetchHeartRateData() {
-        // 設置 Retrofit 用於 HTTP 請求
+    // 通用方法，用於獲取數據並將其展示到相應卡片中
+    private void fetchHealthData(String cardType) {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080/")  // 模擬器中訪問主機的地址
-                .addConverterFactory(GsonConverterFactory.create())  // 使用 Gson 解析 JSON
+                .baseUrl("http://10.0.2.2:8080/")
+                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().setLenient().create()))
                 .build();
 
-        // 創建 API 服務
         ApiService apiService = retrofit.create(ApiService.class);
-        Call<List<HeartRateData>> call = apiService.getHeartRateData();
+        Call<UserMetricsResponse> call = apiService.getUserMetrics(String.valueOf(1));
 
-        // 執行 API 請求
-        call.enqueue(new Callback<List<HeartRateData>>() {
+        call.enqueue(new Callback<UserMetricsResponse>() {
             @Override
-            public void onResponse(Call<List<HeartRateData>> call, Response<List<HeartRateData>> response) {
+            public void onResponse(Call<UserMetricsResponse> call, Response<UserMetricsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // 獲取返回的心律數據
-                    List<HeartRateData> heartRateDataList = response.body();
                     List<Entry> entries = new ArrayList<>();
+                    List<DataItem> dataList = new ArrayList<>();
 
-                    // 將數據轉換為折線圖所需的格式
-                    for (int i = 0; i < heartRateDataList.size(); i++) {
-                        HeartRateData data = heartRateDataList.get(i);
-                        entries.add(new Entry(i, data.getHeartRate()));
-                        // 添加數據到列表中以顯示在 RecyclerView
-                        dataList.add(new DataItem(data.getTimestamp(), String.valueOf(data.getHeartRate())));
+                    // 根据 cardType 类型，解析数据并生成折线图数据
+                    for (UserMetricsResponse.Metric metric : response.body().getMetrics()) {
+                        switch (cardType) {
+                            case "心律":
+                                // 将心律数据添加到 entries 列表并显示在 RecyclerView 中
+                                entries.add(new Entry(entries.size(), metric.getHeartRate()));
+                                dataList.add(new DataItem(metric.getTimestamp(), String.valueOf(metric.getHeartRate())));
+                                break;
+                            case "血壓":
+                                // 分割血压字符串（如 "120/80"），提取收缩压并添加到图表中
+                                String[] bp = metric.getBloodPressure().split("/");
+                                if (bp.length == 2) {  // 确保血压数据格式正确
+                                    entries.add(new Entry(entries.size(), Float.parseFloat(bp[0])));  // 使用收缩压
+                                }
+                                dataList.add(new DataItem(metric.getTimestamp(), metric.getBloodPressure()));  // 显示完整的血压值
+                                break;
+                            case "血氧":
+                                // 将血氧数据添加到 entries 列表并显示在 RecyclerView 中
+                                entries.add(new Entry(entries.size(), (float) metric.getBloodOxygen().floatValue()));
+                                dataList.add(new DataItem(metric.getTimestamp(), String.valueOf(metric.getBloodOxygen())));
+                                break;
+                            case "血糖":
+                                // 将血糖数据添加到 entries 列表并显示在 RecyclerView 中
+                                entries.add(new Entry(entries.size(), (float) metric.getBloodSugar().floatValue()));
+                                dataList.add(new DataItem(metric.getTimestamp(), String.valueOf(metric.getBloodSugar())));
+                                break;
+                            // 可以根据需要添加其他类型的健康数据处理逻辑
+                            default:
+                                break;
+                        }
                     }
 
-                    // 設置折線圖數據
-                    LineDataSet dataSet = new LineDataSet(entries, "心律數據");
-                    dataSet.setLineWidth(2.5f);
-                    dataSet.setColor(Color.BLUE);
-                    dataSet.setCircleColor(Color.RED);
-                    dataSet.setCircleRadius(4f);
-                    dataSet.setDrawValues(false);  // 不在點上顯示數值
-
-                    lineChart.setData(new LineData(dataSet));
-                    lineChart.invalidate(); // 刷新圖表顯示
-                    dataAdapter.notifyDataSetChanged(); // 更新列表顯示
+                    // 更新折线图
+                    updateLineChart(entries, cardType);
                 }
             }
 
             @Override
-            public void onFailure(Call<List<HeartRateData>> call, Throwable t) {
+            public void onFailure(Call<UserMetricsResponse> call, Throwable t) {
                 t.printStackTrace();
-                // 顯示錯誤信息
-                Toast.makeText(CardDetailActivity.this, "無法獲取心律數據", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CardDetailActivity.this, "获取数据失败", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private void updateLineChart(List<Entry> entries, String cardType) {
+        LineDataSet dataSet = new LineDataSet(entries, cardType + " 数据");
+        dataSet.setLineWidth(2.5f);
+        dataSet.setColor(Color.BLUE);
+        dataSet.setCircleColor(Color.RED);
+        dataSet.setCircleRadius(4f);
+        dataSet.setDrawValues(false);
+
+        lineChart.setData(new LineData(dataSet));
+        lineChart.invalidate(); // 刷新圖表顯示
+    }
+    public interface ApiService {
+        // 這裡假設你有一個端點 `/api/user-metrics/{userId}`
+        @POST("/api/user-metrics/{userId}")
+        Call<UserMetricsResponse> getUserMetrics(@Path("userId") String userId);
     }
 
     // 顯示新增數據的對話框

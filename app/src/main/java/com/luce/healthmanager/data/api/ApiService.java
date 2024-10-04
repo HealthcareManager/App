@@ -1,6 +1,7 @@
 package com.luce.healthmanager.data.api;
 
 import com.luce.healthmanager.HeartRateData;
+import com.luce.healthmanager.UserMetricsResponse;
 import com.luce.healthmanager.UserResponse;
 
 import java.util.List;
@@ -37,6 +38,10 @@ public interface ApiService {
     );
     @GET("api/healthData")
     Call<List<HeartRateData>> getHeartRateData();
+
+    @POST("api/user-metrics/{userId}")
+    Call<UserMetricsResponse> getUserMetrics(@Path("userId") String userId);
+
 
 //    @POST("api/auth/login")
 //    Call<UserResponse> Login(@Body UserResponse user);
