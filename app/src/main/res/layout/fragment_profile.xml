@@ -74,6 +74,18 @@
                         android:padding="12dp"
                         android:textSize="16sp"
                         android:layout_marginTop="20dp" />
+                    <Button
+                        android:id="@+id/login_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="登入"
+                        android:background="@color/colorPrimary"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:layout_marginTop="20dp"
+                        android:visibility="gone" />
                 </LinearLayout>
 
             </LinearLayout>

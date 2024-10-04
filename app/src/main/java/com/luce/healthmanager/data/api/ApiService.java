@@ -32,7 +32,7 @@ public interface ApiService {
     Call<UserResponse> loginWithFacebook(@Body String accessToken);
 
     @Multipart
-    @POST("api/auth/upload-image/{id}")
+    @POST("api/userData/upload-image/{id}")
     Call<ResponseBody> uploadImage(
             @Path("id") String userId,
             @Part MultipartBody.Part file
@@ -41,19 +41,19 @@ public interface ApiService {
     @GET("api/healthData")
     Call<List<HeartRateData>> getHeartRateData();
 
-    @PUT("api/auth/update-user-data/{id}")
+    @PUT("api/userData/update-user-data/{id}")
     Call<ResponseBody> updateUserData(
             @Path("id") String id,
-            @Body JSONObject requestBody
+            @Body Map<String, Object> requestBody
     );
 
-    @PUT("api/auth/update-password/{id}")
+    @PUT("api/userData/update-password/{id}")
     Call<ResponseBody> updatePassword(
             @Path("id") String id,
             @Body Map<String, String> requestBody
     );
 
-    @GET("api/auth/password/{id}")
+    @GET("api/userData/password/{id}")
     Call<ResponseBody> getPassword(
             @Path("id") String id
     );
