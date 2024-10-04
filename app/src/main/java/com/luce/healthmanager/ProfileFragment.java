@@ -47,18 +47,22 @@ public class ProfileFragment extends Fragment {
         ImageView avatar = view.findViewById(R.id.profile_image);
         TextView userName = view.findViewById(R.id.user_name);
         LinearLayout userdata = view.findViewById(R.id.userdata);
-        Button logoutButton = view.findViewById(R.id.logout_button); // 使用 view.findViewById
+        Button logoutButton = view.findViewById(R.id.logout_button);
+        Button loginButton = view.findViewById(R.id.login_button);// 使用 view.findViewById
         LinearLayout cardprime = view.findViewById(R.id.cardprime);
         LinearLayout aboutme = view.findViewById(R.id.aboutme);
 
         // 檢查用戶是否已登入
         if (!userId.isEmpty()) {
-            // 用戶已登入，顯示登出按鈕
+            // 用戶已登入，顯示登出按鈕並隱藏登入按鈕
             logoutButton.setVisibility(View.VISIBLE);
+            loginButton.setVisibility(View.GONE);
         } else {
-            // 用戶未登入，隱藏登出按鈕
+            // 用戶未登入，顯示登入按鈕並隱藏登出按鈕
             logoutButton.setVisibility(View.GONE);
+            loginButton.setVisibility(View.VISIBLE);
         }
+
 
         // 轉向關於幫助與回饋
         LinearLayout helpFeedbackCard = view.findViewById(R.id.help_feedback_card);
@@ -155,6 +159,15 @@ public class ProfileFragment extends Fragment {
                 editor.apply(); // 應用更改
 
                 getActivity().recreate();
+            }
+        });
+        // 處理登入按鈕
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // 跳轉到登入頁面
+                Intent intent = new Intent(requireActivity(), LoginActivity.class);
+                startActivity(intent);
             }
         });
 
