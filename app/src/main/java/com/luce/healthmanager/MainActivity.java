@@ -62,20 +62,20 @@ public class MainActivity extends AppCompatActivity {
             if (result != null && result.equals("success") && orderId != null) {
                 Log.d("LINE_PAY", "Order ID: " + orderId);
 
-                // 顯示支付成功的通知
+                // Show payment success notification
                 runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this, "支付成功", Toast.LENGTH_LONG).show();
-                    // 跳轉到 ProfileFragment
+                    Toast.makeText(MainActivity.this, "Payment Successful", Toast.LENGTH_LONG).show();
+                    // Navigate to ProfileFragment
                     replaceFragment(new ProfileFragment());
                 });
 
-                // 發送支付數據到後端
+                // Send payment data to backend
                 sendPaymentDataToBackend(orderId);
             } else {
-                Log.e("LINE_PAY", "支付失敗，請重試");
+                Log.e("LINE_PAY", "Payment failed, please try again");
 
                 runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this, "支付失敗，請重試", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Payment failed, please try again", Toast.LENGTH_LONG).show();
                 });
             }
         }
@@ -84,19 +84,26 @@ public class MainActivity extends AppCompatActivity {
     private void sendPaymentDataToBackend(String orderId) {
         SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
         String userId = sharedPreferences.getString("userId", null);
-        String savedRequestBody = sharedPreferences.getString("payment_request_body", null);
+        String jwtToken = sharedPreferences.getString("jwt_token", null); // Define and retrieve jwtToken here
+        Log.d("PaymentUpdate", "User ID: " + userId); // 確認用戶 ID
 
-        if (savedRequestBody != null && userId != null) {
+        if (userId != null) {
             try {
-                JSONObject requestBody = new JSONObject(savedRequestBody);
+                JSONObject requestBody = new JSONObject();
                 requestBody.put("orderId", orderId);
-                requestBody.put("userId", userId);
+                requestBody.put("userId", userId); // 確保這裡包含 userId
+                requestBody.put("status", "SUCCESS"); // Set status based on actual situation
+
+                // Log to see the request body
+                Log.d("PaymentUpdate", "Sending request with body: " + requestBody.toString());
 
                 OkHttpClient client = new OkHttpClient();
                 RequestBody body = RequestBody.create(requestBody.toString(), MediaType.parse("application/json"));
+
                 Request request = new Request.Builder()
-                        .url("http://10.0.2.2:8080/api/updateUserPayment")
-                        .post(body)
+                        .url("http://10.0.2.2:8080/api/updatePaymentStatus")
+                        .addHeader("Authorization", "Bearer " + jwtToken) // Add JWT Token authentication
+                        .put(body) // Use PUT method
                         .build();
 
                 client.newCall(request).enqueue(new Callback() {
@@ -108,9 +115,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         if (response.isSuccessful()) {
-                            Log.d("PaymentUpdate", "成功更新用戶支付狀態");
+                            Log.d("PaymentUpdate", "Successfully updated user payment status");
                         } else {
-                            Log.e("PaymentUpdate", "無法更新用戶支付狀態");
+                            Log.e("PaymentUpdate", "Unable to update user payment status, response code: " + response.code());
+                            Log.e("PaymentUpdate", "Response content: " + response.body().string());
                         }
                     }
                 });
@@ -118,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         } else {
-            Log.e("PaymentUpdate", "無法找到用戶 ID 或支付請求數據");
+            Log.e("PaymentUpdate", "Unable to find user ID");
         }
     }
 

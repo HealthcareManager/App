@@ -138,7 +138,7 @@ public class ProfileFragment extends Fragment {
                     JSONObject requestBody = new JSONObject();
                     requestBody.put("amount", amount);
                     requestBody.put("currency", currency);
-                    requestBody.put("orderId", orderId);
+                    requestBody.put("orderId", orderId); // 設定訂單ID
 
                     JSONObject packageObject = new JSONObject();
                     packageObject.put("id", 123);
@@ -160,19 +160,12 @@ public class ProfileFragment extends Fragment {
 
                     requestBody.put("redirectUrls", redirectUrls);
 
-                    // 保存 requestBody 到 SharedPreferences 以便支付成功後使用
-                    // 確保你在 Fragment 中使用 getContext() 來獲取 Context
-                    Context context = getContext();
-                    if (context != null) {
-                        // 保存 requestBody 到 SharedPreferences，以便支付成功後使用
-                        SharedPreferences sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-                        sharedPreferences.edit().putString("payment_request_body", requestBody.toString()).apply();
-                    }
-
+                    // 使用 OkHttpClient 發送請求
                     OkHttpClient client = new OkHttpClient();
                     RequestBody body = RequestBody.create(requestBody.toString(), MediaType.parse("application/json"));
                     Request request = new Request.Builder()
-                            .url("http://10.0.2.2:8080/api/payment")
+                            .url("http://10.0.2.2:8080/api/payment") // 請求URL
+                            .addHeader("Authorization", "Bearer " + jwtToken) // 添加 JWT Token 驗證
                             .post(body)
                             .build();
 
