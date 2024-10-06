@@ -1,5 +1,7 @@
 package com.luce.healthmanager;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,7 +46,7 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false); // 正確設置 Fragment 佈局
 
         // 從 SharedPreferences 讀取用戶資料
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", MODE_PRIVATE);
         Log.d("test","sharedPreferences is " + sharedPreferences);
         // 檢查是否已登入
         String jwtToken = sharedPreferences.getString("jwt_token", null);
@@ -124,50 +126,46 @@ public class ProfileFragment extends Fragment {
         cardprime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // 獲取用戶輸入或應用中的動態數據
-                int amount = 100; // 這裡可以是用戶輸入的值或是從 UI 中獲取的值
+                int amount = 100;
                 String currency = "TWD";
-                String orderId = "order" + UUID.randomUUID().toString(); // 每次生成一個唯一的訂單號
+                String orderId = "order" + UUID.randomUUID().toString();
                 String packageName = "RebeccaShop";
                 String productName = "VIP";
                 int productQuantity = 1;
                 int productPrice = 100;
 
-                // 使用 JSONObject 動態構建請求體
                 try {
                     JSONObject requestBody = new JSONObject();
                     requestBody.put("amount", amount);
                     requestBody.put("currency", currency);
-                    requestBody.put("orderId", orderId);
+                    requestBody.put("orderId", orderId); // 設定訂單ID
 
-                    // 構建 packages 數組
                     JSONObject packageObject = new JSONObject();
-                    packageObject.put("id", 123); // 可以動態設置不同的ID
+                    packageObject.put("id", 123);
                     packageObject.put("name", packageName);
                     packageObject.put("amount", amount);
 
-                    // 構建 products 數組
                     JSONObject productObject = new JSONObject();
                     productObject.put("name", productName);
-                    productObject.put("imageUrl", ""); // 可根據需要設置
+                    productObject.put("imageUrl", "");
                     productObject.put("quantity", productQuantity);
                     productObject.put("price", productPrice);
 
                     packageObject.put("products", new JSONArray().put(productObject));
                     requestBody.put("packages", new JSONArray().put(packageObject));
 
-                    // 構建 redirectUrls 對象
                     JSONObject redirectUrls = new JSONObject();
-                    redirectUrls.put("confirmUrl", "https://www.google.com.tw");
-                    redirectUrls.put("cancelUrl", "https://www.google.com.tw");
+                    redirectUrls.put("confirmUrl", "com.luce.healthmanager://callback?result=success&orderId=" + orderId);
+                    redirectUrls.put("cancelUrl", "com.luce.healthmanager://callback?result=cancel");
 
                     requestBody.put("redirectUrls", redirectUrls);
 
+                    // 使用 OkHttpClient 發送請求
                     OkHttpClient client = new OkHttpClient();
-
                     RequestBody body = RequestBody.create(requestBody.toString(), MediaType.parse("application/json"));
                     Request request = new Request.Builder()
-                            .url("http://10.0.2.2:8080/api/payment") // 在模擬器中使用
+                            .url("http://10.0.2.2:8080/api/payment") // 請求URL
+                            .addHeader("Authorization", "Bearer " + jwtToken) // 添加 JWT Token 驗證
                             .post(body)
                             .build();
 
@@ -185,37 +183,23 @@ public class ProfileFragment extends Fragment {
                                 try {
                                     JSONObject jsonResponse = new JSONObject(responseData);
                                     if (jsonResponse.has("status") && jsonResponse.getString("status").equals("success")) {
-                                        // 解析 "response" 字段，這是一個包含 JSON 的字符串
-                                        if (jsonResponse.has("response")) {
-                                            String responseBodyString = jsonResponse.getString("response");
-                                            JSONObject responseBody = new JSONObject(responseBodyString);
+                                        String responseBodyString = jsonResponse.getString("response");
+                                        JSONObject responseBody = new JSONObject(responseBodyString);
 
-                                            // 確保 "info" 和 "paymentUrl" 存在
-                                            if (responseBody.has("info")) {
-                                                JSONObject infoObject = responseBody.getJSONObject("info");
-                                                if (infoObject.has("paymentUrl")) {
-                                                    JSONObject paymentUrlObject = infoObject.getJSONObject("paymentUrl");
-                                                    String paymentUrl = paymentUrlObject.optString("web", null); // 你可以選擇 "web" 或 "app"
+                                        if (responseBody.has("info")) {
+                                            JSONObject infoObject = responseBody.getJSONObject("info");
+                                            if (infoObject.has("paymentUrl")) {
+                                                JSONObject paymentUrlObject = infoObject.getJSONObject("paymentUrl");
+                                                String paymentUrl = paymentUrlObject.optString("web", null);
 
-                                                    if (paymentUrl != null && !paymentUrl.isEmpty()) {
-                                                        // 跳轉到瀏覽器
-                                                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                                                        intent.setData(Uri.parse(paymentUrl));
-                                                        startActivity(intent);
-                                                    } else {
-                                                        Log.e("PaymentError", "Payment URL is missing or empty");
-                                                    }
-                                                } else {
-                                                    Log.e("PaymentError", "Payment URL field is missing in response");
+                                                if (paymentUrl != null && !paymentUrl.isEmpty()) {
+                                                    // 跳轉到瀏覽器
+                                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                                    intent.setData(Uri.parse(paymentUrl));
+                                                    startActivity(intent);
                                                 }
-                                            } else {
-                                                Log.e("PaymentError", "Info field is missing in response");
                                             }
-                                        } else {
-                                            Log.e("PaymentError", "Response field is missing in server response");
                                         }
-                                    } else {
-                                        Log.e("PaymentError", "Payment request failed or unexpected response format");
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -231,6 +215,7 @@ public class ProfileFragment extends Fragment {
                 }
             }
         });
+
 
 
 
@@ -272,7 +257,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 // 這裡你可以處理登出邏輯，像是清除使用者資料並跳轉到登入頁面
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", MODE_PRIVATE);
                 // 清空 SharedPreferences 中的資料
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.clear(); // 清除所有保存的資料
@@ -303,7 +288,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserImage() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", MODE_PRIVATE);
         String jwtToken = sharedPreferences.getString("jwt_token", null);
         String userImage = sharedPreferences.getString("userImage", "");
 
