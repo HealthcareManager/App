@@ -1,20 +1,20 @@
 {
   "project_info": {
-    "project_number": "709151275791",
-    "project_id": "omega-granite-436002-k9",
-    "storage_bucket": "omega-granite-436002-k9.appspot.com"
+    "project_number": "1049293083717",
+    "project_id": "healthcaremanager-437603",
+    "storage_bucket": "healthcaremanager-437603.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:709151275791:android:100f989f2dfe10f2b8dc7a",
+        "mobilesdk_app_id": "1:1049293083717:android:25ce838ce4e608846dbf2c",
         "android_client_info": {
           "package_name": "com.luce.healthmanager"
         }
       },
       "oauth_client": [
         {
-          "client_id": "709151275791-fsh4lff5cqmtsqcs9mq4ca4eqb63m7gs.apps.googleusercontent.com",
+          "client_id": "1049293083717-bdmcr4tu57ausg4ubbjpnis7sbif0luk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.luce.healthmanager",
@@ -22,20 +22,20 @@
           }
         },
         {
-          "client_id": "709151275791-j69ulvv0dlajor84m9v1lfb62m2gbur0.apps.googleusercontent.com",
+          "client_id": "1049293083717-ug9kug6f81n4tc51uahp288eeo0rfc8l.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAf54GJYpoBZaNYqStTZjJ5itfH7LU_d_s"
+          "current_key": "AIzaSyDZdW7DHAZ-hvV0aTgQeVP4Frj5yHCPFAE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "709151275791-j69ulvv0dlajor84m9v1lfb62m2gbur0.apps.googleusercontent.com",
+              "client_id": "1049293083717-ug9kug6f81n4tc51uahp288eeo0rfc8l.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
