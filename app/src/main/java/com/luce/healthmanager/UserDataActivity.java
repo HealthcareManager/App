@@ -229,54 +229,40 @@ public class UserDataActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // 調用 API 獲取使用者密碼
-                    Call<ResponseBody> call = apiService.getPassword(userId);
-                    call.enqueue(new Callback<ResponseBody>() {
+                    Map<String, String> passwordUpdate = new HashMap<>();
+                    passwordUpdate.put("userId", userId);
+                    passwordUpdate.put("oldPassword", oldPassword);
+                    passwordUpdate.put("newPassword", newPassword);
+
+                    Call<ResponseBody> updateCall = apiService.updatePassword(passwordUpdate);
+                    updateCall.enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            if (response.isSuccessful() && response.body() != null) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(UserDataActivity.this, "密碼已成功更新", Toast.LENGTH_SHORT).show();
+                            } else {
                                 try {
-                                    // 從響應中獲取密碼
-                                    String storedPassword = response.body().string();
+                                    // 獲取錯誤訊息
+                                    String errorMessage = response.errorBody().string();
 
-                                    // 與使用者輸入的舊密碼進行比對
-                                    if (!oldPassword.equals(storedPassword)) {
-                                        Toast.makeText(UserDataActivity.this, "密碼不正確", Toast.LENGTH_SHORT).show();
-                                        return;
+                                    if (errorMessage.contains("舊密碼不正確")){
+                                        Toast.makeText(UserDataActivity.this, "舊密碼不正確", Toast.LENGTH_SHORT).show();
+                                    } else if (errorMessage.contains("用戶不存在")){
+                                        Toast.makeText(UserDataActivity.this, "用戶不存在", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Log.d("Yuchen", errorMessage);
+                                        Toast.makeText(UserDataActivity.this, "更新失敗", Toast.LENGTH_SHORT).show();
                                     }
-
-                                    Map<String, String> passwordUpdate = new HashMap<>();
-                                    passwordUpdate.put("newPassword", newPassword);
-
-                                    // 如果舊密碼正確，調用 API 更新新密碼
-                                    Call<ResponseBody> updateCall = apiService.updatePassword(userId, passwordUpdate);
-                                    updateCall.enqueue(new Callback<ResponseBody>() {
-                                        @Override
-                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                            if (response.isSuccessful()) {
-                                                Toast.makeText(UserDataActivity.this, "密碼已成功更新", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(UserDataActivity.this, "更新密碼失敗", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                                            Toast.makeText(UserDataActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
                                 } catch (IOException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(UserDataActivity.this, "處理響應失敗", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(UserDataActivity.this, "無法處理錯誤訊息", Toast.LENGTH_SHORT).show();
                                 }
-                            } else {
-                                Toast.makeText(UserDataActivity.this, "無法獲取用戶密碼", Toast.LENGTH_SHORT).show();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<ResponseBody> call, Throwable t) {
-                            Toast.makeText(UserDataActivity.this, "請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserDataActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 })
