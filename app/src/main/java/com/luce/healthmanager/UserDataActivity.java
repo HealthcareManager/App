@@ -73,7 +73,7 @@ public class UserDataActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private TextView usernameData, emailData, genderData, heightData, weightData, birthdayData;
     private boolean updatedImage = false;
-    private String userId;
+    private String userId, formattedDate;
     private ImageButton backButton;
     private ApiService apiService;
 
@@ -112,20 +112,27 @@ public class UserDataActivity extends AppCompatActivity {
         String birthday = sharedPreferences.getString("dateOfBirth", "生日");
         String userImage = sharedPreferences.getString("userImage", "圖片");
 
-        Log.d("Yuchen", userImage);
+        Log.d("Yuchen", gender);
 
         usernameData.setText("用戶名稱：" + username);
         emailData.setText("帳號：" + email);
 
         if (gender.equals("MALE")) {
             gender = "男";
+        } else if (gender.equals("FEMALE")) {
+            gender= "女";
         } else {
-            gender = "女";
+            gender = "";
         }
         genderData.setText("性別：" + gender);
         heightData.setText("身高：" + height + "公分");
         weightData.setText("體重：" + weight + "公斤");
-        String formattedDate = birthday.replace("-", "年").replaceFirst("年", "年").replaceFirst("-", "月") + "日";
+
+        if (birthday.isEmpty()) {
+            formattedDate = "";
+        } else {
+            formattedDate = birthday.replace("-", "年").replaceFirst("年", "年").replaceFirst("-", "月") + "日";
+        }
         birthdayData.setText("生日：" + formattedDate);
 
         if (token != null && !userImage.isEmpty() && !updatedImage) {
@@ -530,6 +537,8 @@ public class UserDataActivity extends AppCompatActivity {
                             String jsonResponse = response.body().string();
                             JSONObject jsonObject = new JSONObject(jsonResponse);
                             String imageUrl = jsonObject.getString("filePath");
+
+                            Log.d("imageURL", "imageURL is " + imageUrl);
 
                             // 更新SharedPreferences中的userImage
                             SharedPreferences.Editor editor = sharedPreferences.edit();
