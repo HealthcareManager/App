@@ -24,28 +24,114 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
 
     private FragmentManager fragmentManager;
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleCallback(intent);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        handleCallback(getIntent());
+    }
 
-        Intent intent = getIntent();
+    private void handleCallback(Intent intent) {
         Uri data = intent.getData();
+        Log.d("LINE_PAY", "Callback URL: " + data);
+
         if (data != null && data.toString().startsWith("com.luce.healthmanager://callback")) {
-            String code = data.getQueryParameter("code");
-            if (code != null) {
-                // 处理返回的授权码，例如将其发送到你的后端服务器来获取 Access Token
-                Log.d("LINE_AUTH", "Authorization Code: " + code);
+            String orderId = data.getQueryParameter("orderId");
+            String result = data.getQueryParameter("result");
+
+            if (result != null && result.equals("success") && orderId != null) {
+                Log.d("LINE_PAY", "Order ID: " + orderId);
+
+                // Show payment success notification
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Payment Successful", Toast.LENGTH_LONG).show();
+                    // Navigate to ProfileFragment
+                    replaceFragment(new ProfileFragment());
+                });
+
+                // Send payment data to backend
+                sendPaymentDataToBackend(orderId);
             } else {
-                String error = data.getQueryParameter("error");
-                Log.e("LINE_AUTH", "Error: " + error);
+                Log.e("LINE_PAY", "Payment failed, please try again");
+
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Payment failed, please try again", Toast.LENGTH_LONG).show();
+                });
             }
         }
     }
-    
+
+    private void sendPaymentDataToBackend(String orderId) {
+        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userId", null);
+        String jwtToken = sharedPreferences.getString("jwt_token", null); // Define and retrieve jwtToken here
+        Log.d("PaymentUpdate", "User ID: " + userId); // 確認用戶 ID
+
+        if (userId != null) {
+            try {
+                JSONObject requestBody = new JSONObject();
+                requestBody.put("orderId", orderId);
+                requestBody.put("userId", userId); // 確保這裡包含 userId
+                requestBody.put("status", "SUCCESS"); // Set status based on actual situation
+
+                // Log to see the request body
+                Log.d("PaymentUpdate", "Sending request with body: " + requestBody.toString());
+
+                OkHttpClient client = new OkHttpClient();
+                RequestBody body = RequestBody.create(requestBody.toString(), MediaType.parse("application/json"));
+
+                Request request = new Request.Builder()
+                        .url("http://10.0.2.2:8080/api/updatePaymentStatus")
+                        .addHeader("Authorization", "Bearer " + jwtToken) // Add JWT Token authentication
+                        .put(body) // Use PUT method
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            Log.d("PaymentUpdate", "Successfully updated user payment status");
+                        } else {
+                            Log.e("PaymentUpdate", "Unable to update user payment status, response code: " + response.code());
+                            Log.e("PaymentUpdate", "Response content: " + response.body().string());
+                        }
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.e("PaymentUpdate", "Unable to find user ID");
+        }
+    }
+
+
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onParseTokenCompleted(JSONObject userData) {
                     if (userData != null) {
-                            Toast.makeText(MainActivity.this, "歡迎回來", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "歡迎回來", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(MainActivity.this, "解析 token 失败", Toast.LENGTH_SHORT).show();
                         // 跳转到登录页面
