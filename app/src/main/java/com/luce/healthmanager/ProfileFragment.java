@@ -1,7 +1,5 @@
 package com.luce.healthmanager;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -52,6 +50,7 @@ public class ProfileFragment extends Fragment {
         String userId = sharedPreferences.getString("userId", "");
         String userImage = sharedPreferences.getString("userImage", "");
 
+        Log.d("ProfileFragment", "User token: " + jwtToken);
         Log.d("ProfileFragment", "User image URL: " + userImage);
         Log.d("ProfileFragment", "username: " + username);
         Log.d("ProfileFragment", "userId: " + userId);
@@ -81,7 +80,6 @@ public class ProfileFragment extends Fragment {
             loginButton.setVisibility(View.VISIBLE);
         }
 
-
         // 轉向關於幫助與回饋
         LinearLayout helpFeedbackCard = view.findViewById(R.id.help_feedback_card);
         helpFeedbackCard.setOnClickListener(new View.OnClickListener() {
@@ -99,27 +97,25 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-
         if (jwtToken != null && !userImage.isEmpty()) {
             // 使用 Glide 加載圖片並添加 Token 驗證
             GlideUrl glideUrl = new GlideUrl(userImage, new LazyHeaders.Builder()
-                    .addHeader("Authorization", "Bearer " + jwtToken)  // 添加 JWT Token 驗證
+                    .addHeader("Authorization", "Bearer " + jwtToken) // 添加 JWT Token 驗證
                     .build());
 
             Log.d("Yuchen", userImage);
 
             // 加載圖片
             Glide.with(this)
-                    .load(glideUrl)  // 使用自定義的 GlideUrl 加載圖片
+                    .load(glideUrl) // 使用自定義的 GlideUrl 加載圖片
                     .circleCrop()
-                    .placeholder(R.drawable.chatbot)  // 加載中的預設圖片
-                    .error(R.drawable.chatbot)        // 加載失敗的預設圖片
+                    .placeholder(R.drawable.chatbot) // 加載中的預設圖片
+                    .error(R.drawable.chatbot) // 加載失敗的預設圖片
                     .into(avatar);
         } else {
             // 沒有圖片路徑或 token，顯示預設的 drawable 圖片
             avatar.setImageResource(R.drawable.chatbot);
         }
-
 
         cardprime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,7 +149,8 @@ public class ProfileFragment extends Fragment {
                     requestBody.put("packages", new JSONArray().put(packageObject));
 
                     JSONObject redirectUrls = new JSONObject();
-                    redirectUrls.put("confirmUrl", "com.luce.healthmanager://callback?result=success&orderId=" + orderId);
+                    redirectUrls.put("confirmUrl",
+                            "com.luce.healthmanager://callback?result=success&orderId=" + orderId);
                     redirectUrls.put("cancelUrl", "com.luce.healthmanager://callback?result=cancel");
 
                     requestBody.put("redirectUrls", redirectUrls);
@@ -180,7 +177,8 @@ public class ProfileFragment extends Fragment {
 
                                 try {
                                     JSONObject jsonResponse = new JSONObject(responseData);
-                                    if (jsonResponse.has("status") && jsonResponse.getString("status").equals("success")) {
+                                    if (jsonResponse.has("status")
+                                            && jsonResponse.getString("status").equals("success")) {
                                         String responseBodyString = jsonResponse.getString("response");
                                         JSONObject responseBody = new JSONObject(responseBodyString);
 
@@ -207,15 +205,11 @@ public class ProfileFragment extends Fragment {
                             }
                         }
                     });
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         });
-
-
-
 
         // 點擊事件: 控制登入/登出操作
         if (jwtToken == null) {
@@ -286,5 +280,36 @@ public class ProfileFragment extends Fragment {
             // 沒有圖片路徑或 token，顯示預設的 drawable 圖片
             avatar.setImageResource(R.drawable.chatbot);
         }
+    }
+
+    // 刷新用戶數據
+    private void refreshUserData() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        String jwtToken = sharedPreferences.getString("jwt_token", null);
+        String username = sharedPreferences.getString("username", "未登入");
+        String userId = sharedPreferences.getString("userId", "");
+        String userImage = sharedPreferences.getString("userImage", "");
+
+        TextView userNameTextView = getView().findViewById(R.id.user_name);
+        TextView userIdTextView = getView().findViewById(R.id.user_id);
+        ImageView avatar = getView().findViewById(R.id.profile_image);
+
+        // 更新用戶名和ID
+        userNameTextView.setText(username);
+        userIdTextView.setText("ID: " + userId);
+
+        // 加載用戶圖片
+        loadUserImage(jwtToken, userImage, avatar);
+    }
+
+    // 登出用戶並清除 SharedPreferences
+    private void logoutUser() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear(); // 清除所有保存的資料
+        editor.apply(); // 應用更改
+
+        // 重新加載頁面
+        getActivity().recreate();
     }
 }
