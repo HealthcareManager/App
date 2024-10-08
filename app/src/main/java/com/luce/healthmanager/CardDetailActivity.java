@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.mikephil.charting.components.LimitLine;
 import com.luce.healthmanager.data.api.ApiService;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,20 +87,20 @@ public class CardDetailActivity extends AppCompatActivity {
 
     // 初始化折線圖
     private void setupLineChart() {
-        lineChart.setDrawGridBackground(false);  // 不繪製背景格子
-        lineChart.getDescription().setEnabled(false);  // 不顯示描述文字
+        lineChart.setDrawGridBackground(false); // 不繪製背景格子
+        lineChart.getDescription().setEnabled(false); // 不顯示描述文字
 
         // 設置 X 軸屬性
         XAxis xAxis = lineChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);  // X 軸顯示在底部
-        xAxis.setDrawGridLines(false);  // 不繪製網格線
-        xAxis.setGranularity(1f);  // X 軸標籤的最小間隔
-        xAxis.setAvoidFirstLastClipping(true);  // 防止第一和最後的標籤被裁切
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // X 軸顯示在底部
+        xAxis.setDrawGridLines(true); // 繪製 X 軸網格線
+        xAxis.setGranularity(1f); // X 軸標籤的最小間隔
+        xAxis.setAvoidFirstLastClipping(true); // 防止第一和最後的標籤被裁切
 
         // 設置 Y 軸屬性
         YAxis leftAxis = lineChart.getAxisLeft();
-        leftAxis.setDrawGridLines(false);  // 不繪製網格線
-        lineChart.getAxisRight().setEnabled(false);  // 不顯示右側的 Y 軸
+        leftAxis.setDrawGridLines(true); // 繪製 Y 軸網格線
+        lineChart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
     }
 
     // 通用方法，用於獲取數據並將其展示到相應卡片中
@@ -111,34 +113,33 @@ public class CardDetailActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Entry> entries = new ArrayList<>();
                     List<DataItem> dataList = new ArrayList<>();
+                    List<String> dates = new ArrayList<>(); // 新增日期列表
 
                     // 根据 cardType 类型，解析数据并生成折线图数据
                     for (UserMetricsResponse.Metric metric : response.body().getMetrics()) {
+                        String date = metric.getTimestamp(); // 假設 timestamp 是你想要的日期格式
+                        dates.add(date); // 將日期加入日期列表
+
                         switch (cardType) {
                             case "心律":
-                                // 将心律数据添加到 entries 列表并显示在 RecyclerView 中
                                 entries.add(new Entry(entries.size(), metric.getHeartRate()));
-                                dataList.add(new DataItem(metric.getTimestamp(), String.valueOf(metric.getHeartRate())));
+                                dataList.add(new DataItem(date, String.valueOf(metric.getHeartRate())));
                                 break;
                             case "血壓":
-                                // 分割血压字符串（如 "120/80"），提取收缩压并添加到图表中
                                 String[] bp = metric.getBloodPressure().split("/");
-                                if (bp.length == 2) {  // 确保血压数据格式正确
-                                    entries.add(new Entry(entries.size(), Float.parseFloat(bp[0])));  // 使用收缩压
+                                if (bp.length == 2) {
+                                    entries.add(new Entry(entries.size(), Float.parseFloat(bp[0])));
                                 }
-                                dataList.add(new DataItem(metric.getTimestamp(), metric.getBloodPressure()));  // 显示完整的血压值
+                                dataList.add(new DataItem(date, metric.getBloodPressure()));
                                 break;
                             case "血氧":
-                                // 将血氧数据添加到 entries 列表并显示在 RecyclerView 中
                                 entries.add(new Entry(entries.size(), (float) metric.getBloodOxygen().floatValue()));
-                                dataList.add(new DataItem(metric.getTimestamp(), String.valueOf(metric.getBloodOxygen())));
+                                dataList.add(new DataItem(date, String.valueOf(metric.getBloodOxygen())));
                                 break;
                             case "血糖":
-                                // 将血糖数据添加到 entries 列表并显示在 RecyclerView 中
                                 entries.add(new Entry(entries.size(), (float) metric.getBloodSugar().floatValue()));
-                                dataList.add(new DataItem(metric.getTimestamp(), String.valueOf(metric.getBloodSugar())));
+                                dataList.add(new DataItem(date, String.valueOf(metric.getBloodSugar())));
                                 break;
-                            // 可以根据需要添加其他类型的健康数据处理逻辑
                             case "身高體重":
                                 addButton.setVisibility(View.VISIBLE);
                                 addButton.setOnClickListener(v -> showAddDataDialog());
@@ -148,20 +149,21 @@ public class CardDetailActivity extends AppCompatActivity {
                         }
                     }
 
-                    // 更新折线图
-                    updateLineChart(entries, cardType);
+                    // 更新折线图，並傳遞日期列表
+                    updateLineChart(entries, cardType, dates);
                 }
             }
 
             @Override
             public void onFailure(Call<UserMetricsResponse> call, Throwable t) {
                 t.printStackTrace();
-                Toast.makeText(CardDetailActivity.this, "获取数据失败", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CardDetailActivity.this, "獲取數據失敗", Toast.LENGTH_SHORT).show();
             }
         });
     }
-    private void updateLineChart(List<Entry> entries, String cardType) {
-        LineDataSet dataSet = new LineDataSet(entries, cardType + " 数据");
+
+    private void updateLineChart(List<Entry> entries, String cardType, List<String> dates) {
+        LineDataSet dataSet = new LineDataSet(entries, cardType + " 數據");
         dataSet.setLineWidth(2.5f);
         dataSet.setColor(Color.BLUE);
         dataSet.setCircleColor(Color.RED);
@@ -169,8 +171,23 @@ public class CardDetailActivity extends AppCompatActivity {
         dataSet.setDrawValues(false);
 
         lineChart.setData(new LineData(dataSet));
+
+        // 設置日期格式化器
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setValueFormatter(new DateValueFormatter(dates)); // 使用自定義的日期格式化器
+
+        // 添加虛線
+        for (int i = 0; i < entries.size(); i++) {
+            LimitLine limitLine = new LimitLine(i, ""); // 創建虛線
+            limitLine.setLineColor(Color.GRAY); // 設置虛線顏色
+            limitLine.setLineWidth(1f); // 設置虛線寬度
+            limitLine.enableDashedLine(10f, 10f, 0f); // 設置虛線樣式
+            xAxis.addLimitLine(limitLine); // 將虛線添加到 X 軸
+        }
+
         lineChart.invalidate(); // 刷新圖表顯示
     }
+
 
     // 顯示新增數據的對話框
     private void showAddDataDialog() {

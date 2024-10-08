@@ -61,4 +61,9 @@ public interface ApiService {
     Call<ResponseBody> updateHeightWeightRecord(
             @Body Map<String, String> requestBody
     );
+
+    @POST("api/heightWeightRecord/getData/{id}")
+    Call<ResponseBody> getHeightWeightRecord(
+            @Path("id") String id
+    );
 }
