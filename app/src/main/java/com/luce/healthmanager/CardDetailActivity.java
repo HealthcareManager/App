@@ -1,18 +1,16 @@
 package com.luce.healthmanager;
 
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.luce.healthmanager.data.api.ApiService;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,22 +22,17 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.google.gson.GsonBuilder;
-import com.luce.healthmanager.data.api.ApiService;
+import com.luce.healthmanager.data.network.ApiClient;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CardDetailActivity extends AppCompatActivity {
 
@@ -49,13 +42,16 @@ public class CardDetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView; // 用來顯示數據列表的 RecyclerView
     private DataAdapter dataAdapter;   // RecyclerView 的適配器
     private List<DataItem> dataList;   // 用來保存數據項的列表
-    private String selectedDate = "";  // 保存選擇的日期
     private LineChart lineChart;       // 用來顯示數據走勢的折線圖
+    private ApiService apiService;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_card_detail);
+
+        apiService = ApiClient.getClient(this).create(ApiService.class);
 
         // 初始化折線圖變量
         lineChart = findViewById(R.id.line_chart);
@@ -83,7 +79,7 @@ public class CardDetailActivity extends AppCompatActivity {
 
         // 初始化新增按鈕，並設置點擊事件以顯示對話框
         addButton = findViewById(R.id.add_button);
-        addButton.setOnClickListener(v -> showAddDataDialog());
+        addButton.setVisibility(View.GONE);
     }
 
 
@@ -107,12 +103,6 @@ public class CardDetailActivity extends AppCompatActivity {
 
     // 通用方法，用於獲取數據並將其展示到相應卡片中
     private void fetchHealthData(String cardType) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080/")
-                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().setLenient().create()))
-                .build();
-
-        ApiService apiService = retrofit.create(ApiService.class);
         Call<UserMetricsResponse> call = apiService.getUserMetrics(String.valueOf(1));
 
         call.enqueue(new Callback<UserMetricsResponse>() {
@@ -149,6 +139,10 @@ public class CardDetailActivity extends AppCompatActivity {
                                 dataList.add(new DataItem(metric.getTimestamp(), String.valueOf(metric.getBloodSugar())));
                                 break;
                             // 可以根据需要添加其他类型的健康数据处理逻辑
+                            case "身高體重":
+                                addButton.setVisibility(View.VISIBLE);
+                                addButton.setOnClickListener(v -> showAddDataDialog());
+                                break;
                             default:
                                 break;
                         }
@@ -177,63 +171,90 @@ public class CardDetailActivity extends AppCompatActivity {
         lineChart.setData(new LineData(dataSet));
         lineChart.invalidate(); // 刷新圖表顯示
     }
-    public interface ApiService {
-        // 這裡假設你有一個端點 `/api/user-metrics/{userId}`
-        @POST("/api/user-metrics/{userId}")
-        Call<UserMetricsResponse> getUserMetrics(@Path("userId") String userId);
-    }
 
     // 顯示新增數據的對話框
     private void showAddDataDialog() {
-        // 創建對話框的視圖
+        // 創建對話框
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_data, null);
-        builder.setView(dialogView);
 
-        // 初始化對話框中的控件
-        Button btnSelectDate = dialogView.findViewById(R.id.btn_select_date);
-        TextView tvSelectedDate = dialogView.findViewById(R.id.tv_selected_date);
-        EditText editData = dialogView.findViewById(R.id.edit_data);
+        // 動態創建一個垂直佈局
+        LinearLayout dialogLayout = new LinearLayout(this);
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(50, 40, 50, 10);  // 設置內邊距（可調整）
 
-        // 設置日期選擇按鈕的點擊事件
-        btnSelectDate.setOnClickListener(v -> showDatePickerDialog(tvSelectedDate));
+        // 身高選擇器
+        TextView heightLabel = new TextView(this);
+        heightLabel.setText("身高 (cm):");
+        heightLabel.setPadding(0, 20, 0, 10);
+        dialogLayout.addView(heightLabel);
+
+        // 創建身高的整數選擇器
+        NumberPicker heightWholePicker = new NumberPicker(this);
+        heightWholePicker.setMinValue(100);  // 假設身高最小值為100cm
+        heightWholePicker.setMaxValue(250);  // 假設身高最大值為250cm
+        heightWholePicker.setWrapSelectorWheel(false);
+        dialogLayout.addView(heightWholePicker);
+
+        // 小數部分選擇器
+        NumberPicker heightDecimalPicker = new NumberPicker(this);
+        heightDecimalPicker.setMinValue(0);  // 小數部分最小值為0
+        heightDecimalPicker.setMaxValue(9);  // 小數部分最大值為9
+        heightDecimalPicker.setWrapSelectorWheel(true);  // 允許循環
+        dialogLayout.addView(heightDecimalPicker);
+
+        // 體重選擇器
+        TextView weightLabel = new TextView(this);
+        weightLabel.setText("體重 (kg):");
+        weightLabel.setPadding(0, 20, 0, 10);
+        dialogLayout.addView(weightLabel);
+
+        // 創建體重的整數選擇器
+        NumberPicker weightWholePicker = new NumberPicker(this);
+        weightWholePicker.setMinValue(30);  // 假設體重最小值為30kg
+        weightWholePicker.setMaxValue(200);  // 假設體重最大值為200kg
+        weightWholePicker.setWrapSelectorWheel(false);
+        dialogLayout.addView(weightWholePicker);
+
+        // 體重小數部分選擇器
+        NumberPicker weightDecimalPicker = new NumberPicker(this);
+        weightDecimalPicker.setMinValue(0);  // 小數部分最小值為0
+        weightDecimalPicker.setMaxValue(9);  // 小數部分最大值為9
+        weightDecimalPicker.setWrapSelectorWheel(true);  // 允許循環
+        dialogLayout.addView(weightDecimalPicker);
+
+        // 設置對話框的內容佈局
+        builder.setView(dialogLayout);
 
         // 設置對話框按鈕
         builder.setPositiveButton("新增", (dialog, id) -> {
-            String dataInput = editData.getText().toString();
-            // 檢查輸入是否為空
-            if (TextUtils.isEmpty(selectedDate) || TextUtils.isEmpty(dataInput)) {
-                Toast.makeText(this, "請選擇日期並輸入數據", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // 新增數據到數據列表中
-            addNewData(selectedDate, dataInput);
+            // 獲取身高和體重的整數及小數部分
+            int selectedHeightWhole = heightWholePicker.getValue();
+            int selectedHeightDecimal = heightDecimalPicker.getValue();
+            int selectedWeightWhole = weightWholePicker.getValue();
+            int selectedWeightDecimal = weightDecimalPicker.getValue();
+
+            // 將整數和小數組合起來
+            double finalHeight = selectedHeightWhole + (selectedHeightDecimal * 0.1);
+            double finalWeight = selectedWeightWhole + (selectedWeightDecimal * 0.1);
+
+            Map<String, String> userData = new HashMap<>();
+            userData.put("height", String.valueOf(finalHeight));
+            userData.put("weight", String.valueOf(finalWeight));
+
+            // 在這裡處理添加邏輯，比如更新到數據列表或提交到後端
+            dataToServer(finalHeight, finalWeight);
         });
 
         builder.setNegativeButton("取消", (dialog, id) -> dialog.dismiss());
+
         // 顯示對話框
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
-    // 顯示日期選擇器
-    private void showDatePickerDialog(TextView tvSelectedDate) {
-        final Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+    private void dataToServer(double finalHeight, double finalWeight) {
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                (view, selectedYear, selectedMonth, selectedDay) -> {
-                    selectedMonth += 1; // 月份是從 0 開始的，所以需要加 1
-                    selectedDate = selectedYear + "/" + String.format(Locale.getDefault(), "%02d", selectedMonth) + "/" + String.format(Locale.getDefault(), "%02d", selectedDay);
-                    tvSelectedDate.setText(selectedDate);  // 更新日期顯示
-                },
-                year, month, day
-        );
-        datePickerDialog.show();
+//        Call<ResponseBody> call = apiService.updateHeightWeightRecord();
     }
 
     // 新增數據到數據列表中

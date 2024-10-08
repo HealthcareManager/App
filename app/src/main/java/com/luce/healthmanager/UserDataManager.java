@@ -20,6 +20,7 @@ public class UserDataManager {
 
             // 保存用户数据到 SharedPreferences
             editor.putString("userId", user.getId());
+            editor.putString("jwt_token", user.getJwtToken());
             editor.putString("username", user.getUsername());
             editor.putString("email", user.getEmail());
             editor.putString("dateOfBirth", String.valueOf(user.getDateOfBirth()));

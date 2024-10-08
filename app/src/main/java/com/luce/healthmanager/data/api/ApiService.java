@@ -52,14 +52,13 @@ public interface ApiService {
             @Body Map<String, Object> requestBody
     );
 
-    @PUT("api/userData/update-password/{id}")
+    @POST("api/userData/update-password")
     Call<ResponseBody> updatePassword(
-            @Path("id") String id,
             @Body Map<String, String> requestBody
     );
 
-    @GET("api/userData/password/{id}")
-    Call<ResponseBody> getPassword(
-            @Path("id") String id
+    @PUT("api/heightWeightRecord/addData")
+    Call<ResponseBody> updateHeightWeightRecord(
+            @Body Map<String, String> requestBody
     );
 }

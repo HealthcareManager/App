@@ -30,6 +30,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 import com.linecorp.linesdk.Scope;
 import com.linecorp.linesdk.auth.LineAuthenticationParams;
 import com.linecorp.linesdk.auth.LineLoginApi;
@@ -261,8 +262,20 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    UserResponse userResponse = response.body();
+
+                    UserResponse userResponse = response.body(); // 直接獲取UserResponse對象
                     UserDataManager.saveUserDataToPreferences(LoginActivity.this, userResponse);
+//                    String token = userResponse.getJwtToken(); // 從UserResponse中獲取JWT token
+//                    Log.d("Token", "token is " + token);
+//
+//                    // 將Token儲存到SharedPreferences
+//                    SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+//                    SharedPreferences.Editor editor = sharedPreferences.edit();
+//                    editor.putString("jwt_token", token);
+//                    editor.apply();
+
+//                    UserResponse userResponse = response.body();
+
                 } else {
                     Toast.makeText(LoginActivity.this, "獲取用戶資料失敗", Toast.LENGTH_SHORT).show();
                 }
