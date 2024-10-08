@@ -56,4 +56,9 @@ public interface ApiService {
     Call<ResponseBody> updatePassword(
             @Body Map<String, String> requestBody
     );
+
+    @PUT("api/heightWeightRecord/addData")
+    Call<ResponseBody> updateHeightWeightRecord(
+            @Body Map<String, String> requestBody
+    );
 }

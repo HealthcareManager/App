@@ -12,6 +12,9 @@ public class UserResponse {
     private String gender;
     private LocalDate dateOfBirth;
     private String imagelink;
+    private String jwtToken;
+
+    public UserResponse(){}
 
     public UserResponse(String username, String password) {
         this.username = username;
@@ -89,5 +92,13 @@ public class UserResponse {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getJwtToken() {
+        return jwtToken;
+    }
+
+    public void setJwtToken(String jwtToken) {
+        this.jwtToken = jwtToken;
     }
 }

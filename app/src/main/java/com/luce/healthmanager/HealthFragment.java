@@ -68,6 +68,14 @@ public class HealthFragment extends Fragment {
             startActivity(intent);
         });
 
+        // 設置血糖卡片的點擊事件
+        LinearLayout heightCard = view.findViewById(R.id.height_card);
+        sugarCard.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), CardDetailActivity.class);
+            intent.putExtra("CARD_TYPE", "身高體重");
+            startActivity(intent);
+        });
+
         return view;
     }
 
