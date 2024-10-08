@@ -1,5 +1,6 @@
 package com.luce.healthmanager;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -8,6 +9,10 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.luce.healthmanager.data.api.ApiService;
+import com.luce.healthmanager.data.network.ApiClient;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +33,7 @@ public class AiAssistantActivity extends AppCompatActivity {
     private ImageButton sendButton;
     private EditText inputMessage;
     private OpenAIApiService openAIApiService; // 定義 Retrofit 服務接口
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,7 @@ public class AiAssistantActivity extends AppCompatActivity {
         messageAdapter = new MessageAdapter(messageList);
         messageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageRecyclerView.setAdapter(messageAdapter);
+        apiService = ApiClient.getClient(this).create(ApiService.class);
 
         // 初始化返回按鈕
         backButton = findViewById(R.id.back_button);
@@ -58,10 +65,9 @@ public class AiAssistantActivity extends AppCompatActivity {
 
         // 初始化 Retrofit
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8081/api/openai/")  // 替換成實際的後端伺服器URL
+                .baseUrl("http://192.168.50.38:8080/HealthcareManager/api/openai/")  // 替換成實際的後端伺服器URL
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-
 
         openAIApiService = retrofit.create(OpenAIApiService.class);  // 創建 API 服務
 
@@ -92,9 +98,11 @@ public class AiAssistantActivity extends AppCompatActivity {
         Map<String, String> request = new HashMap<>();
         request.put("question", userMessage);
         Log.d("123", request.toString());
+        SharedPreferences sharedPreferences = AiAssistantActivity.this.getSharedPreferences("app_prefs", MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userId", "");
 
         // 呼叫後端 API
-        Call<Map<String, Object>> call = openAIApiService.askHealthQuestion(request);
+        Call<Map<String, Object>> call = apiService.askHealthQuestion(userId,request);
         call.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {

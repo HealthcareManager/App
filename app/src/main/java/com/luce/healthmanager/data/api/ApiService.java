@@ -23,6 +23,9 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
+    @POST("api/openai/ask/{userId}")
+    Call<Map<String, Object>> askHealthQuestion(@Path("userId") String userId, @Body Map<String, String> request);
+
     @POST("api/auth/line-callback")
     Call<UserResponse> sendAccessToken(@Body Map<String, String> requestBody);
 

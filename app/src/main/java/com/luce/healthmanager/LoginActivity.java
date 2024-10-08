@@ -429,47 +429,4 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
-//    private void login(String username, String password) {
-//        UserResponse user = new UserResponse(username, password);
-//        Call<UserResponse> call = apiService.Login(user);
-//        call.enqueue(new Callback<UserResponse>() {
-//            @Override
-//            public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-//                if (response.isSuccessful() && response.body() != null) {
-//                    try {
-//                        // 將 response 轉為 JSON 字符串
-//                        String responseString = new Gson().toJson(response);
-//                        JSONObject jsonResponse = new JSONObject(responseString);
-//                        Log.d("test","response is " + responseString);
-//
-//                        // 檢查響應中是否包含 token
-//                        if (jsonResponse.has("token")) {
-//                            String token = jsonResponse.getString("token");
-//                            Log.d("test", "Token at login is " + token);
-//
-//                            // 保存 token 到 SharedPreferences
-//                            SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
-//                            SharedPreferences.Editor editor = sharedPreferences.edit();
-//                            editor.putString("jwt_token", token);
-//                            editor.apply();
-//
-//                            // 保存用戶數據
-//                            UserDataManager.saveUserDataToPreferences(LoginActivity.this, user);
-//                        } else {
-//                            Log.e("LoginActivity", "Token not found in the response.");
-//                        }
-//                    } catch (JSONException e) {
-//                        Log.e("LoginActivity", "JSON Parsing error: " + e.getMessage());
-//                    }
-//                } else {
-//                    Log.e("LoginActivity", "Login failed: " + response.message());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<UserResponse> call, Throwable t) {
-//                Log.e("LoginActivity", "Error: " + t.getMessage());
-//            }
-//        });
-//    }
 }
