@@ -5,12 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -59,8 +53,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UserDataActivity extends AppCompatActivity {
 
@@ -73,7 +65,7 @@ public class UserDataActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private TextView usernameData, emailData, genderData, heightData, weightData, birthdayData;
     private boolean updatedImage = false;
-    private String userId;
+    private String userId, formattedDate;
     private ImageButton backButton;
     private ApiService apiService;
 
@@ -112,20 +104,27 @@ public class UserDataActivity extends AppCompatActivity {
         String birthday = sharedPreferences.getString("dateOfBirth", "生日");
         String userImage = sharedPreferences.getString("userImage", "圖片");
 
-        Log.d("Yuchen", userImage);
+        Log.d("Yuchen", gender);
 
         usernameData.setText("用戶名稱：" + username);
         emailData.setText("帳號：" + email);
 
         if (gender.equals("MALE")) {
             gender = "男";
+        } else if (gender.equals("FEMALE")) {
+            gender= "女";
         } else {
-            gender = "女";
+            gender = "";
         }
         genderData.setText("性別：" + gender);
         heightData.setText("身高：" + height + "公分");
         weightData.setText("體重：" + weight + "公斤");
-        String formattedDate = birthday.replace("-", "年").replaceFirst("年", "年").replaceFirst("-", "月") + "日";
+
+        if (birthday.isEmpty()) {
+            formattedDate = "";
+        } else {
+            formattedDate = birthday.replace("-", "年").replaceFirst("年", "年").replaceFirst("-", "月") + "日";
+        }
         birthdayData.setText("生日：" + formattedDate);
 
         if (token != null && !userImage.isEmpty() && !updatedImage) {
@@ -222,54 +221,40 @@ public class UserDataActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // 調用 API 獲取使用者密碼
-                    Call<ResponseBody> call = apiService.getPassword(userId);
-                    call.enqueue(new Callback<ResponseBody>() {
+                    Map<String, String> passwordUpdate = new HashMap<>();
+                    passwordUpdate.put("userId", userId);
+                    passwordUpdate.put("oldPassword", oldPassword);
+                    passwordUpdate.put("newPassword", newPassword);
+
+                    Call<ResponseBody> updateCall = apiService.updatePassword(passwordUpdate);
+                    updateCall.enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            if (response.isSuccessful() && response.body() != null) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(UserDataActivity.this, "密碼已成功更新", Toast.LENGTH_SHORT).show();
+                            } else {
                                 try {
-                                    // 從響應中獲取密碼
-                                    String storedPassword = response.body().string();
+                                    // 獲取錯誤訊息
+                                    String errorMessage = response.errorBody().string();
 
-                                    // 與使用者輸入的舊密碼進行比對
-                                    if (!oldPassword.equals(storedPassword)) {
-                                        Toast.makeText(UserDataActivity.this, "密碼不正確", Toast.LENGTH_SHORT).show();
-                                        return;
+                                    if (errorMessage.contains("舊密碼不正確")){
+                                        Toast.makeText(UserDataActivity.this, "舊密碼不正確", Toast.LENGTH_SHORT).show();
+                                    } else if (errorMessage.contains("用戶不存在")){
+                                        Toast.makeText(UserDataActivity.this, "用戶不存在", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Log.d("Yuchen", errorMessage);
+                                        Toast.makeText(UserDataActivity.this, "更新失敗", Toast.LENGTH_SHORT).show();
                                     }
-
-                                    Map<String, String> passwordUpdate = new HashMap<>();
-                                    passwordUpdate.put("newPassword", newPassword);
-
-                                    // 如果舊密碼正確，調用 API 更新新密碼
-                                    Call<ResponseBody> updateCall = apiService.updatePassword(userId, passwordUpdate);
-                                    updateCall.enqueue(new Callback<ResponseBody>() {
-                                        @Override
-                                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                                            if (response.isSuccessful()) {
-                                                Toast.makeText(UserDataActivity.this, "密碼已成功更新", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(UserDataActivity.this, "更新密碼失敗", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                                            Toast.makeText(UserDataActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
                                 } catch (IOException e) {
                                     e.printStackTrace();
-                                    Toast.makeText(UserDataActivity.this, "處理響應失敗", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(UserDataActivity.this, "無法處理錯誤訊息", Toast.LENGTH_SHORT).show();
                                 }
-                            } else {
-                                Toast.makeText(UserDataActivity.this, "無法獲取用戶密碼", Toast.LENGTH_SHORT).show();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<ResponseBody> call, Throwable t) {
-                            Toast.makeText(UserDataActivity.this, "請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserDataActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 })
@@ -530,6 +515,8 @@ public class UserDataActivity extends AppCompatActivity {
                             String jsonResponse = response.body().string();
                             JSONObject jsonObject = new JSONObject(jsonResponse);
                             String imageUrl = jsonObject.getString("filePath");
+
+                            Log.d("imageURL", "imageURL is " + imageUrl);
 
                             // 更新SharedPreferences中的userImage
                             SharedPreferences.Editor editor = sharedPreferences.edit();
