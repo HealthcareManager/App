@@ -17,6 +17,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // 使用 manifestPlaceholders 注入 API 金鑰
+        manifestPlaceholders = [MAPS_API_KEY: MAPS_API_KEY]
     }
 
     buildTypes {
@@ -71,6 +73,8 @@ dependencies {
 
     // Google Play Services
     implementation 'com.google.android.gms:play-services-auth:21.2.0'
+
+    // Google Maps API
     implementation 'com.google.android.gms:play-services-maps:19.0.0'
 
     // Firebase Authentication
