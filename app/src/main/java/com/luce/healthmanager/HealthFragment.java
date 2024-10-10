@@ -2,6 +2,7 @@ package com.luce.healthmanager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,11 +69,12 @@ public class HealthFragment extends Fragment {
             startActivity(intent);
         });
 
-        // 設置血糖卡片的點擊事件
-        LinearLayout heightCard = view.findViewById(R.id.height_card);
-        sugarCard.setOnClickListener(v -> {
+        // 設置體重卡片的點擊事件
+        LinearLayout weightCard = view.findViewById(R.id.weight_card);
+        weightCard.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), CardDetailActivity.class);
-            intent.putExtra("CARD_TYPE", "身高體重");
+            intent.putExtra("CARD_TYPE", "體重");
+            Log.d("Yuchen", "123");
             startActivity(intent);
         });
 

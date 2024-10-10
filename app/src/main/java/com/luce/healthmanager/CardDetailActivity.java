@@ -1,8 +1,10 @@
 package com.luce.healthmanager;
 
 import android.app.AlertDialog;
-import android.graphics.Color;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -11,7 +13,8 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.luce.healthmanager.data.api.ApiService;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +28,8 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.luce.healthmanager.data.network.ApiClient;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +59,9 @@ public class CardDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_card_detail);
 
         apiService = ApiClient.getClient(this).create(ApiService.class);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        userId = sharedPreferences.getString("userId", userId);
 
         // 初始化折線圖變量
         lineChart = findViewById(R.id.line_chart);
@@ -95,52 +103,64 @@ public class CardDetailActivity extends AppCompatActivity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // X 軸顯示在底部
         xAxis.setDrawGridLines(true); // 繪製 X 軸網格線
         xAxis.setGranularity(1f); // X 軸標籤的最小間隔
+        xAxis.setLabelCount(10, true); // 設置標籤數量為 10 個，並自動調整
         xAxis.setAvoidFirstLastClipping(true); // 防止第一和最後的標籤被裁切
+        xAxis.setLabelRotationAngle(-45f); // X 軸標籤旋轉角度（選擇性，防止擁擠）
+
 
         // 設置 Y 軸屬性
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setDrawGridLines(true); // 繪製 Y 軸網格線
+        leftAxis.setAxisMinimum(50f);
+        leftAxis.setAxisMaximum(130f);
         lineChart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
     }
 
     // 通用方法，用於獲取數據並將其展示到相應卡片中
     private void fetchHealthData(String cardType) {
         Call<UserMetricsResponse> call = apiService.getUserMetrics(String.valueOf(1));
+        Call<List<HeightWeightRecord>> getCall = apiService.getHeightWeightRecords(userId);
 
         call.enqueue(new Callback<UserMetricsResponse>() {
             @Override
             public void onResponse(Call<UserMetricsResponse> call, Response<UserMetricsResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Entry> entries = new ArrayList<>();
-                    List<DataItem> dataList = new ArrayList<>();
-                    List<String> dates = new ArrayList<>(); // 新增日期列表
+                    List<String> dates = new ArrayList<>();
 
-                    // 根据 cardType 类型，解析数据并生成折线图数据
-                    for (UserMetricsResponse.Metric metric : response.body().getMetrics()) {
-                        String date = metric.getTimestamp(); // 假設 timestamp 是你想要的日期格式
+                    List<UserMetricsResponse.Metric> metrics = response.body().getMetrics();
+
+                    // 如果資料超過 10 筆，取最後的 10 筆資料
+                    if (metrics.size() > 10) {
+                        metrics = metrics.subList(metrics.size() - 10, metrics.size());
+                    }
+
+                    // 按照日期順序進行排序
+                    metrics.sort((m1, m2) -> m1.getTimestamp().compareTo(m2.getTimestamp()));
+
+                    // 據 cardType 類型，解析數據
+                    for (int i = 0; i < metrics.size(); i++) {
+                        UserMetricsResponse.Metric metric = metrics.get(i);
+                        String date = metric.getTimestamp(); // 假設 timestamp 是 MM/dd 格式的日期
                         dates.add(date); // 將日期加入日期列表
 
                         switch (cardType) {
                             case "心律":
-                                entries.add(new Entry(entries.size(), metric.getHeartRate()));
-                                dataList.add(new DataItem(date, String.valueOf(metric.getHeartRate())));
+                                entries.add(new Entry(i, metric.getHeartRate())); // 使用排序後的索引 i
                                 break;
                             case "血壓":
                                 String[] bp = metric.getBloodPressure().split("/");
                                 if (bp.length == 2) {
-                                    entries.add(new Entry(entries.size(), Float.parseFloat(bp[0])));
+                                    entries.add(new Entry(i, Float.parseFloat(bp[0]))); // 使用排序後的索引 i
                                 }
-                                dataList.add(new DataItem(date, metric.getBloodPressure()));
                                 break;
                             case "血氧":
-                                entries.add(new Entry(entries.size(), (float) metric.getBloodOxygen().floatValue()));
-                                dataList.add(new DataItem(date, String.valueOf(metric.getBloodOxygen())));
+                                entries.add(new Entry(i, metric.getBloodOxygen().floatValue())); // 使用排序後的索引 i
                                 break;
                             case "血糖":
-                                entries.add(new Entry(entries.size(), (float) metric.getBloodSugar().floatValue()));
-                                dataList.add(new DataItem(date, String.valueOf(metric.getBloodSugar())));
+                                entries.add(new Entry(i, metric.getBloodSugar().floatValue())); // 使用排序後的索引 i
                                 break;
-                            case "身高體重":
+                            case "體重":
                                 addButton.setVisibility(View.VISIBLE);
                                 addButton.setOnClickListener(v -> showAddDataDialog());
                                 break;
@@ -149,8 +169,43 @@ public class CardDetailActivity extends AppCompatActivity {
                         }
                     }
 
-                    // 更新折线图，並傳遞日期列表
-                    updateLineChart(entries, cardType, dates);
+                    // 特殊處理體重的情況
+                    if (cardType.equals("體重")) {
+                        getCall.enqueue(new Callback<List<HeightWeightRecord>>() {
+                            @Override
+                            public void onResponse(Call<List<HeightWeightRecord>> call, Response<List<HeightWeightRecord>> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    List<HeightWeightRecord> records = response.body();
+
+                                    // 清除上次的數據，避免重複
+                                    dates.clear();
+                                    entries.clear();
+
+                                    // 解析伺服器返回的體重資料
+                                    for (int i = 0; i < records.size(); i++) {
+                                        HeightWeightRecord record = records.get(i);
+                                        String date = record.getDate();  // 使用伺服器返回的日期
+                                        dates.add(date);  // 將日期加入日期列表
+                                        entries.add(new Entry(i, (float) record.getWeight()));  // 轉換為 float 類型
+                                    }
+
+                                    // 更新折線圖
+                                    updateLineChart(entries, "體重", dates);
+                                } else {
+                                    Log.d("Card", "獲取體重數據失敗，回應碼：" + response.code());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<List<HeightWeightRecord>> call, Throwable t) {
+                                Log.e("Card", "請求失敗", t);
+                                Toast.makeText(CardDetailActivity.this, "獲取體重數據失敗", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        // 更新其他類型的數據到折線圖
+                        updateLineChart(entries, cardType, dates);
+                    }
                 }
             }
 
@@ -162,30 +217,40 @@ public class CardDetailActivity extends AppCompatActivity {
         });
     }
 
+
     private void updateLineChart(List<Entry> entries, String cardType, List<String> dates) {
-        LineDataSet dataSet = new LineDataSet(entries, cardType + " 數據");
-        dataSet.setLineWidth(2.5f);
-        dataSet.setColor(Color.BLUE);
-        dataSet.setCircleColor(Color.RED);
-        dataSet.setCircleRadius(4f);
-        dataSet.setDrawValues(false);
+        LineDataSet dataSet = new LineDataSet(entries, cardType);
+        dataSet.setLineWidth(2f); // 設置折線寬度
+        dataSet.setCircleRadius(4f); // 設置數據點圓圈半徑
+        dataSet.setValueTextSize(10f); // 設置數據點文字大小
 
-        lineChart.setData(new LineData(dataSet));
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
 
-        // 設置日期格式化器
+        // 設置 X 軸的日期格式化
         XAxis xAxis = lineChart.getXAxis();
-        xAxis.setValueFormatter(new DateValueFormatter(dates)); // 使用自定義的日期格式化器
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
 
-        // 添加虛線
-        for (int i = 0; i < entries.size(); i++) {
-            LimitLine limitLine = new LimitLine(i, ""); // 創建虛線
-            limitLine.setLineColor(Color.GRAY); // 設置虛線顏色
-            limitLine.setLineWidth(1f); // 設置虛線寬度
-            limitLine.enableDashedLine(10f, 10f, 0f); // 設置虛線樣式
-            xAxis.addLimitLine(limitLine); // 將虛線添加到 X 軸
-        }
+        xAxis.setLabelCount(dates.size(), true); // 設置標籤數量為日期列表的大小
+        xAxis.setGranularity(1f); // 確保每個資料點都顯示
 
-        lineChart.invalidate(); // 刷新圖表顯示
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setAxisMinimum(50f); // 設置 Y 軸的最小值，例如 50
+        leftAxis.setAxisMaximum(130f); // 設置 Y 軸的最大值，例如 200
+        lineChart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
+
+        // 調整圖例位置
+        Legend legend = lineChart.getLegend();
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM); // 圖例垂直對齊底部
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER); // 圖例水平居中
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL); // 水平排列
+        legend.setDrawInside(false); // 在圖表外部繪製
+        legend.setYOffset(10f); // 向下移動圖例
+
+        lineChart.setExtraOffsets(0f, 0f, 0f, 20f); // 調整下方邊距，留出空間給圖例
+
+        // 更新圖表
+        lineChart.invalidate(); // 刷新圖表
     }
 
 
@@ -199,45 +264,59 @@ public class CardDetailActivity extends AppCompatActivity {
         dialogLayout.setOrientation(LinearLayout.VERTICAL);
         dialogLayout.setPadding(50, 40, 50, 10);  // 設置內邊距（可調整）
 
-        // 身高選擇器
+        // 身高選擇器標籤
         TextView heightLabel = new TextView(this);
         heightLabel.setText("身高 (cm):");
         heightLabel.setPadding(0, 20, 0, 10);
         dialogLayout.addView(heightLabel);
 
+        // 創建水平佈局來包含整數和小數部分的身高選擇器
+        LinearLayout heightLayout = new LinearLayout(this);
+        heightLayout.setOrientation(LinearLayout.HORIZONTAL);
+
         // 創建身高的整數選擇器
         NumberPicker heightWholePicker = new NumberPicker(this);
         heightWholePicker.setMinValue(100);  // 假設身高最小值為100cm
         heightWholePicker.setMaxValue(250);  // 假設身高最大值為250cm
+        heightWholePicker.setValue(150);
         heightWholePicker.setWrapSelectorWheel(false);
-        dialogLayout.addView(heightWholePicker);
+        heightLayout.addView(heightWholePicker);
 
         // 小數部分選擇器
         NumberPicker heightDecimalPicker = new NumberPicker(this);
         heightDecimalPicker.setMinValue(0);  // 小數部分最小值為0
         heightDecimalPicker.setMaxValue(9);  // 小數部分最大值為9
         heightDecimalPicker.setWrapSelectorWheel(true);  // 允許循環
-        dialogLayout.addView(heightDecimalPicker);
+        heightLayout.addView(heightDecimalPicker);
 
-        // 體重選擇器
+        dialogLayout.addView(heightLayout);
+
+        // 體重選擇器標籤
         TextView weightLabel = new TextView(this);
         weightLabel.setText("體重 (kg):");
         weightLabel.setPadding(0, 20, 0, 10);
         dialogLayout.addView(weightLabel);
 
+        // 創建水平佈局來包含整數和小數部分的體重選擇器
+        LinearLayout weightLayout = new LinearLayout(this);
+        weightLayout.setOrientation(LinearLayout.HORIZONTAL);
+
         // 創建體重的整數選擇器
         NumberPicker weightWholePicker = new NumberPicker(this);
         weightWholePicker.setMinValue(30);  // 假設體重最小值為30kg
         weightWholePicker.setMaxValue(200);  // 假設體重最大值為200kg
+        weightWholePicker.setValue(60);
         weightWholePicker.setWrapSelectorWheel(false);
-        dialogLayout.addView(weightWholePicker);
+        weightLayout.addView(weightWholePicker);
 
         // 體重小數部分選擇器
         NumberPicker weightDecimalPicker = new NumberPicker(this);
         weightDecimalPicker.setMinValue(0);  // 小數部分最小值為0
         weightDecimalPicker.setMaxValue(9);  // 小數部分最大值為9
         weightDecimalPicker.setWrapSelectorWheel(true);  // 允許循環
-        dialogLayout.addView(weightDecimalPicker);
+        weightLayout.addView(weightDecimalPicker);
+
+        dialogLayout.addView(weightLayout);
 
         // 設置對話框的內容佈局
         builder.setView(dialogLayout);
@@ -259,7 +338,7 @@ public class CardDetailActivity extends AppCompatActivity {
             userData.put("weight", String.valueOf(finalWeight));
 
             // 在這裡處理添加邏輯，比如更新到數據列表或提交到後端
-            dataToServer(finalHeight, finalWeight);
+            dataToServer(userData, "體重");
         });
 
         builder.setNegativeButton("取消", (dialog, id) -> dialog.dismiss());
@@ -269,9 +348,30 @@ public class CardDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void dataToServer(double finalHeight, double finalWeight) {
 
-//        Call<ResponseBody> call = apiService.updateHeightWeightRecord();
+    private void dataToServer(Map<String, String> userData, String cardType) {
+
+        userData.put("userId", userId);
+
+        Call<ResponseBody> updateCall = apiService.updateHeightWeightRecord(userData);
+
+        updateCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.isSuccessful()) {
+                    Toast.makeText(CardDetailActivity.this, "身高體重已添加", Toast.LENGTH_SHORT);
+                    // 重新獲取數據
+                    fetchHealthData(cardType);
+                } else {
+                    Toast.makeText(CardDetailActivity.this, "身高體重添加失敗", Toast.LENGTH_SHORT);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(CardDetailActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // 新增數據到數據列表中

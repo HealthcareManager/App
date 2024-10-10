@@ -1,6 +1,7 @@
 package com.luce.healthmanager.data.api;
 
 import com.luce.healthmanager.HeartRateData;
+import com.luce.healthmanager.HeightWeightRecord;
 import com.luce.healthmanager.UserMetricsResponse;
 import com.luce.healthmanager.UserResponse;
 
@@ -62,8 +63,8 @@ public interface ApiService {
             @Body Map<String, String> requestBody
     );
 
-    @POST("api/heightWeightRecord/getData/{id}")
-    Call<ResponseBody> getHeightWeightRecord(
-            @Path("id") String id
+    @POST("api/heightWeightRecord/getData/{userId}")
+    Call<List<HeightWeightRecord>> getHeightWeightRecords(
+            @Path("userId") String userId
     );
 }
