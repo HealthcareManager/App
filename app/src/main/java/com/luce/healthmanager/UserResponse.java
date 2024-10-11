@@ -13,12 +13,27 @@ public class UserResponse {
     private LocalDate dateOfBirth;
     private String imagelink;
     private String jwtToken;
+    private String role;
 
     public UserResponse(){}
 
     public UserResponse(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public UserResponse(String id, String password, String username, String email, Double height, Double weight, String gender, LocalDate dateOfBirth, String imagelink, String jwtToken, String role) {
+        this.id = id;
+        this.password = password;
+        this.username = username;
+        this.email = email;
+        this.height = height;
+        this.weight = weight;
+        this.gender = gender;
+        this.dateOfBirth = dateOfBirth;
+        this.imagelink = imagelink;
+        this.jwtToken = jwtToken;
+        this.role = role;
     }
 
     // Getters and setters
@@ -100,5 +115,13 @@ public class UserResponse {
 
     public void setJwtToken(String jwtToken) {
         this.jwtToken = jwtToken;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

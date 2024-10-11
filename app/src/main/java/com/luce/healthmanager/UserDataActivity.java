@@ -63,7 +63,7 @@ public class UserDataActivity extends AppCompatActivity {
     private Uri imageUri;  // 圖片選擇的 URI
     private Button btnChooseButton, saveButton;
     private SharedPreferences sharedPreferences;
-    private TextView usernameData, emailData, genderData, heightData, weightData, birthdayData;
+    private TextView usernameData, emailData, genderData, heightData, weightData, birthdayData, vipData;
     private boolean updatedImage = false;
     private String userId, formattedDate;
     private ImageButton backButton;
@@ -89,6 +89,7 @@ public class UserDataActivity extends AppCompatActivity {
         genderArrow = findViewById(R.id.gender_arrow);
         usernameArrow = findViewById(R.id.username_arrow);
         passwordArrow = findViewById(R.id.password_arrow);
+        vipData = findViewById(R.id.vip_data);
 
 
         sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
@@ -101,11 +102,18 @@ public class UserDataActivity extends AppCompatActivity {
         String weight = sharedPreferences.getString("weight", "體重");
         String birthday = sharedPreferences.getString("dateOfBirth", "生日");
         String userImage = sharedPreferences.getString("userImage", "圖片");
+        String role = sharedPreferences.getString("role", "會員身分");
 
         Log.d("Yuchen", gender);
 
         usernameData.setText("用戶名稱：" + username);
         emailData.setText("帳號：" + email);
+
+        if (role.equals("USER")) {
+            vipData.setText("會員身分： Standard");
+        } else {
+            vipData.setText("會員身分： premium");
+        }
 
         if (gender.equals("MALE")) {
             gender = "男";

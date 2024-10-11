@@ -1,6 +1,7 @@
 package com.luce.healthmanager;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -64,9 +65,25 @@ public class MainActivity extends AppCompatActivity {
 
                 // Show payment success notification
                 runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this, "Payment Successful", Toast.LENGTH_LONG).show();
-                    // Navigate to ProfileFragment
-                    replaceFragment(new ProfileFragment());
+
+                    SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+                    boolean hasShownToast = sharedPreferences.getBoolean("hasShownToast", false);
+                    if (!hasShownToast) {
+                        // 顯示 Toast
+                        Toast.makeText(MainActivity.this, "Payment Successful", Toast.LENGTH_LONG).show();
+
+                        // 導航到 ProfileFragment
+                        replaceFragment(new ProfileFragment());
+
+                        // 更新角色為 VIP
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        String newRole = "VIP";
+                        editor.putString("role", newRole);
+
+                        // 設置 hasShownToast 為 true，防止再次顯示
+                        editor.putBoolean("hasShownToast", true);
+                        editor.apply();
+                    }
                 });
 
                 // Send payment data to backend

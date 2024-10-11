@@ -50,6 +50,7 @@
                 android:id="@+id/device_image"
                 android:layout_width="300dp"
                 android:layout_height="300dp"
+                android:layout_gravity="center"
                 android:src="@drawable/watch2" />
 
             <!-- 同步按鈕 -->

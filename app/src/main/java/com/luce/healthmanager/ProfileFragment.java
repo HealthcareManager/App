@@ -38,6 +38,7 @@ import okhttp3.Response;
 public class ProfileFragment extends Fragment {
 
     private static final int REQUEST_UPDATE_PROFILE = 100;
+    private String userId, jwtToken, username, userImage, role;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,11 +50,7 @@ public class ProfileFragment extends Fragment {
         String username = sharedPreferences.getString("username", "未登入");
         String userId = sharedPreferences.getString("userId", "");
         String userImage = sharedPreferences.getString("userImage", "");
-
-        Log.d("ProfileFragment", "User token: " + jwtToken);
-        Log.d("ProfileFragment", "User image URL: " + userImage);
-        Log.d("ProfileFragment", "username: " + username);
-        Log.d("ProfileFragment", "userId: " + userId);
+        String role = sharedPreferences.getString("role", "");
 
         // 設置 TextView 與 ImageView
         TextView userNameTextView = view.findViewById(R.id.user_name);
@@ -64,20 +61,27 @@ public class ProfileFragment extends Fragment {
         Button loginButton = view.findViewById(R.id.login_button);// 使用 view.findViewById
         LinearLayout cardprime = view.findViewById(R.id.cardprime);
         LinearLayout aboutme = view.findViewById(R.id.aboutme);
+        ImageView vipImage = view.findViewById(R.id.vip_image);
 
         // 設置用戶名和 ID
-        userNameTextView.setText(username);
-        userIdTextView.setText("ID: " + userId);
+//        userNameTextView.setText(username);
+//        userIdTextView.setText("ID: " + userId);
 
         // 檢查用戶是否已登入，控制登出按鈕顯示
         if (!userId.isEmpty()) {
             // 用戶已登入，顯示登出按鈕並隱藏登入按鈕
             logoutButton.setVisibility(View.VISIBLE);
             loginButton.setVisibility(View.GONE);
+            vipImage.setVisibility(View.VISIBLE);
+
+            if (role.equals("VIP")) {
+                vipImage.setImageDrawable(getResources().getDrawable(R.drawable.vip));
+            }
         } else {
             // 用戶未登入，顯示登入按鈕並隱藏登出按鈕
             logoutButton.setVisibility(View.GONE);
             loginButton.setVisibility(View.VISIBLE);
+            vipImage.setVisibility(View.GONE);
         }
 
         // 轉向關於幫助與回饋
@@ -296,7 +300,9 @@ public class ProfileFragment extends Fragment {
 
         // 更新用戶名和ID
         userNameTextView.setText(username);
-        userIdTextView.setText("ID: " + userId);
+        if (!username.equals("未登入")) {
+            userIdTextView.setText("ID: " + userId);
+        }
 
         // 加載用戶圖片
         loadUserImage(jwtToken, userImage, avatar);
