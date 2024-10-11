@@ -1,6 +1,8 @@
 package com.luce.healthmanager;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +14,9 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.luce.healthmanager.data.api.ApiService;
+import com.luce.healthmanager.data.network.ApiClient;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,7 +27,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class HealthFragment extends Fragment {
 
     // 定義 TextView 用於顯示數據
-    private TextView heartRateText, oxygenText, bloodPressureText, bloodSugarText;
+    private TextView heartRateText, oxygenText, bloodPressureText, bloodSugarText, heightData;
+    private ApiService apiService;
+    private String userId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,6 +40,12 @@ public class HealthFragment extends Fragment {
         oxygenText = view.findViewById(R.id.oxygen_data);
         bloodPressureText = view.findViewById(R.id.blood_data);
         bloodSugarText = view.findViewById(R.id.sugar_data);
+        heightData = view.findViewById(R.id.height_data);
+
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        userId = sharedPreferences.getString("userId", "");
+
+        apiService = ApiClient.getClient(getActivity()).create(ApiService.class);
 
         // 請求數據並更新 UI
         fetchHealthData();
@@ -44,6 +57,7 @@ public class HealthFragment extends Fragment {
             intent.putExtra("CARD_TYPE", "心律");
             startActivity(intent);
         });
+
 
         // 設置血氧卡片的點擊事件
         LinearLayout oxygenCard = view.findViewById(R.id.oxygen_card);
@@ -83,14 +97,10 @@ public class HealthFragment extends Fragment {
 
     // 從後端獲取健康數據
     private void fetchHealthData() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:8080/")  // 模擬器中訪問主機的地址
-                .addConverterFactory(GsonConverterFactory.create())  // 使用 Gson 解析 JSON
-                .build();
 
-        ApiService apiService = retrofit.create(ApiService.class);
+        Call<UserMetricsResponse> call = apiService.getUserMetrics(userId); // 傳遞用戶ID
 
-        Call<UserMetricsResponse> call = apiService.getUserMetrics("1"); // 傳遞用戶ID，這裡假設為1
+        Call<List<HeightWeightRecord>> getCall = apiService.getHeightWeightRecords(userId);
 
         call.enqueue(new Callback<UserMetricsResponse>() {
             @Override
@@ -113,6 +123,30 @@ public class HealthFragment extends Fragment {
 
             @Override
             public void onFailure(Call<UserMetricsResponse> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+
+        getCall.enqueue(new Callback<List<HeightWeightRecord>>() {
+            @Override
+            public void onResponse(Call<List<HeightWeightRecord>> call, Response<List<HeightWeightRecord>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<HeightWeightRecord> records = response.body();
+
+                    if (!records.isEmpty()) {
+                        // 取得最新的體重記錄 (假設最新的記錄在列表的最後一個)
+                        HeightWeightRecord latestRecord = records.get(records.size() - 1);
+                        
+                        String latestWeight = String.valueOf(latestRecord.getWeight());
+
+                        heightData.setText(latestWeight + "公斤");
+                        Log.d("LatestWeight", "最新體重: " + latestWeight);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<HeightWeightRecord>> call, Throwable t) {
                 t.printStackTrace();
             }
         });
