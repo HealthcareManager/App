@@ -156,7 +156,6 @@
                 android:id="@+id/height_arrow"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/arrow_right"
                 android:layout_gravity="right" />
 
         </LinearLayout>
@@ -181,7 +180,6 @@
                 android:id="@+id/weight_arrow"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/arrow_right"
                 android:layout_gravity="right" />
 
         </LinearLayout>

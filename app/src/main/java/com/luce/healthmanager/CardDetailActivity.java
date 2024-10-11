@@ -2,12 +2,14 @@ package com.luce.healthmanager;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -46,12 +48,12 @@ public class CardDetailActivity extends AppCompatActivity {
     // UI 控件變量
     private ImageButton backButton;  // 返回按鈕
     private Button addButton;        // 新增數據按鈕
-    private RecyclerView recyclerView; // 用來顯示數據列表的 RecyclerView
-    private DataAdapter dataAdapter;   // RecyclerView 的適配器
-    private List<DataItem> dataList;   // 用來保存數據項的列表
     private LineChart lineChart;       // 用來顯示數據走勢的折線圖
     private ApiService apiService;
-    private String userId;
+    private String userId, gender;
+    private LinearLayout weightCard, weightCard1;
+    private TextView suggestedWeightText;
+    private ImageView weightArrow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +63,12 @@ public class CardDetailActivity extends AppCompatActivity {
         apiService = ApiClient.getClient(this).create(ApiService.class);
 
         SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
-        userId = sharedPreferences.getString("userId", userId);
+        userId = sharedPreferences.getString("userId", "");
+        gender = sharedPreferences.getString("gender", "");
+
 
         // 初始化折線圖變量
         lineChart = findViewById(R.id.line_chart);
-        // 初始化數據列表
-        dataList = new ArrayList<>();
         // 設置 LineChart，初始化圖表的外觀
         setupLineChart();
 
@@ -81,15 +83,18 @@ public class CardDetailActivity extends AppCompatActivity {
         backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> finish()); // 返回上一個 Activity
 
-        // 初始化 RecyclerView，用於顯示數據項
-        recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        dataAdapter = new DataAdapter(dataList);
-        recyclerView.setAdapter(dataAdapter);
-
         // 初始化新增按鈕，並設置點擊事件以顯示對話框
         addButton = findViewById(R.id.add_button);
         addButton.setVisibility(View.GONE);
+
+        weightCard = findViewById(R.id.weight_card);
+        weightCard1 = findViewById(R.id.weight_card1);
+        weightCard.setVisibility(View.GONE);
+        weightCard1.setVisibility(View.GONE);
+
+        weightArrow = findViewById(R.id.weight_arrow);
+
+        suggestedWeightText = findViewById(R.id.suggested_weight_text);
     }
 
 
@@ -163,6 +168,15 @@ public class CardDetailActivity extends AppCompatActivity {
                             case "體重":
                                 addButton.setVisibility(View.VISIBLE);
                                 addButton.setOnClickListener(v -> showAddDataDialog());
+                                weightCard.setVisibility(View.VISIBLE);
+                                weightCard1.setVisibility(View.VISIBLE);
+                                weightArrow.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Intent intent = new Intent(CardDetailActivity.this, WeightDetailActivity.class);
+                                        startActivity(intent);
+                                    }
+                                });
                                 break;
                             default:
                                 break;
@@ -181,8 +195,26 @@ public class CardDetailActivity extends AppCompatActivity {
                                     dates.clear();
                                     entries.clear();
 
+                                    if (!records.isEmpty()) {
+                                        HeightWeightRecord latestRecord = records.get(0);
+                                        double height = latestRecord.getHeight(); // 假設身高的單位是公尺 (米)
+
+                                        double SuggestedWeight = 0;
+                                        // 計算建議體重範圍
+                                        if (gender.equals("女")) {
+                                            SuggestedWeight = (height - 70) * 0.6;
+                                        } else {
+                                            SuggestedWeight = (height - 80) * 0.7;
+                                        }
+
+                                        // 顯示建議體重範圍
+                                        suggestedWeightText.setText(SuggestedWeight + "公斤");
+                                    }
+
+                                    int limit = Math.min(records.size(), 10);
+
                                     // 解析伺服器返回的體重資料
-                                    for (int i = 0; i < records.size(); i++) {
+                                    for (int i = 0; i < limit; i++) {
                                         HeightWeightRecord record = records.get(i);
                                         String date = record.getDate();  // 使用伺服器返回的日期
                                         dates.add(date);  // 將日期加入日期列表
@@ -216,7 +248,6 @@ public class CardDetailActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private void updateLineChart(List<Entry> entries, String cardType, List<String> dates) {
         LineDataSet dataSet = new LineDataSet(entries, cardType);
@@ -372,12 +403,5 @@ public class CardDetailActivity extends AppCompatActivity {
                 Toast.makeText(CardDetailActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    // 新增數據到數據列表中
-    private void addNewData(String date, String dataValue) {
-        dataList.add(new DataItem(date, dataValue)); // 添加新的數據項
-        dataAdapter.notifyDataSetChanged(); // 通知適配器數據已改變
-        recyclerView.scrollToPosition(dataList.size() - 1); // 滾動到最新添加的數據項
     }
 }

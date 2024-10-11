@@ -59,7 +59,7 @@ public class UserDataActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_PICK = 1;
     private static final int PICK_IMAGE_REQUEST = 1;  // 用於選擇圖片的請求碼
     private static final int REQUEST_PERMISSION_CODE = 100;
-    private ImageView userAvatar, usernameArrow, genderArrow, heightArrow, weightArrow, passwordArrow;  // 用戶頭像 ImageView
+    private ImageView userAvatar, usernameArrow, genderArrow, passwordArrow;  // 用戶頭像 ImageView
     private Uri imageUri;  // 圖片選擇的 URI
     private Button btnChooseButton, saveButton;
     private SharedPreferences sharedPreferences;
@@ -88,8 +88,6 @@ public class UserDataActivity extends AppCompatActivity {
         birthdayData = findViewById(R.id.birthday_data);
         genderArrow = findViewById(R.id.gender_arrow);
         usernameArrow = findViewById(R.id.username_arrow);
-        heightArrow = findViewById(R.id.height_arrow);
-        weightArrow = findViewById(R.id.weight_arrow);
         passwordArrow = findViewById(R.id.password_arrow);
 
 
@@ -169,8 +167,6 @@ public class UserDataActivity extends AppCompatActivity {
         // 設置按鈕點擊事件，選擇圖片
         btnChooseButton.setOnClickListener(v -> selectImageFromGallery());
         genderArrow.setOnClickListener(view -> showGenderPickerDialog());
-        heightArrow.setOnClickListener(view -> showHeightPickerDialog());
-        weightArrow.setOnClickListener(view -> showWeightPickerDialog());
         usernameArrow.setOnClickListener(view -> showUsernameDialog());
         passwordArrow.setOnClickListener(view -> showPasswordDialog());
     }
@@ -283,12 +279,6 @@ public class UserDataActivity extends AppCompatActivity {
                     if (updateData.containsKey("gender")) {
                         editor.putString("gender", (String) updateData.get("gender"));
                     }
-                    if (updateData.containsKey("height")) {
-                        editor.putString("height", String.valueOf(updateData.get("height")));
-                    }
-                    if (updateData.containsKey("weight")) {
-                        editor.putString("weight", String.valueOf(updateData.get("weight")));
-                    }
 
                     editor.apply(); // 提交更改
                 } else {
@@ -335,70 +325,6 @@ public class UserDataActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(this, "名稱不能為空", Toast.LENGTH_SHORT).show();
                     }
-                })
-                .setNegativeButton("取消", null)
-                .show();
-    }
-
-    // 體重
-    private void showWeightPickerDialog() {
-        final NumberPicker integerPicker = new NumberPicker(this);
-        integerPicker.setMinValue(10);
-        integerPicker.setMaxValue(250);
-        integerPicker.setValue(60);
-
-        final NumberPicker decimalPicker = new NumberPicker(this);
-        decimalPicker.setMinValue(0);
-        decimalPicker.setMaxValue(9);
-
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
-        layout.setGravity(Gravity.CENTER);
-        layout.addView(integerPicker);
-        layout.addView(decimalPicker);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("請選擇您的體重 (公斤)")
-                .setView(layout)
-                .setPositiveButton("確定", (dialog, which) -> {
-                    double newWeight = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
-                    Map<String, Object> updateData = new HashMap<>();
-                    updateData.put("weight", newWeight);
-
-                    updateDataToServer(updateData);
-                    weightData.setText("體重：" + newWeight + "公斤");
-                })
-                .setNegativeButton("取消", null)
-                .show();
-    }
-
-    // 顯示修改身高
-    private void showHeightPickerDialog() {
-        final NumberPicker integerPicker = new NumberPicker(this);
-        integerPicker.setMinValue(100);
-        integerPicker.setMaxValue(250);
-        integerPicker.setValue(150);
-
-        final NumberPicker decimalPicker = new NumberPicker(this);
-        decimalPicker.setMinValue(0);
-        decimalPicker.setMaxValue(9);
-
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
-        layout.setGravity(Gravity.CENTER);
-        layout.addView(integerPicker);
-        layout.addView(decimalPicker);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("請選擇您的身高 (公分)")
-                .setView(layout)
-                .setPositiveButton("確定", (dialog, which) -> {
-                    double newHeight = integerPicker.getValue() + decimalPicker.getValue() * 0.1;
-                    Map<String, Object> updateData = new HashMap<>();
-                    updateData.put("height", newHeight);
-
-                    updateDataToServer(updateData);
-                    heightData.setText("身高：" + newHeight + "公分");
                 })
                 .setNegativeButton("取消", null)
                 .show();
