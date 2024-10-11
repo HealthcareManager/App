@@ -203,9 +203,9 @@
 
 
 
-            <!-- 卡片：身高體重 -->
+            <!-- 卡片：體重 -->
             <LinearLayout
-                android:id="@+id/height_card"
+                android:id="@+id/weight_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -226,7 +226,7 @@
                     android:id="@+id/height_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="身高體重"
+                    android:text="體重"
                     android:textSize="18sp"
                     android:textColor="@color/black" />
 

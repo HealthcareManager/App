@@ -34,6 +34,7 @@ public class AiAssistantActivity extends AppCompatActivity {
     private EditText inputMessage;
     private OpenAIApiService openAIApiService; // 定義 Retrofit 服務接口
     private ApiService apiService;
+    private String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,9 @@ public class AiAssistantActivity extends AppCompatActivity {
         messageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageRecyclerView.setAdapter(messageAdapter);
         apiService = ApiClient.getClient(this).create(ApiService.class);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        userId = sharedPreferences.getString("userId", "");
 
         // 初始化返回按鈕
         backButton = findViewById(R.id.back_button);
@@ -63,13 +67,15 @@ public class AiAssistantActivity extends AppCompatActivity {
         // 頁面載入後自動發送 AI 助理的歡迎訊息
         sendAiMessage("請問需要幫忙嗎？");
 
-        // 初始化 Retrofit
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.50.38:8080/HealthcareManager/api/openai/")  // 替換成實際的後端伺服器URL
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        openAIApiService = ApiClient.getClient(this).create(OpenAIApiService.class);
 
-        openAIApiService = retrofit.create(OpenAIApiService.class);  // 創建 API 服務
+//        // 初始化 Retrofit
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("http://10.0.2.2:8080/api/openai/")  // 替換成實際的後端伺服器URL
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//
+//        openAIApiService = retrofit.create(OpenAIApiService.class);  // 創建 API 服務
 
         // 發送按鈕點擊事件
         sendButton.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +108,7 @@ public class AiAssistantActivity extends AppCompatActivity {
         String userId = sharedPreferences.getString("userId", "");
 
         // 呼叫後端 API
-        Call<Map<String, Object>> call = apiService.askHealthQuestion(userId,request);
+        Call<Map<String, Object>> call = openAIApiService.askHealthQuestion(userId, request);
         call.enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
