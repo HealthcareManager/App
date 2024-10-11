@@ -28,6 +28,7 @@ public class UserDataManager {
             editor.putString("height", user.getHeight() != null ? String.valueOf(user.getHeight()) : "");
             editor.putString("weight", user.getWeight() != null ? String.valueOf(user.getWeight()) : "");
             editor.putString("userImage", user.getImagelink() != null ? user.getImagelink() : "");
+            editor.putString("role", user.getRole());
 
             editor.apply();
 
@@ -55,6 +56,7 @@ public class UserDataManager {
         String weight = userData.optString("weight", "");
         String dateOfBirth = userData.optString("dateOfBirth", "");
         String userImage = userData.optString("userImage", "");
+        String role = userData.optString("role", "");
 
         // 获取 SharedPreferences
         SharedPreferences sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
@@ -69,6 +71,7 @@ public class UserDataManager {
         editor.putString("weight", weight.isEmpty() ? "" : weight);
         editor.putString("dateOfBirth", dateOfBirth.isEmpty() ? "" : dateOfBirth);
         editor.putString("userImage", userImage.isEmpty() ? "" : userImage);
+        editor.putString("role", role);
         editor.apply();
 
         // 跳转到 MainActivity
