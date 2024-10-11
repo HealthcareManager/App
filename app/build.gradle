@@ -49,6 +49,10 @@ dependencies {
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
 
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
+
+    implementation 'com.google.firebase:firebase-analytics'
+
     // Line登入SDK
     // https://mvnrepository.com/artifact/com.linecorp.linesdk/linesdk
     implementation 'com.linecorp.linesdk:linesdk:5.10.0'

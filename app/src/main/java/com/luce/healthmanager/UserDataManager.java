@@ -17,7 +17,7 @@ public class UserDataManager {
             // 获取 SharedPreferences
             SharedPreferences sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-
+            Log.d("at UDM","userID is " + user.getId());
             // 保存用户数据到 SharedPreferences
             editor.putString("userId", user.getId());
             editor.putString("jwt_token", user.getJwtToken());
