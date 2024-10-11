@@ -18,7 +18,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // 使用 manifestPlaceholders 注入 API 金鑰
-        manifestPlaceholders = [MAPS_API_KEY: MAPS_API_KEY]
+        manifestPlaceholders = [key: key]
     }
 
     buildTypes {
