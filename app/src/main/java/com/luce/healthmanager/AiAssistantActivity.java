@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.luce.healthmanager.data.api.ApiService;
 import com.luce.healthmanager.data.network.ApiClient;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class AiAssistantActivity extends AppCompatActivity {
     private ImageButton sendButton;
     private EditText inputMessage;
     private OpenAIApiService openAIApiService; // 定義 Retrofit 服務接口
+    private ApiService apiService;
     private String userId;
 
     @Override
@@ -45,6 +47,7 @@ public class AiAssistantActivity extends AppCompatActivity {
         messageAdapter = new MessageAdapter(messageList);
         messageRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         messageRecyclerView.setAdapter(messageAdapter);
+        apiService = ApiClient.getClient(this).create(ApiService.class);
 
         SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
         userId = sharedPreferences.getString("userId", "");
@@ -102,6 +105,8 @@ public class AiAssistantActivity extends AppCompatActivity {
         Map<String, String> request = new HashMap<>();
         request.put("question", userMessage);
         Log.d("123", request.toString());
+        SharedPreferences sharedPreferences = AiAssistantActivity.this.getSharedPreferences("app_prefs", MODE_PRIVATE);
+        String userId = sharedPreferences.getString("userId", "");
 
         // 呼叫後端 API
         Call<Map<String, Object>> call = openAIApiService.askHealthQuestion(userId, request);

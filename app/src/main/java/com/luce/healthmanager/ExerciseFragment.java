@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -280,8 +281,13 @@ public class ExerciseFragment extends Fragment implements OnMapReadyCallback {
         if (requestCode == 1) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    googleMap.setMyLocationEnabled(true);
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);
+                    LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                    if (locationManager != null && locationListener != null) {
+                        googleMap.setMyLocationEnabled(true);
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);
+                    } else {
+                        Log.e("LocationError", "LocationManager 或 LocationListener 初始化失败");
+                    }
                 }
             } else {
                 Toast.makeText(getActivity(), "應用需要位置權限來跟蹤運動", Toast.LENGTH_SHORT).show();

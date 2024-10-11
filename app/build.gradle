@@ -18,7 +18,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // 使用 manifestPlaceholders 注入 API 金鑰
-        manifestPlaceholders = [MAPS_API_KEY: MAPS_API_KEY]
+        manifestPlaceholders = [key: key]
     }
 
     buildTypes {
@@ -48,6 +48,10 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
+
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
+
+    implementation 'com.google.firebase:firebase-analytics'
 
     // Line登入SDK
     // https://mvnrepository.com/artifact/com.linecorp.linesdk/linesdk
