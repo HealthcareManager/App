@@ -1,14 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:gravity="center"
     android:background="@android:color/white">
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
         <!-- 使用LinearLayout作為ScrollView的唯一子元素 -->
         <LinearLayout
@@ -17,33 +14,8 @@
             android:orientation="vertical">
 
             <!-- 裝置名稱和電量 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/device_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="設備名稱 : 小米手環"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/battery_level"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="電量 : 60%"
-                    android:textSize="16sp" />
-            </LinearLayout>
 
             <!-- 增加一個空白View作為間隔 -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
 
             <!-- 圖片（例如手錶圖片） -->
             <ImageView
@@ -56,7 +28,7 @@
             <!-- 同步按鈕 -->
             <Button
                 android:id="@+id/sync_button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="同步"
                 android:textSize="16sp"
@@ -64,7 +36,8 @@
                 android:background="@drawable/round_button"
                 android:layout_gravity="center_horizontal"
                 android:padding="16dp"
-                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toTopOf="@+id/device_image"
+                android:layout_marginTop="30dp"
                 android:textStyle="bold"/>
 
             <!-- 設置項目列表 -->
@@ -72,52 +45,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="32dp">
-
-                <!-- 裝置設置選項按鈕 -->
-                <Button
-                    android:id="@+id/heart_rate_setting"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="心率設置"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:padding="12dp"
-                    android:layout_marginBottom="8dp"
-                    android:drawablePadding="8dp"
-                    android:textStyle="bold"/>
-
-                <Button
-                    android:id="@+id/sleep_setting"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="睡眠設置"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:padding="12dp"
-                    android:layout_marginBottom="8dp"
-                    android:drawablePadding="8dp"
-                    android:textStyle="bold"/>
-
-                <Button
-                    android:id="@+id/stand_reminder"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="站立提醒"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:padding="12dp"
-                    android:layout_marginBottom="8dp"
-                    android:drawablePadding="8dp"
-                    android:textStyle="bold"/>
-
-            </LinearLayout>
+                android:layout_marginTop="32dp"/>
 
         </LinearLayout> <!-- 結束內部LinearLayout -->
-
-    </ScrollView> <!-- 結束ScrollView -->
 
 </LinearLayout>
