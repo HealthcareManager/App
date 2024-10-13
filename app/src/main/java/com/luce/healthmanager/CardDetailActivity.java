@@ -123,7 +123,7 @@ public class CardDetailActivity extends AppCompatActivity {
 
     // 通用方法，用於獲取數據並將其展示到相應卡片中
     private void fetchHealthData(String cardType) {
-        Call<UserMetricsResponse> call = apiService.getUserMetrics(String.valueOf(1));
+        Call<UserMetricsResponse> call = apiService.getUserMetrics(userId);
         Call<List<HeightWeightRecord>> getCall = apiService.getHeightWeightRecords(userId);
 
         call.enqueue(new Callback<UserMetricsResponse>() {

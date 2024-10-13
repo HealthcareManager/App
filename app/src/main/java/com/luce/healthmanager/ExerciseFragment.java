@@ -219,7 +219,7 @@ public class ExerciseFragment extends Fragment implements OnMapReadyCallback {
         OkHttpClient client = new OkHttpClient();
         RequestBody body = RequestBody.create(requestBody.toString(), MediaType.parse("application/json"));
         Request request = new Request.Builder()
-                .url("http://10.0.2.2:8080/api/exercise")  // 後端 API 的 URL
+                .url("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/exercise")  // 後端 API 的 URL
                 .addHeader("Authorization", "Bearer " + jwtToken)  // 添加 JWT Token 驗證
                 .post(body)
                 .build();

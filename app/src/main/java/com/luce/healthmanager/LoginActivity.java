@@ -227,7 +227,7 @@ public class LoginActivity extends AppCompatActivity {
                 case SUCCESS:
                     // 获取 authorization code
                     String accessToken = result.getLineCredential().getAccessToken().getTokenString();  // 获取到的就是 authorization code
-                    Log.d("LineLogin", "Authorization Code: " + accessToken);
+                    Log.d("LineLogin", "accessToken is : " + accessToken);
 
                     // 将 authorization code 发送到后端
                     sendAccessTokenToBackend(accessToken);
