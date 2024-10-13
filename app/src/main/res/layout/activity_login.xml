@@ -123,20 +123,18 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:gravity="center"
                     android:background="#FF5722"
                     android:padding="12dp">
 
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/google_icon"
-                        android:layout_marginStart="80dp" />
+                        android:src="@drawable/google_icon" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
                         android:text="使用 Google 帳號登入"
                         android:textColor="@android:color/white"
                         android:textSize="16sp"
@@ -150,7 +148,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:gravity="center"
                     android:background="#0B66FF"
                     android:padding="12dp"
                     android:layout_marginTop="16dp">
@@ -158,16 +156,14 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/facebook_icon"
-                        android:layout_marginStart="80dp" />
+                        android:src="@drawable/facebook_icon" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="使用 Facebook 帳號登入"
                         android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:layout_marginStart="8dp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <!-- 第三方登入按鈕：Line -->
@@ -176,7 +172,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical"
+                    android:gravity="center"
                     android:background="#0CC754"
                     android:padding="12dp"
                     android:layout_marginTop="16dp">
@@ -184,16 +180,14 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/line_icon"
-                        android:layout_marginStart="80dp" />
+                        android:src="@drawable/line_icon" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="使用 Line 帳號登入"
                         android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:layout_marginStart="8dp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
