@@ -1,5 +1,6 @@
 package com.luce.healthmanager.data.api;
 
+import com.luce.healthmanager.ExerciseRecord;
 import com.luce.healthmanager.HeartRateData;
 import com.luce.healthmanager.HeightWeightRecord;
 import com.luce.healthmanager.UserMetricsResponse;
@@ -70,4 +71,6 @@ public interface ApiService {
     Call<List<HeightWeightRecord>> getHeightWeightRecords(
             @Path("userId") String userId
     );
+    @GET("api/exercise/{userId}")
+    Call<List<ExerciseRecord>> getExerciseRecords(@Path("userId") String userId);
 }
