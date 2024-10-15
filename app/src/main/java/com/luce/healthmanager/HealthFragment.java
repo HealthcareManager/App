@@ -50,6 +50,10 @@ public class HealthFragment extends Fragment {
         // 請求數據並更新 UI
         fetchHealthData();
 
+        // 調用方法獲取卡路里數據
+        fetchCaloriesData();
+
+
         // 設置心律卡片的點擊事件
         LinearLayout heartCard = view.findViewById(R.id.heart_card);
         heartCard.setOnClickListener(v -> {
@@ -91,6 +95,16 @@ public class HealthFragment extends Fragment {
             Log.d("Yuchen", "123");
             startActivity(intent);
         });
+
+ 
+        // 設置卡路里卡片點擊事件
+        LinearLayout caloriesCard = view.findViewById(R.id.calories_card);
+        caloriesCard.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), CardDetailActivity.class);
+            intent.putExtra("CARD_TYPE", "卡路里");
+            startActivity(intent);
+        });
+
 
         return view;
     }
@@ -148,6 +162,32 @@ public class HealthFragment extends Fragment {
             @Override
             public void onFailure(Call<List<HeightWeightRecord>> call, Throwable t) {
                 t.printStackTrace();
+            }
+        });
+    }
+    private void fetchCaloriesData() {
+        Call<List<ExerciseRecord>> call = apiService.getExerciseRecords(userId);
+    
+        call.enqueue(new Callback<List<ExerciseRecord>>() {
+            @Override
+            public void onResponse(Call<List<ExerciseRecord>> call, Response<List<ExerciseRecord>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<ExerciseRecord> records = response.body();
+    
+                    if (!records.isEmpty()) {
+                        // 取最新一筆紀錄顯示在卡片上
+                        ExerciseRecord latestRecord = records.get(0);
+                        TextView caloriesDataText = getView().findViewById(R.id.calories_data);
+                        caloriesDataText.setText(latestRecord.getCaloriesBurned() + " kcal");
+                    }
+                } else {
+                    Log.d("HealthFragment", "無法獲取卡路里數據：" + response.code());
+                }
+            }
+    
+            @Override
+            public void onFailure(Call<List<ExerciseRecord>> call, Throwable t) {
+                Log.e("HealthFragment", "獲取卡路里數據失敗", t);
             }
         });
     }

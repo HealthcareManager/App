@@ -33,6 +33,8 @@ public class UserDataManager {
             Log.d("at UDM","1userUsername is " + user.getUsername());
             Log.d("at UDM","1userdateOfBirth is " + String.valueOf(user.getDateOfBirth()));
 
+            editor.putBoolean("hasShownToast", !user.getRole().equals("USER"));
+
             editor.apply();
 
             // 跳转到 MainActivity
@@ -77,6 +79,8 @@ public class UserDataManager {
         editor.putString("role", role);
         Log.d("at UDM","2userRole is " + role);
         editor.apply();
+
+        editor.putBoolean("hasShownToast", !role.equals("USER"));
 
         // 跳转到 MainActivity
         Intent intent = new Intent(context, MainActivity.class);
