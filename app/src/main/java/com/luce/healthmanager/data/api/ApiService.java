@@ -71,6 +71,6 @@ public interface ApiService {
     Call<List<HeightWeightRecord>> getHeightWeightRecords(
             @Path("userId") String userId
     );
-    @GET("api/exercise/{userId}")
+    @GET("api/exercise/user/{userId}")
     Call<List<ExerciseRecord>> getExerciseRecords(@Path("userId") String userId);
 }

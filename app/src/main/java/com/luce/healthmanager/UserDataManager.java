@@ -30,6 +30,8 @@ public class UserDataManager {
             editor.putString("userImage", user.getImagelink() != null ? user.getImagelink() : "");
             editor.putString("role", user.getRole());
 
+            editor.putBoolean("hasShownToast", !user.getRole().equals("USER"));
+
             editor.apply();
 
             // 跳转到 MainActivity
@@ -73,6 +75,8 @@ public class UserDataManager {
         editor.putString("userImage", userImage.isEmpty() ? "" : userImage);
         editor.putString("role", role);
         editor.apply();
+
+        editor.putBoolean("hasShownToast", !role.equals("USER"));
 
         // 跳转到 MainActivity
         Intent intent = new Intent(context, MainActivity.class);

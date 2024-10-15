@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
         String userId = sharedPreferences.getString("userId", null);
         String jwtToken = sharedPreferences.getString("jwt_token", null); // Define and retrieve jwtToken here
-        Log.d("PaymentUpdate", "User ID: " + userId); // 確認用戶 ID
+        String productName = sharedPreferences.getString("productName", null);
+        Log.d("PaymentUpdate", "productName: " + productName); // 確認用戶 ID
 
         if (userId != null) {
             try {
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 requestBody.put("orderId", orderId);
                 requestBody.put("userId", userId); // 確保這裡包含 userId
                 requestBody.put("status", "SUCCESS"); // Set status based on actual situation
+                requestBody.put("name", productName);
 
                 // Log to see the request body
                 Log.d("PaymentUpdate", "Sending request with body: " + requestBody.toString());

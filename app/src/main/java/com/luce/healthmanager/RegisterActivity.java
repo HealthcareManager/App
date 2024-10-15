@@ -182,7 +182,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         // 建立請求
         Request request = new Request.Builder()
-                .url("http://192.168.50.38:8080/HealthcareManager/api/auth/register")
+//                .url("http://192.168.50.38:8080/HealthcareManager/api/auth/register")
+                .url("http://10.0.0.2/api/auth/register")
                 .post(body)
                 .build();
 
