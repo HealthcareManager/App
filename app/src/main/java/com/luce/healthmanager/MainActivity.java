@@ -41,14 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private WebSocketManager webSocketManager;
     String webSocketUrl = "wss://healthcaremanager.myvnc.com:8443/HealthcareManager/membership-status";
 
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        handleCallback(intent);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -58,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private void handleCallback(Intent intent) {
         Uri data = intent.getData();
         Log.d("LINE_PAY", "Callback URL: " + data);
+        Log.d("6660","456");
 
         if (data != null && data.toString().startsWith("com.luce.healthmanager://callback")) {
             String orderId = data.getQueryParameter("orderId");
@@ -72,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
                     boolean hasShownToast = sharedPreferences.getBoolean("hasShownToast", false);
                     if (!hasShownToast) {
+                        Log.d("6660","123");
                         // 顯示 Toast
-                        Toast.makeText(MainActivity.this, "Payment Successful", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(MainActivity.this, "Payment Successful", Toast.LENGTH_LONG).show();
 
                         // 導航到 ProfileFragment
                         replaceFragment(new ProfileFragment());
@@ -137,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         if (response.isSuccessful()) {
+//                            String message = response.body().string();
+//                            Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
                             Log.d("PaymentUpdate", "Successfully updated user payment status");
                         } else {
                             Log.e("PaymentUpdate", "Unable to update user payment status, response code: " + response.code());
@@ -151,8 +147,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("PaymentUpdate", "Unable to find user ID");
         }
     }
-
-
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -310,18 +304,6 @@ public class MainActivity extends AppCompatActivity {
             String membershipStatus = jsonMessage.getString("membershipStatus");
             Log.d("123","membershipStatus is" + membershipStatus);
 
-//            FragmentManager fragmentManager = getSupportFragmentManager();
-//            fragmentManager.beginTransaction()
-//                    .replace(R.id.fragment_container, new ProfileFragment(), "ProfileFragment")
-//                    .commit();
-//            Log.d("FragmentCheck", "ProfileFragment 正在添加...");
-//            Fragment fragment = fragmentManager.findFragmentByTag("ProfileFragment");
-//
-//            if (fragment == null) {
-//                Log.d("FragmentCheck", "ProfileFragment not found");
-//            } else if (fragment instanceof ProfileFragment) {
-//                ProfileFragment profileFragment = (ProfileFragment) fragment;
-
                 if ("USER".equals(membershipStatus)) {
                     Log.d("MembershipCheck", "會員狀態是 USER");
 
@@ -341,9 +323,6 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     Log.d("MembershipCheck", "會員狀態不是 USER");
-
-                    // 显示黄冠图标
-                    //runOnUiThread(() -> profileFragment.updateCrownIconVisibility(true));
 
                     // 获取 SharedPreferences 实例
                     SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);

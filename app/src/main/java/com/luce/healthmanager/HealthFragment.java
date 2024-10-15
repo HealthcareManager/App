@@ -177,8 +177,11 @@ public class HealthFragment extends Fragment {
                     if (!records.isEmpty()) {
                         // 取最新一筆紀錄顯示在卡片上
                         ExerciseRecord latestRecord = records.get(0);
-                        TextView caloriesDataText = getView().findViewById(R.id.calories_data);
-                        caloriesDataText.setText(latestRecord.getCaloriesBurned() + " kcal");
+                        View view = getView();  // 獲取 Fragment 的根視圖
+                        if (view != null) {
+                            TextView caloriesDataText = view.findViewById(R.id.calories_data);
+                            caloriesDataText.setText(latestRecord.getCaloriesBurned() + " kcal");
+                        }
                     }
                 } else {
                     Log.d("HealthFragment", "無法獲取卡路里數據：" + response.code());

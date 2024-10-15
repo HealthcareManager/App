@@ -42,6 +42,7 @@ import okhttp3.Response;
 public class ProfileFragment extends Fragment {
 
     private ImageView vipImage;
+    private String jwtToken;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -214,7 +215,7 @@ public class ProfileFragment extends Fragment {
                     String currency = "TWD";
                     String orderId = "order" + UUID.randomUUID().toString();
                     String packageName = "RebeccaShop";
-                    String productName = productNamesInEnglish[0]; // 根據選擇的方案設置產品名稱
+                    String productName = selectedProductNameInEnglish[0]; // 根據選擇的方案設置產品名稱
                     int productQuantity = 1;
 
                     try {
@@ -249,7 +250,8 @@ public class ProfileFragment extends Fragment {
                         OkHttpClient client = new OkHttpClient();
                         RequestBody body = RequestBody.create(requestBody.toString().getBytes(StandardCharsets.UTF_8), MediaType.parse("application/json; charset=utf-8"));
                         Request request = new Request.Builder()
-                                .url("http://10.0.2.2:8080/api/payment") // 請求URL
+                                //.url("http://10.0.2.2:8080/api/payment") // 請求URL
+                                .url("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/payment") // 請求URL
                                 .addHeader("Authorization", "Bearer " + jwtToken) // 添加 JWT Token 驗證
                                 .post(body)
                                 .build();
