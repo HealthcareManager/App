@@ -207,7 +207,7 @@ public class CardDetailActivity extends AppCompatActivity {
                     int limit = Math.min(records.size(), 10);
                     for (int i = 0; i < limit; i++) {
                         ExerciseRecord record = records.get(i);
-                        dates.add(record.getCreatedAt());
+                        dates.add(record.getCreatedAt().substring(5, 10).replace("-", "/"));
                         entries.add(new Entry(i, (float) record.getCaloriesBurned()));
                     }
 
@@ -236,7 +236,7 @@ public class CardDetailActivity extends AppCompatActivity {
 
         // 設置 X 軸的日期格式化
         XAxis xAxis = lineChart.getXAxis();
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(dates.stream().distinct().toList()));
 
         xAxis.setLabelCount(dates.size(), true); // 設置標籤數量為日期列表的大小
         xAxis.setGranularity(1f); // 確保每個資料點都顯示
