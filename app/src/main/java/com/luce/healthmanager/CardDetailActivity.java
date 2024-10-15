@@ -48,7 +48,7 @@ public class CardDetailActivity extends AppCompatActivity {
     // UI 控件變量
     private ImageButton backButton;  // 返回按鈕
     private Button addButton;        // 新增數據按鈕
-    private LineChart lineChart;     // 用來顯示健康數據的折線圖
+    private LineChart lineChart;       // 用來顯示數據走勢的折線圖
     private ApiService apiService;
     private String userId, gender;
     private LinearLayout weightCard, weightCard1;
@@ -66,10 +66,11 @@ public class CardDetailActivity extends AppCompatActivity {
         userId = sharedPreferences.getString("userId", "");
         gender = sharedPreferences.getString("gender", "");
 
+
         // 初始化折線圖變量
         lineChart = findViewById(R.id.line_chart);
         // 設置 LineChart，初始化圖表的外觀
-        setupLineChart(lineChart);
+        setupLineChart();
 
         // 接收從 Intent 傳遞的卡片類型，根據類型顯示不同的數據
         String cardType = getIntent().getStringExtra("CARD_TYPE");
@@ -96,13 +97,14 @@ public class CardDetailActivity extends AppCompatActivity {
         suggestedWeightText = findViewById(R.id.suggested_weight_text);
     }
 
+
     // 初始化折線圖
-    private void setupLineChart(LineChart chart) {
-        chart.setDrawGridBackground(false); // 不繪製背景格子
-        chart.getDescription().setEnabled(false); // 不顯示描述文字
+    private void setupLineChart() {
+        lineChart.setDrawGridBackground(false); // 不繪製背景格子
+        lineChart.getDescription().setEnabled(false); // 不顯示描述文字
 
         // 設置 X 軸屬性
-        XAxis xAxis = chart.getXAxis();
+        XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // X 軸顯示在底部
         xAxis.setDrawGridLines(true); // 繪製 X 軸網格線
         xAxis.setGranularity(1f); // X 軸標籤的最小間隔
@@ -110,10 +112,13 @@ public class CardDetailActivity extends AppCompatActivity {
         xAxis.setAvoidFirstLastClipping(true); // 防止第一和最後的標籤被裁切
         xAxis.setLabelRotationAngle(-45f); // X 軸標籤旋轉角度（選擇性，防止擁擠）
 
+
         // 設置 Y 軸屬性
-        YAxis leftAxis = chart.getAxisLeft();
+        YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setDrawGridLines(true); // 繪製 Y 軸網格線
-        chart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
+        leftAxis.setAxisMinimum(50f);
+        leftAxis.setAxisMaximum(130f);
+        lineChart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
     }
 
     // 通用方法，用於獲取數據並將其展示到相應卡片中
@@ -176,14 +181,67 @@ public class CardDetailActivity extends AppCompatActivity {
                             case "卡路里":
                                 // 重新顯示最新的運動卡路里資料
                                 fetchCaloriesData();
-                                return;
+                                break;
                             default:
                                 break;
                         }
                     }
 
-                    // 更新其他類型的數據到折線圖
-                    updateLineChart(entries, cardType, dates);
+                    // 特殊處理體重的情況
+                    if (cardType.equals("體重")) {
+                        getCall.enqueue(new Callback<List<HeightWeightRecord>>() {
+                            @Override
+                            public void onResponse(Call<List<HeightWeightRecord>> call, Response<List<HeightWeightRecord>> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    List<HeightWeightRecord> records = response.body();
+
+                                    // 清除上次的數據，避免重複
+                                    dates.clear();
+                                    entries.clear();
+
+                                    if (!records.isEmpty()) {
+                                        HeightWeightRecord latestRecord = records.get(0);
+                                        double height = latestRecord.getHeight(); // 假設身高的單位是公尺 (米)
+
+                                        double SuggestedWeight = 0;
+                                        // 計算建議體重範圍
+                                        if (gender.equals("女")) {
+                                            SuggestedWeight = (height - 70) * 0.6;
+                                        } else {
+                                            SuggestedWeight = (height - 80) * 0.7;
+                                        }
+
+                                        // 顯示建議體重範圍
+                                        suggestedWeightText.setText(SuggestedWeight + "公斤");
+                                    }
+
+                                    int limit = Math.min(records.size(), 10);
+
+                                    // 解析伺服器返回的體重資料
+                                    for (int i = 0; i < limit; i++) {
+                                        HeightWeightRecord record = records.get(i);
+                                        String date = record.getDate();  // 使用伺服器返回的日期
+                                        dates.add(date);  // 將日期加入日期列表
+                                        entries.add(new Entry(i, (float) record.getWeight()));  // 轉換為 float 類型
+                                    }
+
+                                    // 更新折線圖
+                                    updateLineChart(entries, "體重", dates);
+                                } else {
+                                    Log.d("Card", "獲取體重數據失敗，回應碼：" + response.code());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<List<HeightWeightRecord>> call, Throwable t) {
+                                Log.e("Card", "請求失敗", t);
+                                Toast.makeText(CardDetailActivity.this, "獲取體重數據失敗", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else {
+                        // 更新其他類型的數據到折線圖
+                        updateLineChart(entries, cardType, dates);
+                    }
                 }
             }
 
@@ -207,11 +265,11 @@ public class CardDetailActivity extends AppCompatActivity {
                     int limit = Math.min(records.size(), 10);
                     for (int i = 0; i < limit; i++) {
                         ExerciseRecord record = records.get(i);
-                        dates.add(record.getCreatedAt().substring(5, 10).replace("-", "/"));
+                        dates.add(record.getCreatedAt());
                         entries.add(new Entry(i, (float) record.getCaloriesBurned()));
                     }
 
-                    // 更新卡路里折線圖
+                    // 更新折線圖
                     updateLineChart(entries, "卡路里", dates);
                 } else {
                     Toast.makeText(CardDetailActivity.this, "無法獲取卡路里數據", Toast.LENGTH_SHORT).show();
@@ -224,7 +282,7 @@ public class CardDetailActivity extends AppCompatActivity {
             }
         });
     }
-    
+
     private void updateLineChart(List<Entry> entries, String cardType, List<String> dates) {
         LineDataSet dataSet = new LineDataSet(entries, cardType);
         dataSet.setLineWidth(2f); // 設置折線寬度
@@ -236,37 +294,20 @@ public class CardDetailActivity extends AppCompatActivity {
 
         // 設置 X 軸的日期格式化
         XAxis xAxis = lineChart.getXAxis();
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(dates.stream().distinct().toList()));
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
 
         xAxis.setLabelCount(dates.size(), true); // 設置標籤數量為日期列表的大小
         xAxis.setGranularity(1f); // 確保每個資料點都顯示
 
-        // 設置 Y 軸的屬性
         YAxis leftAxis = lineChart.getAxisLeft();
-        if (cardType.equals("卡路里")) {
-            // 如果是卡路里數據，動態設置 Y 軸範圍
-            float maxY = 0f;
-            float minY = Float.MAX_VALUE;
-            for (Entry entry : entries) {
-                if (entry.getY() > maxY) {
-                    maxY = entry.getY();
-                }
-                if (entry.getY() < minY) {
-                    minY = entry.getY();
-                }
-            }
-            leftAxis.setAxisMinimum(minY - 10); // 動態設置最小值，留些空間
-            leftAxis.setAxisMaximum(maxY + 10); // 動態設置最大值，留些空間
-        } else {
-            // 其他健康數據固定 Y 軸範圍為 50 到 130
-            leftAxis.setAxisMinimum(50f);
-            leftAxis.setAxisMaximum(130f);
-        }
+        leftAxis.setAxisMinimum(50f); // 設置 Y 軸的最小值，例如 50
+        leftAxis.setAxisMaximum(130f); // 設置 Y 軸的最大值，例如 200
+        lineChart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
 
         // 調整圖例位置
         Legend legend = lineChart.getLegend();
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM); // 圖例垂直對齊底部
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER); // 圖例水平對齊
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER); // 圖例水平居中
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL); // 水平排列
         legend.setDrawInside(false); // 在圖表外部繪製
         legend.setYOffset(10f); // 向下移動圖例
@@ -276,6 +317,7 @@ public class CardDetailActivity extends AppCompatActivity {
         // 更新圖表
         lineChart.invalidate(); // 刷新圖表
     }
+
 
     // 顯示新增數據的對話框
     private void showAddDataDialog() {
@@ -371,7 +413,9 @@ public class CardDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
+
     private void dataToServer(Map<String, String> userData, String cardType) {
+
         userData.put("userId", userId);
 
         Call<ResponseBody> updateCall = apiService.updateHeightWeightRecord(userData);
