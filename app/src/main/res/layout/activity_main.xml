@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
@@ -26,31 +26,32 @@
 
             <ImageButton
                 android:id="@+id/imageButton5"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="65dp"
+                android:layout_height="46dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
                 android:src="@drawable/chatbot" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="62dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="AI助理"
                 android:textColor="@android:color/black" />
         </LinearLayout>
-        <TextView
-            android:id="@+id/display_text"
-            android:layout_width="180dp"
+
+        <ImageView
+            android:layout_width="210dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/gg"
             android:layout_gravity="center"
-            android:layout_weight="2"
-            android:gravity="center_horizontal"
-            android:textSize="30sp"
-            android:text=""
-            android:textColor="@android:color/black" />
+            android:layout_marginStart="20dp" />
     </LinearLayout>
+
 
     <!-- FragmentContainerView 中間內容區，用於切換 Fragment -->
     <androidx.fragment.app.FragmentContainerView

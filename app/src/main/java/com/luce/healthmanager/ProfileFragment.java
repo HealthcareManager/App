@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -37,8 +38,7 @@ import okhttp3.Response;
 
 public class ProfileFragment extends Fragment {
 
-    private static final int REQUEST_UPDATE_PROFILE = 100;
-    private String userId, jwtToken, username, userImage, role;
+    private ImageView vipImage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class ProfileFragment extends Fragment {
         Button loginButton = view.findViewById(R.id.login_button);// 使用 view.findViewById
         LinearLayout cardprime = view.findViewById(R.id.cardprime);
         LinearLayout aboutme = view.findViewById(R.id.aboutme);
-        ImageView vipImage = view.findViewById(R.id.vip_image);
+        vipImage = view.findViewById(R.id.vip_image);
 
         // 設置用戶名和 ID
 //        userNameTextView.setText(username);
@@ -72,10 +72,10 @@ public class ProfileFragment extends Fragment {
             // 用戶已登入，顯示登出按鈕並隱藏登入按鈕
             logoutButton.setVisibility(View.VISIBLE);
             loginButton.setVisibility(View.GONE);
-            vipImage.setVisibility(View.VISIBLE);
 
             if (role.equals("VIP")) {
                 vipImage.setImageDrawable(getResources().getDrawable(R.drawable.vip));
+                vipImage.setVisibility(View.VISIBLE);
             }
         } else {
             // 用戶未登入，顯示登入按鈕並隱藏登出按鈕
@@ -163,7 +163,7 @@ public class ProfileFragment extends Fragment {
                     OkHttpClient client = new OkHttpClient();
                     RequestBody body = RequestBody.create(requestBody.toString(), MediaType.parse("application/json"));
                     Request request = new Request.Builder()
-                            .url("http://10.0.2.2:8080/api/payment") // 請求URL
+                            .url("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/payment") // 請求URL
                             .addHeader("Authorization", "Bearer " + jwtToken) // 添加 JWT Token 驗證
                             .post(body)
                             .build();
@@ -260,6 +260,15 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    // 定义一个方法来更新 crownIcon 的状态
+    public void updateCrownIconVisibility(boolean isVisible) {
+        if (vipImage != null) {
+            vipImage.setImageDrawable(getResources().getDrawable(R.drawable.vip));
+            vipImage.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+            //vipImage.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+        }
+    }
+
     // 每次返回頁面時重新加載用戶圖片及數據
     @Override
     public void onResume() {
@@ -315,6 +324,7 @@ public class ProfileFragment extends Fragment {
         editor.clear(); // 清除所有保存的資料
         editor.apply(); // 應用更改
 
+        Toast.makeText(getActivity(), "您已登出", Toast.LENGTH_SHORT).show();
         // 重新加載頁面
         getActivity().recreate();
     }

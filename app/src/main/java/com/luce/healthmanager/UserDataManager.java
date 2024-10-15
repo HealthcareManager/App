@@ -29,6 +29,9 @@ public class UserDataManager {
             editor.putString("weight", user.getWeight() != null ? String.valueOf(user.getWeight()) : "");
             editor.putString("userImage", user.getImagelink() != null ? user.getImagelink() : "");
             editor.putString("role", user.getRole());
+            Log.d("at UDM","1userRole is " + user.getRole());
+            Log.d("at UDM","1userUsername is " + user.getUsername());
+            Log.d("at UDM","1userdateOfBirth is " + String.valueOf(user.getDateOfBirth()));
 
             editor.apply();
 
@@ -72,6 +75,7 @@ public class UserDataManager {
         editor.putString("dateOfBirth", dateOfBirth.isEmpty() ? "" : dateOfBirth);
         editor.putString("userImage", userImage.isEmpty() ? "" : userImage);
         editor.putString("role", role);
+        Log.d("at UDM","2userRole is " + role);
         editor.apply();
 
         // 跳转到 MainActivity

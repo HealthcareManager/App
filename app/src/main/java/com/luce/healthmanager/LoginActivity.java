@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
 
@@ -93,8 +94,17 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.login_button);
         usernameEditText = findViewById(R.id.username_input);
         passwordEditText = findViewById(R.id.password_input);
+        TextView forgotPasswordTextView = findViewById(R.id.forgot_password);
 
         apiService = ApiClient.getClient(this).create(ApiService.class);
+
+        forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class); // `CurrentActivity` 是当前的活动
+                startActivity(intent);
+            }
+        });
 
         //一般用戶註冊
         registerButton.setOnClickListener(new View.OnClickListener() {
@@ -265,16 +275,6 @@ public class LoginActivity extends AppCompatActivity {
 
                     UserResponse userResponse = response.body(); // 直接獲取UserResponse對象
                     UserDataManager.saveUserDataToPreferences(LoginActivity.this, userResponse);
-//                    String token = userResponse.getJwtToken(); // 從UserResponse中獲取JWT token
-//                    Log.d("Token", "token is " + token);
-//
-//                    // 將Token儲存到SharedPreferences
-//                    SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
-//                    SharedPreferences.Editor editor = sharedPreferences.edit();
-//                    editor.putString("jwt_token", token);
-//                    editor.apply();
-
-//                    UserResponse userResponse = response.body();
 
                 } else {
                     Toast.makeText(LoginActivity.this, "獲取用戶資料失敗", Toast.LENGTH_SHORT).show();

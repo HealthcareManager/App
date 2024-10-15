@@ -17,6 +17,10 @@ public class UserResponse {
 
     public UserResponse(){}
 
+    public  UserResponse(String email) {
+        this.email = email;
+    }
+
     public UserResponse(String username, String password) {
         this.username = username;
         this.password = password;
