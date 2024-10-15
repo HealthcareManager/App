@@ -33,7 +33,9 @@ import com.luce.healthmanager.data.network.ApiClient;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -270,7 +272,7 @@ public class CardDetailActivity extends AppCompatActivity {
                     }
 
                     // 更新折線圖
-                    updateLineChart(entries, "卡路里", dates);
+                    updateCaloriesLineChart(entries, "卡路里", dates);
                 } else {
                     Toast.makeText(CardDetailActivity.this, "無法獲取卡路里數據", Toast.LENGTH_SHORT).show();
                 }
@@ -281,6 +283,52 @@ public class CardDetailActivity extends AppCompatActivity {
                 Toast.makeText(CardDetailActivity.this, "卡路里數據請求失敗：" + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateCaloriesLineChart(List<Entry> entries, String cardType, List<String> dates) {
+
+        // 計算資料中的最大值
+        float maxEntryValue = 0;
+        for (Entry entry : entries) {
+            if (entry.getY() > maxEntryValue) {
+                maxEntryValue = entry.getY();
+            }
+        }
+        float yAxisMax = maxEntryValue + 50; // Y 軸最大值為最大資料值 + 50
+
+        List<String> formattedDates = formatDates(dates);
+
+        LineDataSet dataSet = new LineDataSet(entries, cardType);
+        dataSet.setLineWidth(2f); // 設置折線寬度
+        dataSet.setCircleRadius(4f); // 設置數據點圓圈半徑
+        dataSet.setValueTextSize(10f); // 設置數據點文字大小
+
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+
+        // 設置 X 軸的日期格式化
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(formattedDates));
+        xAxis.setLabelCount(formattedDates.size(), false); // 設置標籤數量為日期列表的大小
+        xAxis.setGranularity(1f); // 確保每個資料點都顯示
+
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setAxisMinimum(0f); // 設置 Y 軸的最小值，例如 50
+        leftAxis.setAxisMaximum(yAxisMax); // 設置 Y 軸的最大值，例如 200
+        lineChart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
+
+        // 調整圖例位置
+        Legend legend = lineChart.getLegend();
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM); // 圖例垂直對齊底部
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER); // 圖例水平居中
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL); // 水平排列
+        legend.setDrawInside(false); // 在圖表外部繪製
+        legend.setYOffset(10f); // 向下移動圖例
+
+        lineChart.setExtraOffsets(0f, 0f, 0f, 20f); // 調整下方邊距，留出空間給圖例
+
+        // 更新圖表
+        lineChart.invalidate(); // 刷新圖表
     }
 
     private void updateLineChart(List<Entry> entries, String cardType, List<String> dates) {
@@ -437,5 +485,25 @@ public class CardDetailActivity extends AppCompatActivity {
                 Toast.makeText(CardDetailActivity.this, "更新請求失敗: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private List<String> formatDates(List<String> dates) {
+        List<String> formattedDates = new ArrayList<>();
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("MM/dd"); // 目標格式
+
+        for (String dateStr : dates) {
+            try {
+                Date date = inputFormat.parse(dateStr); // 解析日期
+                String formattedDate = outputFormat.format(date); // 格式化為 MM/dd
+                formattedDates.add(formattedDate);
+
+                // 使用 Log 打印格式化後的日期
+//                Log.d("DateFormatting", "Formatted Date: " + formattedDate);
+            } catch (Exception e) {
+//                Log.e("DateFormatting", "Failed to format: " + dateStr, e);
+                formattedDates.add(dateStr); // 如果解析失敗，使用原始日期
+            }
+        }
+        return formattedDates;
     }
 }
