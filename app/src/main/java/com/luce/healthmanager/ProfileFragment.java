@@ -200,7 +200,7 @@ public class ProfileFragment extends Fragment {
                 selectedProductNameInEnglish[0] = productNamesInEnglish[which];
                 productPrice[0] = prices[which];
                 amount[0] = amounts[which];
-                Log.d("PaymentDialog", "Selected option: " + selectedOption[0] + ", Price: " + productPrice[0]);
+                Log.d("PaymentDialog", "Selected option: " + selectedOption[0] + selectedProductNameInEnglish[0] + ", Price: " + productPrice[0]);
             }
         });
 
@@ -214,7 +214,7 @@ public class ProfileFragment extends Fragment {
                     String currency = "TWD";
                     String orderId = "order" + UUID.randomUUID().toString();
                     String packageName = "RebeccaShop";
-                    String productName = productNamesInEnglish[0]; // 根據選擇的方案設置產品名稱
+                    String productName = selectedProductNameInEnglish[0]; // 根據選擇的方案設置產品名稱
                     int productQuantity = 1;
 
                     try {
