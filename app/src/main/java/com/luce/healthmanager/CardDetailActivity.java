@@ -178,6 +178,10 @@ public class CardDetailActivity extends AppCompatActivity {
                                     }
                                 });
                                 break;
+                            case "卡路里":
+                                // 重新顯示最新的運動卡路里資料
+                                fetchCaloriesData(); 
+                                break;
                             default:
                                 break;
                         }
@@ -248,7 +252,37 @@ public class CardDetailActivity extends AppCompatActivity {
             }
         });
     }
+    private void fetchCaloriesData() {
+        apiService.getExerciseRecords(userId).enqueue(new Callback<List<ExerciseRecord>>() {
+            @Override
+            public void onResponse(Call<List<ExerciseRecord>> call, Response<List<ExerciseRecord>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<ExerciseRecord> records = response.body();
+                    List<Entry> entries = new ArrayList<>();
+                    List<String> dates = new ArrayList<>();
 
+                    // 只取最近的 10 筆資料
+                    int limit = Math.min(records.size(), 10);
+                    for (int i = 0; i < limit; i++) {
+                        ExerciseRecord record = records.get(i);
+                        dates.add(record.getCreatedAt());
+                        entries.add(new Entry(i, (float) record.getCaloriesBurned()));
+                    }
+
+                    // 更新折線圖
+                    updateLineChart(entries, "卡路里", dates);
+                } else {
+                    Toast.makeText(CardDetailActivity.this, "無法獲取卡路里數據", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ExerciseRecord>> call, Throwable t) {
+                Toast.makeText(CardDetailActivity.this, "卡路里數據請求失敗：" + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
     private void updateLineChart(List<Entry> entries, String cardType, List<String> dates) {
         LineDataSet dataSet = new LineDataSet(entries, cardType);
         dataSet.setLineWidth(2f); // 設置折線寬度
