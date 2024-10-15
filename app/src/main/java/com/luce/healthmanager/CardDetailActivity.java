@@ -49,7 +49,6 @@ public class CardDetailActivity extends AppCompatActivity {
     private ImageButton backButton;  // 返回按鈕
     private Button addButton;        // 新增數據按鈕
     private LineChart lineChart;     // 用來顯示健康數據的折線圖
-    private LineChart caloriesChart; // 用來顯示卡路里數據的折線圖
     private ApiService apiService;
     private String userId, gender;
     private LinearLayout weightCard, weightCard1;
@@ -69,10 +68,8 @@ public class CardDetailActivity extends AppCompatActivity {
 
         // 初始化折線圖變量
         lineChart = findViewById(R.id.line_chart);
-        caloriesChart = findViewById(R.id.calories_chart);
         // 設置 LineChart，初始化圖表的外觀
         setupLineChart(lineChart);
-        setupCaloriesChart(caloriesChart);
 
         // 接收從 Intent 傳遞的卡片類型，根據類型顯示不同的數據
         String cardType = getIntent().getStringExtra("CARD_TYPE");
@@ -116,29 +113,6 @@ public class CardDetailActivity extends AppCompatActivity {
         // 設置 Y 軸屬性
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setDrawGridLines(true); // 繪製 Y 軸網格線
-        leftAxis.setAxisMinimum(50f);
-        leftAxis.setAxisMaximum(130f);
-        chart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
-    }
-
-    // 初始化卡路里折線圖
-    private void setupCaloriesChart(LineChart chart) {
-        chart.setDrawGridBackground(false); // 不繪製背景格子
-        chart.getDescription().setEnabled(false); // 不顯示描述文字
-
-        // 設置 X 軸屬性
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // X 軸顯示在底部
-        xAxis.setDrawGridLines(true); // 繪製 X 軸網格線
-        xAxis.setGranularity(1f); // X 軸標籤的最小間隔
-        xAxis.setLabelCount(10, true); // 設置標籤數量為 10 個，並自動調整
-        xAxis.setAvoidFirstLastClipping(true); // 防止第一和最後的標籤被裁切
-        xAxis.setLabelRotationAngle(-45f); // X 軸標籤旋轉角度（選擇性，防止擁擠）
-
-        // 設置 Y 軸屬性
-        YAxis leftAxis = chart.getAxisLeft();
-        leftAxis.setDrawGridLines(true); // 繪製 Y 軸網格線
-        leftAxis.setAxisMinimum(0f); // 卡路里數據可以從 0 開始
         chart.getAxisRight().setEnabled(false); // 不顯示右側的 Y 軸
     }
 
@@ -201,7 +175,7 @@ public class CardDetailActivity extends AppCompatActivity {
                                 break;
                             case "卡路里":
                                 // 重新顯示最新的運動卡路里資料
-                                fetchCaloriesData(); 
+                                fetchCaloriesData();
                                 return;
                             default:
                                 break;
@@ -209,7 +183,7 @@ public class CardDetailActivity extends AppCompatActivity {
                     }
 
                     // 更新其他類型的數據到折線圖
-                    updateLineChart(entries, cardType, dates, lineChart);
+                    updateLineChart(entries, cardType, dates);
                 }
             }
 
@@ -238,7 +212,7 @@ public class CardDetailActivity extends AppCompatActivity {
                     }
 
                     // 更新卡路里折線圖
-                    updateLineChart(entries, "卡路里", dates, caloriesChart);
+                    updateLineChart(entries, "卡路里", dates);
                 } else {
                     Toast.makeText(CardDetailActivity.this, "無法獲取卡路里數據", Toast.LENGTH_SHORT).show();
                 }
@@ -251,34 +225,56 @@ public class CardDetailActivity extends AppCompatActivity {
         });
     }
     
-    private void updateLineChart(List<Entry> entries, String cardType, List<String> dates, LineChart chart) {
+    private void updateLineChart(List<Entry> entries, String cardType, List<String> dates) {
         LineDataSet dataSet = new LineDataSet(entries, cardType);
         dataSet.setLineWidth(2f); // 設置折線寬度
         dataSet.setCircleRadius(4f); // 設置數據點圓圈半徑
         dataSet.setValueTextSize(10f); // 設置數據點文字大小
 
         LineData lineData = new LineData(dataSet);
-        chart.setData(lineData);
+        lineChart.setData(lineData);
 
         // 設置 X 軸的日期格式化
-        XAxis xAxis = chart.getXAxis();
+        XAxis xAxis = lineChart.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
 
         xAxis.setLabelCount(dates.size(), true); // 設置標籤數量為日期列表的大小
         xAxis.setGranularity(1f); // 確保每個資料點都顯示
 
+        // 設置 Y 軸的屬性
+        YAxis leftAxis = lineChart.getAxisLeft();
+        if (cardType.equals("卡路里")) {
+            // 如果是卡路里數據，動態設置 Y 軸範圍
+            float maxY = 0f;
+            float minY = Float.MAX_VALUE;
+            for (Entry entry : entries) {
+                if (entry.getY() > maxY) {
+                    maxY = entry.getY();
+                }
+                if (entry.getY() < minY) {
+                    minY = entry.getY();
+                }
+            }
+            leftAxis.setAxisMinimum(minY - 10); // 動態設置最小值，留些空間
+            leftAxis.setAxisMaximum(maxY + 10); // 動態設置最大值，留些空間
+        } else {
+            // 其他健康數據固定 Y 軸範圍為 50 到 130
+            leftAxis.setAxisMinimum(50f);
+            leftAxis.setAxisMaximum(130f);
+        }
+
         // 調整圖例位置
-        Legend legend = chart.getLegend();
+        Legend legend = lineChart.getLegend();
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM); // 圖例垂直對齊底部
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER); // 圖例水平對齊
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL); // 水平排列
         legend.setDrawInside(false); // 在圖表外部繪製
         legend.setYOffset(10f); // 向下移動圖例
 
-        chart.setExtraOffsets(0f, 0f, 0f, 20f); // 調整下方邊距，留出空間給圖例
+        lineChart.setExtraOffsets(0f, 0f, 0f, 20f); // 調整下方邊距，留出空間給圖例
 
         // 更新圖表
-        chart.invalidate(); // 刷新圖表
+        lineChart.invalidate(); // 刷新圖表
     }
 
     // 顯示新增數據的對話框
@@ -308,12 +304,6 @@ public class CardDetailActivity extends AppCompatActivity {
         heightWholePicker.setValue(150);
         heightWholePicker.setWrapSelectorWheel(false);
         heightLayout.addView(heightWholePicker);
-
-        // 小數部分選擇器
-        NumberPicker heightDecimalPicker = new NumberPicker(this);
-        heightDecimalPicker.setMinValue(0);  // 小數部分最小值為0
-        heightDecimalPicker.setMaxValue(9);  // 小數部分最大值為9
-        heightDecimalPicker.setWrapSelectorWheel(true);  // 允許循環
 
         // 小數部分選擇器
         NumberPicker heightDecimalPicker = new NumberPicker(this);
@@ -381,9 +371,7 @@ public class CardDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
-
     private void dataToServer(Map<String, String> userData, String cardType) {
-
         userData.put("userId", userId);
 
         Call<ResponseBody> updateCall = apiService.updateHeightWeightRecord(userData);
