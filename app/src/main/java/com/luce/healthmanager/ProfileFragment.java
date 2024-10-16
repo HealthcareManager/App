@@ -220,7 +220,7 @@ public class ProfileFragment extends Fragment {
                     String currency = "TWD";
                     String orderId = "order" + UUID.randomUUID().toString();
                     String packageName = "RebeccaShop";
-                    String productName = selectedProductNameInEnglish[0];
+                    String productName = selectedProductNameInEnglish[0]; // 根據選擇的方案設置產品名稱
                     int productQuantity = 1;
 
                     try {

@@ -173,7 +173,8 @@ public class HealthFragment extends Fragment {
             public void onResponse(Call<List<ExerciseRecord>> call, Response<List<ExerciseRecord>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<ExerciseRecord> records = response.body();
-    
+
+
                     if (!records.isEmpty()) {
                         // 取最新一筆紀錄顯示在卡片上
                         ExerciseRecord latestRecord = records.get(0);
