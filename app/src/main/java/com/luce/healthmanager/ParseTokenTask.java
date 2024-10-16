@@ -27,8 +27,8 @@ public class ParseTokenTask extends AsyncTask<String, Void, JSONObject> {
         JSONObject userData = null;
 
         try {
-//            URL url = new URL("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/auth/validate-token");
-            URL url = new URL("http://10.0.2.2:8080/api/auth/validate-token");
+            URL url = new URL("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/auth/validate-token");
+            //URL url = new URL("http://10.0.2.2:8080/api/auth/validate-token");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Authorization", "Bearer " + token);
@@ -49,7 +49,6 @@ public class ParseTokenTask extends AsyncTask<String, Void, JSONObject> {
             }
             userData = new JSONObject(response.toString());
             Log.d("test", "Server response: " + response.toString());
-
 
         } catch (Exception e) {
             e.printStackTrace();

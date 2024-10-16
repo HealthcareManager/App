@@ -38,13 +38,8 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     private FragmentManager fragmentManager;
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        handleCallback(intent);
-    }
+    private WebSocketManager webSocketManager;
+    String webSocketUrl = "wss://healthcaremanager.myvnc.com:8443/HealthcareManager/membership-status";
 
     @Override
     protected void onResume() {
@@ -55,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private void handleCallback(Intent intent) {
         Uri data = intent.getData();
         Log.d("LINE_PAY", "Callback URL: " + data);
+        Log.d("6660","456");
 
         if (data != null && data.toString().startsWith("com.luce.healthmanager://callback")) {
             String orderId = data.getQueryParameter("orderId");
@@ -69,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
                     boolean hasShownToast = sharedPreferences.getBoolean("hasShownToast", false);
                     if (!hasShownToast) {
+                        Log.d("6660","123");
                         // 顯示 Toast
-                        Toast.makeText(MainActivity.this, "Payment Successful", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(MainActivity.this, "Payment Successful", Toast.LENGTH_LONG).show();
 
                         // 導航到 ProfileFragment
                         replaceFragment(new ProfileFragment());
@@ -120,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 RequestBody body = RequestBody.create(requestBody.toString(), MediaType.parse("application/json"));
 
                 Request request = new Request.Builder()
-                        .url("http://10.0.2.2:8080/api/updatePaymentStatus")
+                        .url("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/updatePaymentStatus")
                         .addHeader("Authorization", "Bearer " + jwtToken) // Add JWT Token authentication
                         .put(body) // Use PUT method
                         .build();
@@ -134,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         if (response.isSuccessful()) {
+//                            String message = response.body().string();
+//                            Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
                             Log.d("PaymentUpdate", "Successfully updated user payment status");
                         } else {
                             Log.e("PaymentUpdate", "Unable to update user payment status, response code: " + response.code());
@@ -148,8 +147,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("PaymentUpdate", "Unable to find user ID");
         }
     }
-
-
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -185,6 +182,24 @@ public class MainActivity extends AppCompatActivity {
 //            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
 //            startActivity(intent);
 //            finish();
+        }
+
+        // 初始化 WebSocketManager
+        webSocketManager = new WebSocketManager(new WebSocketManager.WebSocketCallback() {
+            @Override
+            public void onMessageReceived(String message) {
+                Log.d("WebSocket at MAINACTIVITY", "Message received: " + message);
+
+                // 处理收到的消息，并根据会员状态更新 UI
+                handleWebSocketMessage(message);
+            }
+        });
+
+        // 启动 WebSocket 连接，传入 URL 和 Token
+        if (token != null && !token.isEmpty()) {
+            webSocketManager.startWebSocket(webSocketUrl, token);
+        } else {
+            Log.e("WebSocket", "JWT Token is null or empty. Cannot create WebSocket connection.");
         }
 
         // 檢查是否要顯示 HealthFragment
@@ -272,5 +287,56 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.addToBackStack(null); // 讓使用者可以返回到之前的 Fragment
         fragmentTransaction.commit();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 关闭 WebSocket 连接
+        webSocketManager.stopWebSocket();
+    }
+
+    // 处理 WebSocket 收到的消息
+    private void handleWebSocketMessage(String message) {
+        try {
+            // 假设服务器返回 JSON 格式的消息
+            JSONObject jsonMessage = new JSONObject(message);
+            String membershipStatus = jsonMessage.getString("membershipStatus");
+            Log.d("123","membershipStatus is" + membershipStatus);
+
+                if ("USER".equals(membershipStatus)) {
+                    Log.d("MembershipCheck", "會員狀態是 USER");
+
+                    // 获取 SharedPreferences 实例
+                    SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                    // 更新 role 值为 "USER"
+                    editor.putString("role", "USER");
+                    editor.apply();  // 提交更改
+
+                    // 隐藏黄冠图标并提示会员已过期
+                    runOnUiThread(() -> {
+                        //profileFragment.updateCrownIconVisibility(false);
+                        Toast.makeText(MainActivity.this, "您的會員已過期", Toast.LENGTH_SHORT).show();
+                    });
+
+                } else {
+                    Log.d("MembershipCheck", "會員狀態不是 USER");
+
+                    // 获取 SharedPreferences 实例
+                    SharedPreferences sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                    // 更新 role 值为其他值，例如 "VIP" 或其他状态
+                    editor.putString("role", "VIP");  // 假设会员没有过期时状态为 VIP
+                    editor.apply();  // 提交更改
+                }
+//            } else {
+//                Log.d("FragmentCheck", "找到的 Fragment 不是 ProfileFragment 实例");
+//            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

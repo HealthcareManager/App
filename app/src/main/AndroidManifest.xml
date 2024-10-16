@@ -40,6 +40,21 @@
                 <data android:scheme="com.luce.healthmanager" android:host="callback" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="healthcaremanager.myvnc.com"
+                    android:pathPrefix="/reset-password" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ForgotPasswordActivity" />
         <activity android:name=".AiAssistantActivity" />
         <activity android:name=".CardDetailActivity" />
         <activity android:name=".LoginActivity" />

@@ -22,93 +22,107 @@
             android:orientation="vertical">
 
             <!-- 第一個 LinearLayout -->
+
+            <!-- 第二個 LinearLayout -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:padding="16dp"
-                android:gravity="center_horizontal">
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp"
                     android:text="登入"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
                     android:textColor="@android:color/black"
-                    android:layout_marginBottom="32dp" />
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
                 <!-- 帳號輸入框 -->
                 <EditText
                     android:id="@+id/username_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:background="@android:drawable/edit_text"
                     android:hint="帳號"
                     android:inputType="text"
-                    android:padding="12dp"
-                    android:background="@android:drawable/edit_text"
-                    android:layout_marginBottom="16dp" />
+                    android:padding="12dp" />
 
                 <!-- 密碼輸入框 -->
+
+                <!-- 登入按鈕 -->
+
                 <EditText
                     android:id="@+id/password_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:background="@android:drawable/edit_text"
                     android:hint="密碼"
                     android:inputType="textPassword"
-                    android:padding="12dp"
-                    android:background="@android:drawable/edit_text"
-                    android:layout_marginBottom="32dp" />
+                    android:padding="12dp" />
 
-                <!-- 登入按鈕 -->
+                <TextView
+                    android:id="@+id/forgot_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="忘記密碼?"
+                    android:textColor="@android:color/black"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+
                 <Button
                     android:id="@+id/login_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="登入"
+                    android:layout_marginTop="16dp"
                     android:background="@color/colorPrimary"
-                    android:textColor="@android:color/white"
                     android:padding="12dp"
-                    android:textSize="16sp"
-                    android:layout_marginTop="16dp" />
+                    android:text="登入"
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp" />
 
                 <!-- 註冊按鈕 -->
                 <Button
                     android:id="@+id/register_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="註冊"
+                    android:layout_marginTop="16dp"
                     android:background="@color/colorPrimaryDark"
-                    android:textColor="@android:color/black"
                     android:padding="12dp"
-                    android:textSize="16sp"
-                    android:layout_marginTop="16dp" />
+                    android:text="註冊"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
 
                 <View
-                    android:layout_marginTop="25dp"
+                    android:layout_width="1dp"
                     android:layout_height="1dp"
-                    android:layout_width="1dp" />
+                    android:layout_marginTop="25dp" />
 
                 <!-- 第三方登入文字 -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="使用第三方登入"
-                    android:textColor="@android:color/black"
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp"
+                    android:text="使用第三方登入"
+                    android:textColor="@android:color/black"
                     android:textSize="14sp" />
 
                 <!-- 分隔線 -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@android:color/darker_gray"
                     android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp" />
+                    android:layout_marginBottom="16dp"
+                    android:background="@android:color/darker_gray" />
             </LinearLayout>
 
-            <!-- 第二個 LinearLayout -->
             <LinearLayout
                 android:id="@+id/social_login_buttons"
                 android:layout_width="match_parent"

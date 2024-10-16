@@ -41,8 +41,8 @@ import okhttp3.Response;
 
 public class ProfileFragment extends Fragment {
 
-    private static final int REQUEST_UPDATE_PROFILE = 100;
-    private String userId, jwtToken, username, userImage, role;
+    private ImageView vipImage;
+    private String jwtToken;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -64,7 +64,7 @@ public class ProfileFragment extends Fragment {
         Button loginButton = view.findViewById(R.id.login_button);// 使用 view.findViewById
         LinearLayout cardprime = view.findViewById(R.id.cardprime);
         LinearLayout aboutme = view.findViewById(R.id.aboutme);
-        ImageView vipImage = view.findViewById(R.id.vip_image);
+        vipImage = view.findViewById(R.id.vip_image);
 
         Log.d("ProfileFragment", role);
 
@@ -77,6 +77,7 @@ public class ProfileFragment extends Fragment {
             if (role.equals("VIP")) {
                 vipImage.setVisibility(View.VISIBLE);
                 vipImage.setImageDrawable(getResources().getDrawable(R.drawable.vip));
+                vipImage.setVisibility(View.VISIBLE);
             }
         } else {
             // 用戶未登入，顯示登入按鈕並隱藏登出按鈕
@@ -200,7 +201,7 @@ public class ProfileFragment extends Fragment {
                 selectedProductNameInEnglish[0] = productNamesInEnglish[which];
                 productPrice[0] = prices[which];
                 amount[0] = amounts[which];
-                Log.d("PaymentDialog", "Selected option: " + selectedOption[0] + selectedProductNameInEnglish[0] + ", Price: " + productPrice[0]);
+                Log.d("PaymentDialog", "Selected option: " + selectedOption[0] + ", Price: " + productPrice[0]);
             }
         });
 
@@ -249,7 +250,8 @@ public class ProfileFragment extends Fragment {
                         OkHttpClient client = new OkHttpClient();
                         RequestBody body = RequestBody.create(requestBody.toString().getBytes(StandardCharsets.UTF_8), MediaType.parse("application/json; charset=utf-8"));
                         Request request = new Request.Builder()
-                                .url("http://10.0.2.2:8080/api/payment") // 請求URL
+                                //.url("http://10.0.2.2:8080/api/payment") // 請求URL
+                                .url("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/payment") // 請求URL
                                 .addHeader("Authorization", "Bearer " + jwtToken) // 添加 JWT Token 驗證
                                 .post(body)
                                 .build();
@@ -367,6 +369,7 @@ public class ProfileFragment extends Fragment {
         editor.clear(); // 清除所有保存的資料
         editor.apply(); // 應用更改
 
+        Toast.makeText(getActivity(), "您已登出", Toast.LENGTH_SHORT).show();
         // 重新加載頁面
         getActivity().recreate();
     }
