@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -177,46 +176,42 @@ public class ProfileFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("購買會員");
 
-        // 會員方案和價格
-        String[] paymentOptions = {"1個月  100元", "3個月  270元", "6個月  500元", "12個月  900元"};
+        String[] paymentOptions = {"1個月", "3個月", "6個月", "12個月"};
+
         String[] productNamesInEnglish = {"VIP-1 month", "VIP-3 months", "VIP-6 months", "VIP-12 months"};
+
+        final String[] selectedOption = new String[1]; // 用於儲存用戶選擇的方案
+        final String[] selectedProductNameInEnglish = new String[1];
+        final int[] productPrice = new int[1]; // 用於儲存對應的價格
+        final int[] amount = new int[1]; // 用於儲存對應的金額
+
+        // 設定會員方案的價格
         final int[] prices = {100, 270, 500, 900};
         final int[] amounts = {100, 270, 500, 900};
 
-        // 用於存儲用戶選擇的數據
-        final String[] selectedOption = new String[1];
-        final String[] selectedProductNameInEnglish = new String[1];
-        final int[] productPrice = new int[1];
-        final int[] amount = new int[1];
+        builder.setSingleChoiceItems(paymentOptions, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                selectedOption[0] = paymentOptions[which]; // 儲存所選方案
+                SharedPreferences sharedPreferences = getContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("productName", selectedOption[0]);
+                editor.apply();
 
-        // 初始化選擇第一項
-        selectedOption[0] = paymentOptions[0];
-        selectedProductNameInEnglish[0] = productNamesInEnglish[0];
-        productPrice[0] = prices[0];
-        amount[0] = amounts[0];
-
-        // 創建一個NumberPicker
-        NumberPicker numberPicker = new NumberPicker(requireContext());
-        numberPicker.setMinValue(0);
-        numberPicker.setMaxValue(paymentOptions.length - 1);
-        numberPicker.setDisplayedValues(paymentOptions);
-
-        // 監聽用戶選擇的變化
-        numberPicker.setOnValueChangedListener((picker, oldVal, newVal) -> {
-            selectedOption[0] = paymentOptions[newVal];
-            selectedProductNameInEnglish[0] = productNamesInEnglish[newVal];
-            productPrice[0] = prices[newVal];
-            amount[0] = amounts[newVal];
+                selectedProductNameInEnglish[0] = productNamesInEnglish[which];
+                productPrice[0] = prices[which];
+                amount[0] = amounts[which];
+                Log.d("PaymentDialog", "Selected option: " + selectedOption[0] + ", Price: " + productPrice[0]);
+            }
         });
-
-        // 設置 NumberPicker 到對話框
-        builder.setView(numberPicker);
 
         // 確定按鈕
         builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Log.d("PaymentDialog", "Positive button clicked.");
                 if (selectedOption[0] != null) {
+//                    Toast.makeText(requireContext(), "您選擇了 " + selectedOption[0], Toast.LENGTH_SHORT).show();
                     String currency = "TWD";
                     String orderId = "order" + UUID.randomUUID().toString();
                     String packageName = "RebeccaShop";
@@ -238,7 +233,7 @@ public class ProfileFragment extends Fragment {
                         productObject.put("name", productName);
                         productObject.put("imageUrl", "");
                         productObject.put("quantity", productQuantity);
-                        productObject.put("price", productPrice[0]);
+                        productObject.put("price", productPrice[0]); // 設定產品價格
 
                         packageObject.put("products", new JSONArray().put(productObject));
                         requestBody.put("packages", new JSONArray().put(packageObject));
@@ -249,12 +244,15 @@ public class ProfileFragment extends Fragment {
 
                         requestBody.put("redirectUrls", redirectUrls);
 
+                        Log.d("PaymentDialog", String.valueOf(requestBody));
+
                         // 使用 OkHttpClient 發送請求
                         OkHttpClient client = new OkHttpClient();
                         RequestBody body = RequestBody.create(requestBody.toString().getBytes(StandardCharsets.UTF_8), MediaType.parse("application/json; charset=utf-8"));
                         Request request = new Request.Builder()
-                                .url("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/payment")
-                                .addHeader("Authorization", "Bearer " + jwtToken)
+                                //.url("http://10.0.2.2:8080/api/payment") // 請求URL
+                                .url("https://healthcaremanager.myvnc.com:8443/HealthcareManager/api/payment") // 請求URL
+                                .addHeader("Authorization", "Bearer " + jwtToken) // 添加 JWT Token 驗證
                                 .post(body)
                                 .build();
 
@@ -284,6 +282,7 @@ public class ProfileFragment extends Fragment {
                                                     String paymentUrl = paymentUrlObject.optString("web", null);
 
                                                     if (paymentUrl != null && !paymentUrl.isEmpty()) {
+                                                        // 跳轉到瀏覽器
                                                         Intent intent = new Intent(Intent.ACTION_VIEW);
                                                         intent.setData(Uri.parse(paymentUrl));
                                                         startActivity(intent);
@@ -318,7 +317,6 @@ public class ProfileFragment extends Fragment {
 
         builder.show();
     }
-
 
     // 每次返回頁面時重新加載用戶圖片及數據
     @Override

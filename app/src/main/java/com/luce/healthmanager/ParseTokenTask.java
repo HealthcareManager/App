@@ -50,7 +50,6 @@ public class ParseTokenTask extends AsyncTask<String, Void, JSONObject> {
             userData = new JSONObject(response.toString());
             Log.d("test", "Server response: " + response.toString());
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
