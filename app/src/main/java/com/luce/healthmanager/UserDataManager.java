@@ -33,8 +33,6 @@ public class UserDataManager {
             Log.d("at UDM","1userUsername is " + user.getUsername());
             Log.d("at UDM","1userdateOfBirth is " + String.valueOf(user.getDateOfBirth()));
 
-            editor.putBoolean("hasShownToast", !user.getRole().equals("USER"));
-
             editor.apply();
 
             // 跳转到 MainActivity
@@ -45,12 +43,11 @@ public class UserDataManager {
         } catch (Exception e) {
             e.printStackTrace();
             Log.d("test", String.valueOf(e));
-            Toast.makeText(context, "保存用户数据出错", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "保存用戶數據失敗", Toast.LENGTH_SHORT).show();
         }
     }
 
     public static void saveUserDataToPreferences(Context context, JSONObject userData) {
-
         Log.d("UserData", "Received userData: " + userData.toString());
         // 從 JSONObject 獲取用戶數據
         String username = userData.optString("username", "");
@@ -80,13 +77,9 @@ public class UserDataManager {
         Log.d("at UDM","2userRole is " + role);
         editor.apply();
 
-        editor.putBoolean("hasShownToast", !role.equals("USER"));
-
         // 跳转到 MainActivity
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra("showHealthFragment", true);
         context.startActivity(intent);
-
     }
-
 }
